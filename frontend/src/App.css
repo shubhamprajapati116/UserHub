@@ -1,0 +1,18 @@
+/* App-level overrides for react-toastify */
+.Toastify__toast {
+  font-family: var(--font);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  font-size: 0.875rem;
+}
+
+.Toastify__toast--success {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.Toastify__toast--error {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}

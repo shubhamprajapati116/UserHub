@@ -1,0 +1,30 @@
+/* eslint-disable react-refresh/only-export-components */
+import { Navigate } from "react-router-dom";
+import { observer } from "mobx-react-lite";
+import { useStore } from "../stores/StoreContext";
+import FullScreenLoader from "../components/FullscreenLoader/FullscreenLoader";
+
+function AdminRoute({ children }) {
+  const { userStore } = useStore();
+  const token = localStorage.getItem("token");
+
+  if (userStore.authLoading) {
+    return <div><FullScreenLoader></FullScreenLoader></div>;
+  }
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!userStore.currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (userStore.currentUser.role !== "admin") {
+    return <Navigate to="/profile" replace />;
+  }
+
+  return children;
+}
+
+export default observer(AdminRoute);
