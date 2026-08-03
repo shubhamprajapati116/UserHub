@@ -21,7 +21,7 @@ function UserList() {
   const navigate = useNavigate();
   const totalPages = Math.max(1, Math.ceil(totalUsers / 5));
   const users = userStore.users;
-  const loading = userStore.loading.fetchUsers;
+  const loading = userStore.loading.fetchUsers && users.length === 0;
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState("");
   const [menuState, setMenuState] = useState({
@@ -273,8 +273,8 @@ function UserList() {
                       <th>User</th>
                       <th>Email</th>
                       <th>Gender</th>
-                      <th>Date of birth</th>
                       <th>Role</th>
+                      <th>Date of birth</th>
                       {role === "admin" && (
                         <th className="actions-col">Actions</th>
                       )}
@@ -301,10 +301,11 @@ function UserList() {
                             </td>
 
                             <td>
-                              <div className="skeleton skeleton-user-date"></div>
-                            </td>
-                            <td>
                               <div className="skeleton skeleton-user-role"></div>
+                            </td>
+
+                            <td>
+                              <div className="skeleton skeleton-user-date"></div>
                             </td>
 
                             {role === "admin" && (
@@ -367,13 +368,13 @@ function UserList() {
                             <td className="email-cell">{user.email}</td>
 
                             <td>
-                              <span className="badge-gender">{user.gender}</span>
-                            </td>
-
-                            <td>
-                              {user.dob
-                                ? new Date(user.dob).toLocaleDateString("en-IN")
-                                : "Not Added"}
+                              <span
+                                className={`badge-gender ${
+                                  user.gender ? user.gender.toLowerCase() : ""
+                                }`}
+                              >
+                                {user.gender || "Not Added"}
+                              </span>
                             </td>
 
                             <td>
@@ -382,6 +383,12 @@ function UserList() {
                               ) : (
                                 <span className="user-badge">User</span>
                               )}
+                            </td>
+
+                            <td>
+                              {user.dob
+                                ? new Date(user.dob).toLocaleDateString("en-IN")
+                                : "Not Added"}
                             </td>
 
                             {role === "admin" && (

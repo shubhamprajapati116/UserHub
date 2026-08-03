@@ -117,7 +117,7 @@ function EditUser() {
                 <p>Update the user's personal and profile information.</p>
               </div>
             </div>
-
+            
             <div className="edit-user-divider" />
             <EditUserForm
               formData={formData}

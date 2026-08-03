@@ -157,12 +157,26 @@
 }
 @media (max-width: 768px) {
   .settings-body {
-    padding: 20px;
+    padding: 20px 16px;
+  }
+
+  .setting-section:not(:last-child) {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
   }
 
   .setting-card {
     flex-direction: column;
     align-items: stretch;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  /* Keep toggle switch card horizontal and cleanly aligned */
+  .setting-card:has(.switch) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .setting-card .btn {
@@ -173,11 +187,32 @@
 
 @media (max-width: 480px) {
   .settings-body {
-    padding: 16px;
+    padding: 16px 12px;
   }
 
   .setting-info {
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .setting-info h3 {
+    font-size: 0.95rem;
+  }
+
+  .setting-info p {
+    font-size: 0.8rem;
+  }
+
+  .setting-card {
+    padding: 14px 12px;
+  }
+
+  .setting-card h4 {
+    font-size: 0.88rem;
+  }
+
+  .setting-card p {
+    font-size: 0.78rem;
   }
 }

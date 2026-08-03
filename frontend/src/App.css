@@ -1,18 +1,37 @@
 /* App-level overrides for react-toastify */
 .Toastify__toast {
   font-family: var(--font);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
   font-size: 0.875rem;
+  font-weight: 500;
+  backdrop-filter: blur(12px);
+  padding: 14px 18px;
 }
 
 .Toastify__toast--success {
-  background: var(--bg-elevated);
-  color: var(--text-primary);
+  background: var(--bg-elevated) !important;
+  color: var(--text-primary) !important;
+  border-left: 4px solid var(--success) !important;
 }
 
 .Toastify__toast--error {
-  background: var(--bg-elevated);
+  background: var(--bg-elevated) !important;
+  color: var(--text-primary) !important;
+  border-left: 4px solid var(--danger) !important;
+}
+
+.Toastify__toast-icon svg {
+  fill: currentColor;
+}
+
+.Toastify__close-button {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.Toastify__close-button:hover {
   color: var(--text-primary);
+  opacity: 1;
 }
