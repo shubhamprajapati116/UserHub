@@ -21,6 +21,8 @@ import EditProfile from "./components/Editprofile/Editprofile";
 import AddUser from "./components/Adduser/AddUser";
 import { useStore } from "./stores/StoreContext";
 import Viewuser from "./components/Viewuser/Viewuser";
+import ErrorBoundary from "./components/ErrorBoundary";
+
 function App() {
   const { themeStore, userStore } = useStore();
   useEffect(() => {
@@ -44,89 +46,91 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/admin/users" replace />} />
-        <Route path="/verify-email/:token" element={<VerifyEmail />} />
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute>
-              <Settings></Settings>
-            </ProtectedRoute>
-          }
-        ></Route>
-        <Route
-          path="/settings/change-password"
-          element={
-            <ProtectedRoute>
-              <Changepassword></Changepassword>
-            </ProtectedRoute>
-          }
-        ></Route>
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Navigate to="/admin/users" replace />} />
+          <Route path="/verify-email/:token" element={<VerifyEmail />} />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings></Settings>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="/settings/change-password"
+            element={
+              <ProtectedRoute>
+                <Changepassword></Changepassword>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users/:id/view"
+            element={
+              <AdminRoute>
+                <Viewuser />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/users/:id/userEdit"
+            element={
+              <AdminRoute>
+                <EditUser />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <AdminRoute>
+                <UserList />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/profile/EditProfile"
+            element={
+              <ProtectedRoute>
+                <EditProfile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users/addNewUser"
+            element={
+              <AdminRoute>
+                <AddUser />
+              </AdminRoute>
+            }
+          />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Loginform />} />
+          <Route path="/forgotpassword" element={<Forgotpassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+        </Routes>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          theme="light"
         />
-        <Route
-          path="/admin/users/:id/view"
-          element={
-            <AdminRoute>
-              <Viewuser />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/users/:id/userEdit"
-          element={
-            <AdminRoute>
-              <EditUser />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/users"
-          element={
-            <AdminRoute>
-              <UserList />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/profile/EditProfile"
-          element={
-            <ProtectedRoute>
-              <EditProfile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/users/addNewUser"
-          element={
-            <AdminRoute>
-              <AddUser />
-            </AdminRoute>
-          }
-        />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Loginform />} />
-        <Route path="/forgotpassword" element={<Forgotpassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
-      </Routes>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-        theme="light"
-      />
-    </BrowserRouter>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

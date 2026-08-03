@@ -56,7 +56,7 @@ function AddUser() {
         setErrors({
           [error.field]: error.message,
         });
-      } else {
+      } else if (!error?.isNetworkError) {
         toast.error(error.message || "Failed to add user");
       }
     }

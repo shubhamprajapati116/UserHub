@@ -32,7 +32,7 @@ function ViewUser() {
   }, [id, userStore]);
 
   const user = userStore.editUser || {};
-  const loading = userStore.loadingUser || false;
+  const loading = userStore.loading.fetchUserById || false;
 
   return (
     <AppLayout title="User Details" subtitle="View complete user information">

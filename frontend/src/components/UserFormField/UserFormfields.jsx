@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import PasswordInput from "../PasswordInput/passwordinput";
 
-
 function UserFormFields({
   formData,
   errors,
@@ -16,7 +15,7 @@ function UserFormFields({
 }) {
   return (
     <form noValidate onSubmit={handleSubmit} className="register-form">
-      <div className="form-grid">
+      <div className="form-layout">
         <div className="form-field">
           <label className="form-label" htmlFor="name">
             Full name
@@ -31,7 +30,7 @@ function UserFormFields({
             value={formData.name}
             placeholder="John Doe"
             onChange={handleChange}
-             disabled={loading}
+            disabled={loading}
           />
 
           {errors.name && <span className="form-error">{errors.name}</span>}
@@ -50,114 +49,138 @@ function UserFormFields({
             value={formData.email}
             placeholder="you@gmail.com"
             onChange={handleChange}
-             disabled={loading}
+            disabled={loading}
           />
 
           {errors.email && <span className="form-error">{errors.email}</span>}
         </div>
-      </div>
-
-      <div className="form-field">
-        <label className="form-label" htmlFor="password">
-          Password
-        </label>
-
-        <PasswordInput
-          id="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          placeholder="Minimum 8 characters"
-          error={errors.password}
-          disabled={loading}
-        />
-      </div>
-
-      <div className="form-grid">
-        <div className="form-field">
-          <label className="form-label" htmlFor="gender">
-            Gender
-          </label>
-
-          <select
-            className="form-select"
-            id="gender"
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-              disabled={loading}
-
-          >
-            <option value="">Select gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-
-          {errors.gender && <span className="form-error">{errors.gender}</span>}
-        </div>
 
         <div className="form-field">
-          <label className="form-label" htmlFor="dob">
-            Date of birth
+          <label className="form-label" htmlFor="password">
+            Password
           </label>
 
-          <input
-            className="form-input"
-            type="date"
-            id="dob"
-            name="dob"
-            value={formData.dob}
+          <PasswordInput
+            id="password"
+            name="password"
+            value={formData.password}
             onChange={handleChange}
+            placeholder="Minimum 8 characters"
+            error={errors.password}
             disabled={loading}
           />
-
-          {errors.dob && <span className="form-error">{errors.dob}</span>}
         </div>
-      </div>
 
-      <div className="form-field">
-        <label className="form-label" htmlFor="profilephoto">
-          Profile photo
-        </label>
+        <div className="form-grid">
+          <div className="form-field">
+            <label className="form-label" htmlFor="gender">
+              Gender
+            </label>
 
-        <input
-          className="form-input"
-          type="file"
-          id="profilephoto"
-          name="profilephoto"
-          accept="image/*"
-          onChange={handleChange}
-          disabled={loading}
-        />
+            <select
+              className="form-select"
+              id="gender"
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              disabled={loading}
+            >
+              <option value="">Select gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
 
-        {errors.profilephoto && (
-          <span className="form-error">{errors.profilephoto}</span>
-        )}
-      </div>
+            {errors.gender && (
+              <span className="form-error">{errors.gender}</span>
+            )}
+          </div>
 
-      <div className="form-actions">
-        {showCancelButton && (
-          <button
-            type="button"
-            className="btn btn-outline register-submit"
-            onClick={onCancel}
-            disabled={loading}
-          >
-            Cancel
+          <div className="form-field">
+            <label className="form-label" htmlFor="dob">
+              Date of birth
+            </label>
+
+            <input
+              className="form-input"
+              type="date"
+              id="dob"
+              name="dob"
+              value={formData.dob}
+              onChange={handleChange}
+              disabled={loading}
+            />
+
+            {errors.dob && <span className="form-error">{errors.dob}</span>}
+          </div>
+        </div>
+
+        <div className="form-field">
+          <label className="form-label" htmlFor="profilephoto">
+            Profile photo
+          </label>
+
+          <div className="custom-file-upload">
+            <input
+              type="file"
+              id="profilephoto"
+              name="profilephoto"
+              accept="image/*"
+              onChange={handleChange}
+              disabled={loading}
+              className="file-input-hidden"
+            />
+            <div className="file-upload-label">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              <span className="file-upload-text">
+                {formData.profilephoto
+                  ? typeof formData.profilephoto === "object"
+                    ? formData.profilephoto.name
+                    : "Photo selected"
+                  : "Choose profile picture..."}
+              </span>
+            </div>
+          </div>
+
+          {errors.profilephoto && (
+            <span className="form-error">{errors.profilephoto}</span>
+          )}
+        </div>
+
+        <div className="form-actions">
+          {showCancelButton && (
+            <button
+              type="button"
+              className="btn btn-outline register-submit"
+              onClick={onCancel}
+              disabled={loading}
+            >
+              Cancel
+            </button>
+          )}
+
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? loadingtext : buttontext}
           </button>
-        )}
-
-        <button type="submit" className="btn btn-primary" disabled={loading}>
-          {loading ? loadingtext : buttontext}
-        </button>
-      </div>
-
-      {showLoginLink && (
-        <div className="auth-footer">
-          Already have an account?
-          <Link to="/login">Sign in</Link>
         </div>
-      )}
+
+        {showLoginLink && (
+          <div className="auth-footer">
+            Already have an account?
+            <Link to="/login">Sign in</Link>
+          </div>
+        )}
+      </div>
     </form>
   );
 }

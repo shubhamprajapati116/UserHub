@@ -84,7 +84,7 @@ function EditUser() {
         setErrors({
           [error.field]: error.message,
         });
-      } else {
+      } else if (!error?.isNetworkError) {
         toast.error(error?.message || "User update failed");
       }
     }

@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import "./Editprofile.css";
+import "./EditProfile.css";
 import EditUserForm from "../EditUserForm/EditUserForm";
 import AppLayout from "../AppLayout/AppLayout";
 import { useStore } from "../../stores/StoreContext";
@@ -35,7 +35,6 @@ function EditProfile() {
         email: currentuser.email || "",
         gender: currentuser.gender || "",
         dob: currentuser.dob?.split("T")[0] || "",
-
         phone: currentuser.phone || "",
         bio: currentuser.bio || "",
         country: currentuser.country || "",
@@ -50,17 +49,13 @@ function EditProfile() {
 
   const validateForm = () => {
     const newErrors = validateUserForm(formData);
-
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const isValid = validateForm();
-
     if (!isValid) {
       return;
     }
@@ -70,24 +65,21 @@ function EditProfile() {
 
       Object.entries(formData).forEach(([key, value]) => {
         if (key === "profilephoto") return;
-
         formDataObj.append(key, value);
       });
 
       if (formData.profilephoto instanceof File) {
         formDataObj.append("profilephoto", formData.profilephoto);
       }
-
       const data = await userStore.updateProfile(formDataObj);
       toast.success(data.message);
-
       navigate("/profile");
     } catch (error) {
       if (error?.field) {
         setErrors({
           [error.field]: error.message,
         });
-      } else {
+      } else if (!error?.isNetworkError) {
         toast.error(error?.message || "Profile update failed");
       }
     }
@@ -120,7 +112,6 @@ function EditProfile() {
                 <p>Manage your personal information and account details.</p>
               </div>
             </div>
-
             <div className="edit-profile-divider" />
 
             <EditUserForm

@@ -33,6 +33,7 @@ function UserList() {
     {
       label: "Total Users",
       value: totalUsers,
+      sub: "Total Registered",
       icon: (
         <svg
           width="20"
@@ -47,10 +48,10 @@ function UserList() {
         </svg>
       ),
     },
-
     {
       label: "Current Page",
-      value: `${page} / ${totalPages}`,
+      value: `${page}/${totalPages}`,
+      sub: `Page ${page} of ${totalPages}`,
       icon: (
         <svg
           width="20"
@@ -67,10 +68,10 @@ function UserList() {
         </svg>
       ),
     },
-
     {
       label: "Showing",
       value: users.length,
+      sub: "Users on this page",
       icon: (
         <svg
           width="20"
@@ -95,7 +96,9 @@ function UserList() {
         search: debouncedSearch.trim(),
       });
     } catch (error) {
-      toast.error(error?.message || "Failed to fetch users");
+      if (!error?.isNetworkError) {
+        toast.error(error?.message || "Failed to fetch users");
+      }
     }
   };
 
@@ -178,6 +181,9 @@ function UserList() {
                     stat.value
                   )}
                 </div>
+                {stat.sub && !loading && (
+                  <div className="stat-card-sub">{stat.sub}</div>
+                )}
               </div>
             ))}
           </div>
@@ -312,38 +318,56 @@ function UserList() {
                           <tr key={user._id}>
                             <td>
                               <div className="user-cell">
-                                <img
-                                  className="user-avatar"
-                                  src={
-                                    user.profilephoto
-                                      ? `${import.meta.env.VITE_API_URL}/uploads/${user.profilephoto}`
-                                      : "https://ui-avatars.com/api/?name=" +
-                                        encodeURIComponent(user.name)
-                                  }
-                                  alt={user.name}
-                                  onError={(e) => {
-                                    e.target.src =
-                                      "https://ui-avatars.com/api/?name=" +
-                                      encodeURIComponent(user.name);
-                                  }}
-                                  onClick={() => {
-                                    if (!user.profilephoto) return;
-
-                                    setSelectedImage(
-                                      `${import.meta.env.VITE_API_URL}/uploads/${user.profilephoto}`,
-                                    );
-                                    setShowImageModal(true);
-                                  }}
-                                />
-
-                                <span className="user-name">{user.name}</span>
+                                <div
+                                  className="user-avatar-wrapper"
+                                  style={{ position: "relative" }}
+                                >
+                                  {user.profilephoto || user.profileImage ? (
+                                    <img
+                                      src={
+                                        user.profileImage ||
+                                        `${import.meta.env.VITE_API_URL}/uploads/${user.profilephoto}`
+                                      }
+                                      alt={user.name}
+                                      className="user-avatar"
+                                      onClick={() => {
+                                        const photo =
+                                          user.profileImage ||
+                                          user.profilephoto;
+                                        if (!photo) return;
+                                        setSelectedImage(
+                                          user.profileImage ||
+                                            `${import.meta.env.VITE_API_URL}/uploads/${user.profilephoto}`,
+                                        );
+                                        setShowImageModal(true);
+                                      }}
+                                    />
+                                  ) : (
+                                    <div className="user-avatar-initials">
+                                      {user.name
+                                        ? user.name
+                                            .substring(0, 2)
+                                            .toUpperCase()
+                                        : "U"}
+                                    </div>
+                                  )}
+                                  <span className="status-dot online"></span>
+                                </div>
+                                <div className="user-info">
+                                  <span
+                                    className="user-name"
+                                    style={{ textTransform: "capitalize" }}
+                                  >
+                                    {user.name}
+                                  </span>
+                                </div>
                               </div>
                             </td>
 
                             <td className="email-cell">{user.email}</td>
 
                             <td>
-                              <span className="badge">{user.gender}</span>
+                              <span className="badge-gender">{user.gender}</span>
                             </td>
 
                             <td>
@@ -407,26 +431,31 @@ function UserList() {
             ) : (
               totalUsers > 0 && (
                 <div className="pagination">
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    disabled={page === 1}
-                    onClick={() => setpage(page - 1)}
-                  >
-                    Previous
-                  </button>
+                  <div className="pagination-info">
+                    Showing <b>{users.length}</b> of <b>{totalUsers}</b> users
+                  </div>
 
-                  <span className="page-info">
-                    Page <strong>{page}</strong> of{" "}
-                    <strong>{totalPages}</strong>
-                  </span>
-
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    disabled={page === totalPages}
-                    onClick={() => setpage(page + 1)}
-                  >
-                    Next
-                  </button>
+                  <div className="pagination-controls">
+                    <button
+                      className="btn-page"
+                      disabled={page <= 1}
+                      onClick={() => setpage((p) => Math.max(1, p - 1))}
+                    >
+                      Previous
+                    </button>
+                    <span className="page-indicator">
+                      Page <b>{page}</b> of <b>{totalPages}</b>
+                    </span>
+                    <button
+                      className="btn-page"
+                      disabled={page >= totalPages}
+                      onClick={() =>
+                        setpage((p) => Math.min(totalPages, p + 1))
+                      }
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
               )
             )}

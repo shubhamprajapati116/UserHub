@@ -42,22 +42,22 @@ function Profile() {
   }, []);
 
   const percentage = loading ? 0 : calculateProfileCompletion(user);
-  const profileInfo = [
+  const profileInfo = loading || !user ? [] : [
     {
       label: "Full Name",
-      value: user.name,
+      value: user?.name,
     },
     {
       label: "Email",
-      value: user.email,
+      value: user?.email,
     },
     {
       label: "Gender",
-      value: user.gender,
+      value: user?.gender,
     },
     {
       label: "Date of Birth",
-      value: user.dob
+      value: user?.dob
         ? new Date(user.dob).toLocaleDateString("en-IN", {
             day: "numeric",
             month: "long",
@@ -67,27 +67,27 @@ function Profile() {
     },
     {
       label: "Account Type",
-      value: user.role.charAt(0).toUpperCase() + user.role.slice(1),
+      value: user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "User",
     },
     {
       label: "Phone",
-      value: user.phone || "Not Added",
+      value: user?.phone || "Not Added",
     },
     {
       label: "Country",
-      value: user.country || "Not Added",
+      value: user?.country || "Not Added",
     },
     {
       label: "State",
-      value: user.state || "Not Added",
+      value: user?.state || "Not Added",
     },
     {
       label: "City",
-      value: user.city || "Not Added",
+      value: user?.city || "Not Added",
     },
     {
       label: "Last Login",
-      value: user.lastLogin
+      value: user?.lastLogin
         ? new Date(user.lastLogin).toLocaleDateString("en-IN", {
             day: "numeric",
             month: "long",

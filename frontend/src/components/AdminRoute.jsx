@@ -17,6 +17,9 @@ function AdminRoute({ children }) {
   }
 
   if (!userStore.currentUser) {
+    if (userStore.error?.isNetworkError) {
+      return children;
+    }
     return <Navigate to="/login" replace />;
   }
 

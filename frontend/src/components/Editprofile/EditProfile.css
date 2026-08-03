@@ -1,53 +1,45 @@
-/* ==========================================================
-   PAGE
-========================================================== */
-
 .page-container-form {
   max-width: 980px;
   margin: 0 auto;
   padding: 2rem 1.5rem 3rem;
 }
 
-/* ==========================================================
-   MAIN CARD
-========================================================== */
-
 .register-edit-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: var(--shadow-sm);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
 }
 
 .register-edit-body {
   padding: 2rem 2.25rem;
 }
 
-/* ==========================================================
-   HEADER
-========================================================== */
-
 .edit-profile-form-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 1.25rem;
+
+  margin: -2rem -2.25rem 2rem;
+  padding: 1.6rem 2.25rem;
+
+  background: linear-gradient(135deg, var(--accent-light), transparent);
+
+  border-bottom: 1px solid var(--border);
 }
 
 .edit-profile-header-icon {
-  width: 52px;
-  height: 52px;
-
-  border-radius: 12px;
-
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  background: rgba(var(--accent-rgb), 0.12);
-  color: var(--accent);
+  background: var(--accent);
+  color: white;
+  box-shadow: var(--shadow-sm);
 }
-
 .edit-profile-header-content h3 {
   margin: 0;
   font-size: 1.4rem;
@@ -56,9 +48,10 @@
 }
 
 .edit-profile-header-content p {
-  margin-top: 0.35rem;
+  margin-top: 0.45rem;
   color: var(--text-secondary);
-  line-height: 1.5;
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
 .edit-profile-divider {
@@ -73,8 +66,8 @@
 }
 
 .profile .edit-form-section {
-  padding-bottom: 2rem;
-  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
   border-bottom: 1px solid var(--border);
 }
 
@@ -86,18 +79,27 @@
 
 .profile .edit-form-section-header {
   margin-bottom: 1.5rem;
+   background: linear-gradient(
+    135deg,
+    var(--accent-light),
+    rgba(99, 102, 241, 0.08)
+  );
+  padding: 0.5rem 1.25rem;
+  border-radius: 10px;
 }
 
 .profile .edit-form-section-header h3 {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
 }
 
 .profile .edit-form-section-header p {
-  margin-top: 0.35rem;
-  font-size: 0.92rem;
+  margin-top: 0.45rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
   color: var(--text-secondary);
 }
 
@@ -105,23 +107,32 @@
   display: flex;
   align-items: center;
   gap: 2rem;
-  margin-bottom: 0.5rem;
+  padding: 1.5rem;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: var(--bg-input);
+  transition: 0.25s;
 }
-
+.profile .profile-upload-container:hover {
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+}
 .profile .profile-preview {
   width: 110px;
   height: 110px;
-  flex-shrink: 0;
-
-  border-radius: 50%;
-  overflow: hidden;
-
-  border: 2px solid var(--border);
-  background: var(--bg-secondary);
 
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: var(--bg-input);
+  box-shadow: var(--shadow-sm);
+  transition: 0.25s;
+}
+.profile .profile-preview:hover {
+  transform: scale(1.03);
 }
 
 .profile .profile-preview img {
@@ -137,8 +148,13 @@
 
 .profile .profile-upload-content {
   flex: 1;
-}
 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  gap: 0.75rem;
+}
 .profile .profile-upload-content .form-label {
   display: inline-block;
   margin-bottom: 0.75rem;
@@ -151,7 +167,7 @@
 .profile .edit-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.4rem 2rem;
+  gap: 0.3rem 2rem;
 }
 
 .profile .form-field {
@@ -179,16 +195,20 @@
   padding: 0.75rem 0.95rem;
 
   border: 1px solid var(--border);
-  border-radius: 8px;
-
-  background: var(--bg-primary);
   color: var(--text-primary);
 
   font-size: 0.94rem;
-
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background-color 0.2s,
+    transform 0.2s;
+}
+.profile .form-input:hover,
+.profile .form-select:hover,
+.profile textarea:hover {
+  background: var(--bg-elevated);
+  border-color: var(--accent);
 }
 
 .profile textarea {
@@ -206,7 +226,11 @@
 .profile textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
+  background: var(--bg-elevated);
+
+  box-shadow: 0 0 0 3px var(--accent-glow);
+
+  transform: translateY(-1px);
 }
 
 .profile .form-input:disabled,
@@ -226,24 +250,23 @@
 .profile .form-actions {
   display: flex;
   justify-content: flex-end;
+
   gap: 1rem;
 
-  margin-top: 2rem;
-  padding-top: 1.5rem;
+  padding-top: 1rem;
 
   border-top: 1px solid var(--border);
 }
-
 .profile .form-actions .btn {
-  min-width: 140px;
-  height: 44px;
+  min-width: 150px;
+  height: 48px;
 
-  border-radius: 8px;
+  border-radius: 10px;
 
   font-size: 0.9rem;
   font-weight: 600;
 
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .profile .btn-outline {
@@ -253,7 +276,7 @@
 }
 
 .profile .btn-outline:hover:not(:disabled) {
-  background: var(--bg-secondary);
+  background: var(--accent);
   border-color: var(--accent);
 }
 
@@ -264,9 +287,9 @@
 }
 
 .profile .btn-primary:hover:not(:disabled) {
-  opacity: 0.92;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
-
 .profile .btn:disabled {
   opacity: 0.65;
   cursor: not-allowed;

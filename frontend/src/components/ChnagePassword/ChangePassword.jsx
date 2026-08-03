@@ -54,7 +54,7 @@ function ChangePassword() {
         seterror({
           [error.field]: error.message,
         });
-      } else {
+      } else if (!error?.isNetworkError) {
         toast.error(error?.message || "Failed to change password");
       }
     }

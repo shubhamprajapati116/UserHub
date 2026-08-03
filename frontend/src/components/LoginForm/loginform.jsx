@@ -109,7 +109,7 @@ function Loginform() {
     } catch (error) {
       if (error?.field) {
         seterror({ [error.field]: error.message });
-      } else {
+      } else if (!error?.isNetworkError) {
         toast.error(error?.message || "Something went wrong");
       }
     }

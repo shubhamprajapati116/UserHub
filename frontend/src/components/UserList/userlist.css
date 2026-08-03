@@ -3,7 +3,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   padding: 24px;
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--shadow-md);
 }
 
 .users-stats {
@@ -11,6 +11,61 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card:hover {
+  border-color: var(--border-focus);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.12);
+}
+
+.stat-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.stat-card-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-card-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.stat-card-sub {
+  font-size: 0.75rem;
+  color: #10b981;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .users-toolbar {
@@ -82,18 +137,18 @@
   background: var(--bg-input);
 }
 .user-table th {
-  padding: 12px 20px;
+  padding: 14px 20px;
   text-align: left;
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   border-bottom: 1px solid var(--border);
 }
 
 .user-table td {
-  padding: 14px 20px;
+  padding: 16px 20px;
   font-size: 0.875rem;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border);
@@ -115,36 +170,110 @@
 .user-cell {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+}
+
+.user-avatar-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .user-avatar {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-full);
   object-fit: cover;
   border: 2px solid var(--border);
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+
+.user-avatar:hover {
+  border-color: var(--accent);
+}
+
+.user-avatar-initials {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-card);
+}
+
+.status-dot.online {
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
 }
 
 .user-name {
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
 }
 
 .email-cell {
   color: var(--text-secondary);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
 }
 
-.badge {
-  display: inline-block;
-  padding: 3px 10px;
+/* Badges */
+.badge-gender {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
   border-radius: var(--radius-full);
-  background: var(--accent-light);
-  color: var(--accent);
+  background: rgba(148, 163, 184, 0.12);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.2);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: capitalize;
+}
+
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  background: rgba(129, 140, 248, 0.16);
+  border: 1px solid rgba(129, 140, 248, 0.35);
+  color: #a5b4fc;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(129, 140, 248, 0.15);
+}
+
+.user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .action-buttons {
@@ -184,19 +313,66 @@
   color: var(--text-muted);
 }
 
+/* Pagination Layout */
 .pagination {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 16px;
-  padding: 16px 20px;
+  padding: 16px 24px;
   border-top: 1px solid var(--border);
-  background: var(--bg-input);
+  background: var(--bg-elevated);
 }
 
-.page-info {
+.pagination-info {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.pagination-info b {
+  color: var(--text-primary);
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-page {
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-page:hover:not(:disabled) {
+  background: var(--bg-hover);
+  border-color: var(--border-focus);
+  color: var(--accent);
+}
+
+.btn-page:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-indicator {
   font-size: 0.8125rem;
   color: var(--text-secondary);
+  padding: 6px 12px;
+  background: var(--bg-input);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.page-indicator b {
+  color: var(--text-primary);
 }
 
 .page-info strong {
@@ -256,9 +432,7 @@
 .menu-trigger:hover {
   background: var(--bg-hover);
 }
-/* ==========================================
-   Stats Skeleton
-========================================== */
+
 
 .skeleton-stat-icon {
   width: 20px;
@@ -277,9 +451,7 @@
   height: 26px;
   margin-top: 10px;
 }
-/* ==========================================
-   Toolbar Skeleton
-========================================== */
+
 
 .skeleton-search {
   width: 100%;
@@ -292,9 +464,7 @@
   height: 44px;
   border-radius: 10px;
 }
-/* ==========================================
-   Table Skeleton
-========================================== */
+
 
 .skeleton-user-avatar {
   width: 36px;
@@ -334,9 +504,6 @@
   height: 26px;
   border-radius: 50%;
 }
-/* ==========================================
-   Pagination Skeleton
-========================================== */
 
 .skeleton-page-btn {
   width: 90px;

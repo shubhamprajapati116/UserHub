@@ -15,7 +15,6 @@ function EditUserForm({
       onSubmit={handleSubmit}
       className={`edit-user-form ${variant}`}
     >
-      {/* ================= Personal Information ================= */}
       <section className="edit-form-section">
         <div className="edit-form-section-header">
           <h3>Profile Photo</h3>
@@ -42,7 +41,7 @@ function EditUserForm({
             <label className="form-label" htmlFor="profilephoto">
               Choose New Photo
             </label>
-
+            <p className="upload-helper">PNG, JPG up to 5MB</p>
             <input
               className="form-input"
               type="file"
@@ -66,8 +65,6 @@ function EditUserForm({
         </div>
 
         <div className="edit-form-grid">
-          {/* Name */}
-
           <div className="form-field">
             <label className="form-label" htmlFor="name">
               Full Name
@@ -87,9 +84,6 @@ function EditUserForm({
 
             {errors.name && <span className="form-error">{errors.name}</span>}
           </div>
-
-          {/* Email */}
-
           <div className="form-field">
             <label className="form-label" htmlFor="email">
               Email Address
@@ -105,11 +99,8 @@ function EditUserForm({
               onChange={handleChange}
               disabled={loading}
             />
-
             {errors.email && <span className="form-error">{errors.email}</span>}
           </div>
-
-          {/* Gender */}
 
           <div className="form-field">
             <label className="form-label" htmlFor="gender">
@@ -128,13 +119,10 @@ function EditUserForm({
               <option value="male">Male</option>
               <option value="female">Female</option>
             </select>
-
             {errors.gender && (
               <span className="form-error">{errors.gender}</span>
             )}
           </div>
-
-          {/* DOB */}
 
           <div className="form-field">
             <label className="form-label" htmlFor="dob">
@@ -153,8 +141,6 @@ function EditUserForm({
 
             {errors.dob && <span className="form-error">{errors.dob}</span>}
           </div>
-
-          {/* Phone */}
 
           <div className="form-field">
             <label className="form-label" htmlFor="phone">
@@ -177,8 +163,6 @@ function EditUserForm({
         </div>
       </section>
 
-      {/* ================= Location ================= */}
-
       <section className="edit-form-section">
         <div className="edit-form-section-header">
           <h3>Location</h3>
@@ -186,8 +170,6 @@ function EditUserForm({
         </div>
 
         <div className="edit-form-grid">
-          {/* Country */}
-
           <div className="form-field">
             <label className="form-label" htmlFor="country">
               Country
@@ -209,8 +191,6 @@ function EditUserForm({
             )}
           </div>
 
-          {/* State */}
-
           <div className="form-field">
             <label className="form-label" htmlFor="state">
               State
@@ -229,8 +209,6 @@ function EditUserForm({
 
             {errors.state && <span className="form-error">{errors.state}</span>}
           </div>
-
-          {/* City */}
 
           <div className="form-field">
             <label className="form-label" htmlFor="city">
@@ -252,8 +230,6 @@ function EditUserForm({
           </div>
         </div>
       </section>
-
-      {/* ================= About ================= */}
 
       <section className="edit-form-section">
         <div className="edit-form-section-header">

@@ -35,7 +35,9 @@ function Settings() {
         navigate("/login");
       }, 1000);
     } catch (error) {
-      toast.error(error?.message || "Failed to delete account");
+      if (!error?.isNetworkError) {
+        toast.error(error?.message || "Failed to delete account");
+      }
     }
   };
 

@@ -4,6 +4,7 @@ const { changePasswordValidation } = require("../validations/validate");
 const bcrypt = require("bcrypt");
 
 const getProfile = async (req, res) => {
+  console.log("getProfile called");
   try {
     const user = await User.findById(req.user.id).select(
       "-password -resetPasswordToken -resetPasswordExpire",
