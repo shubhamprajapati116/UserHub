@@ -5,7 +5,7 @@ const userSchema = joi.object({
   email: joi.string().trim().email().required(),
   password: joi.string().min(8).required(),
   dob: joi.date().required(),
-  gender: joi.string().valid("male", "female").required(),
+  gender: joi.string().valid("male", "female", "other").required(),
 });
 
 const loginschema = joi.object({
@@ -17,7 +17,7 @@ const updateUserSchema = joi.object({
   name: joi.string().trim().min(3).max(50).required(),
   email: joi.string().trim().email().required(),
   dob: joi.date().required(),
-  gender: joi.string().valid("male", "female").required(),
+  gender: joi.string().valid("male", "female", "other").required(),
   phone: joi.string().trim().allow("").optional(),
   bio: joi.string().trim().max(500).allow("").optional(),
   country: joi.string().trim().max(100).allow("").optional(),

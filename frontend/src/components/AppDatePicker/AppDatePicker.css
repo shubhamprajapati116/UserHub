@@ -1,0 +1,198 @@
+/* ─── AppDatePicker Modern Design & Theme ─── */
+
+.app-datepicker-wrapper {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ensure react-datepicker's inner wrapper takes 100% width */
+.app-datepicker-wrapper .react-datepicker-wrapper {
+  width: 100%;
+  display: block;
+}
+
+/* Calendar icon inside input */
+.dp-calendar-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  opacity: 0.85;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.app-datepicker-wrapper:focus-within .dp-calendar-icon {
+  color: var(--accent);
+  opacity: 1;
+}
+
+/* The input itself — match existing .form-input style */
+.dp-input {
+  width: 100% !important;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 36px 0 12px !important;
+  cursor: pointer;
+  box-sizing: border-box !important;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.dp-input:hover {
+  border-color: var(--accent);
+}
+
+.dp-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--bg-card);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.dp-error .dp-input {
+  border-color: var(--danger) !important;
+}
+
+/* ─── Popper / Calendar Popup Card ─── */
+.react-datepicker-popper {
+  z-index: 9999 !important;
+  padding-top: 6px !important;
+}
+
+.app-dp-calendar {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2) !important;
+  font-family: var(--font) !important;
+  overflow: hidden;
+  padding: 8px 10px 12px !important;
+}
+
+/* Header row — month/year dropdowns */
+.app-dp-calendar .react-datepicker__header {
+  background: transparent !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 4px 4px 10px !important;
+}
+
+.app-dp-calendar .react-datepicker__current-month {
+  color: var(--text-primary) !important;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+/* Month / Year dropdowns */
+.app-dp-calendar .react-datepicker__month-select,
+.app-dp-calendar .react-datepicker__year-select {
+  background: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+  padding: 4px 8px !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  outline: none !important;
+  margin: 0 4px !important;
+  transition: border-color 0.2s ease;
+}
+
+.app-dp-calendar .react-datepicker__month-select:hover,
+.app-dp-calendar .react-datepicker__year-select:hover {
+  border-color: var(--accent) !important;
+}
+
+/* Nav arrows */
+.app-dp-calendar .react-datepicker__navigation {
+  top: 10px !important;
+}
+
+.app-dp-calendar .react-datepicker__navigation-icon::before {
+  border-color: var(--text-secondary) !important;
+  border-width: 2px 2px 0 0 !important;
+}
+
+.app-dp-calendar .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+  border-color: var(--accent) !important;
+}
+
+/* Day-of-week header */
+.app-dp-calendar .react-datepicker__day-name {
+  color: var(--text-secondary) !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  width: 32px !important;
+  line-height: 32px !important;
+  margin: 2px !important;
+}
+
+/* Individual day cells */
+.app-dp-calendar .react-datepicker__day {
+  color: var(--text-primary) !important;
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  margin: 2px !important;
+  border-radius: 8px !important;
+  transition: all 0.15s ease !important;
+  font-size: 0.82rem !important;
+  font-weight: 500;
+}
+
+.app-dp-calendar .react-datepicker__day:hover {
+  background: var(--accent-light) !important;
+  color: var(--accent) !important;
+  font-weight: 700 !important;
+}
+
+/* Selected day */
+.app-dp-calendar .react-datepicker__day--selected,
+.app-dp-calendar .react-datepicker__day--keyboard-selected {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 8px var(--accent-glow) !important;
+}
+
+/* Today highlight */
+.app-dp-calendar .react-datepicker__day--today {
+  font-weight: 700 !important;
+  border: 1px solid var(--accent) !important;
+  color: var(--accent) !important;
+}
+
+.app-dp-calendar .react-datepicker__day--today.react-datepicker__day--selected {
+  color: #ffffff !important;
+  border: none !important;
+}
+
+/* Outside month days */
+.app-dp-calendar .react-datepicker__day--outside-month {
+  color: var(--text-muted) !important;
+  opacity: 0.35 !important;
+}
+
+/* Disabled days */
+.app-dp-calendar .react-datepicker__day--disabled {
+  opacity: 0.25 !important;
+  cursor: not-allowed !important;
+}
+
+/* Triangle arrow on popper */
+.react-datepicker__triangle {
+  display: none !important;
+}

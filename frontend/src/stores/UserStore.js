@@ -29,6 +29,8 @@ class UserStore {
     resetPassword: false,
     deleteAccount: false,
     verifyEmail: false,
+    experience: false,
+    notificationPreferences: false,
   };
   error = null;
   users = [];
@@ -99,7 +101,12 @@ class UserStore {
 
       localStorage.setItem("token", response.token);
 
-      await this.fetchProfile();
+      runInAction(() => {
+        if (response.user) {
+          this.currentUser = response.user;
+          localStorage.setItem("user", JSON.stringify(response.user));
+        }
+      });
 
       return response;
     } catch (error) {
@@ -115,19 +122,36 @@ class UserStore {
     }
   }
 
-  async fetchUsers({ page, limit, search }) {
+  async fetchUsers({
+    page = 1,
+    limit = 5,
+    search = "",
+    role = "",
+    gender = "",
+    country = "",
+    sortBy = "createdAt",
+    sortOrder = "desc",
+  } = {}) {
     if (this.loading.fetchUsers) return;
 
     this.loading.fetchUsers = true;
     this.error = null;
 
     try {
-      const response = await apirequest(
-        `/Users?page=${page}&limit=${limit}&search=${search}`,
-        {
-          headers: getAuthHeaders(),
-        },
-      );
+      const queryParams = new URLSearchParams({
+        page,
+        limit,
+        search,
+        role,
+        gender,
+        country,
+        sortBy,
+        sortOrder,
+      }).toString();
+
+      const response = await apirequest(`/api/admin/users?${queryParams}`, {
+        headers: getAuthHeaders(),
+      });
 
       runInAction(() => {
         this.users = response.users;
@@ -147,6 +171,7 @@ class UserStore {
       });
     }
   }
+
   async register(formData) {
     if (this.loading.register) return;
 
@@ -173,65 +198,6 @@ class UserStore {
     }
   }
 
-  async updateUser(id, formData) {
-    if (this.loading.updateUser) return;
-
-    this.loading.updateUser = true;
-    this.error = null;
-
-    try {
-      const response = await apirequest(`/Users/${id}`, {
-        method: "PUT",
-        headers: getAuthHeaders(),
-        body: formData,
-      });
-
-      runInAction(() => {
-        this.error = null;
-      });
-
-      return response;
-    } catch (error) {
-      runInAction(() => {
-        this.error = error;
-      });
-
-      throw error;
-    } finally {
-      runInAction(() => {
-        this.loading.updateUser = false;
-      });
-    }
-  }
-  async deleteUser(id) {
-    if (this.loading.deleteUser) return;
-
-    this.loading.deleteUser = true;
-    this.error = null;
-
-    try {
-      const response = await apirequest(`/Users/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders(),
-      });
-
-      runInAction(() => {
-        this.error = null;
-      });
-
-      return response;
-    } catch (error) {
-      runInAction(() => {
-        this.error = error;
-      });
-
-      throw error;
-    } finally {
-      runInAction(() => {
-        this.loading.deleteUser = false;
-      });
-    }
-  }
   async updateProfile(formData) {
     if (this.loading.updateProfile) return;
 
@@ -264,6 +230,125 @@ class UserStore {
     }
   }
 
+  async updateUser(id, formData) {
+    if (this.loading.updateUser) return;
+
+    this.loading.updateUser = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest(`/api/admin/users/${id}`, {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: formData,
+      });
+
+      runInAction(() => {
+        this.error = null;
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.updateUser = false;
+      });
+    }
+  }
+
+  async bulkDeleteUsers(userIds) {
+    if (this.loading.bulkDelete) return;
+
+    this.loading.bulkDelete = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest("/api/admin/users/bulk-delete", {
+        method: "POST",
+        headers: {
+          ...getAuthHeaders(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userIds }),
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.bulkDelete = false;
+      });
+    }
+  }
+
+  async bulkUpdateUserRole(userIds, role) {
+    if (this.loading.bulkRole) return;
+
+    this.loading.bulkRole = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest("/api/admin/users/bulk-role", {
+        method: "PUT",
+        headers: {
+          ...getAuthHeaders(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userIds, role }),
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.bulkRole = false;
+      });
+    }
+  }
+
+  async deleteUser(id) {
+    if (this.loading.deleteUser) return;
+
+    this.loading.deleteUser = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest(`/api/admin/users/${id}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+
+      runInAction(() => {
+        this.error = null;
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.deleteUser = false;
+      });
+    }
+  }
+
   async addUser(formData) {
     if (this.loading.addUser) return;
 
@@ -271,7 +356,7 @@ class UserStore {
     this.error = null;
 
     try {
-      const response = await apirequest("/admin/users", {
+      const response = await apirequest("/api/admin/users", {
         method: "POST",
         headers: getAuthHeaders(),
         body: formData,
@@ -294,6 +379,7 @@ class UserStore {
       });
     }
   }
+
   async makeAdmin(id) {
     if (this.loading.makeAdmin) return;
 
@@ -301,7 +387,7 @@ class UserStore {
     this.error = null;
 
     try {
-      const response = await apirequest(`/users/${id}/make-admin`, {
+      const response = await apirequest(`/api/admin/users/${id}/role`, {
         method: "PUT",
         headers: getAuthHeaders(),
       });
@@ -535,11 +621,154 @@ class UserStore {
       runInAction(() => {
         this.error = error;
       });
-
       throw error;
     } finally {
       runInAction(() => {
         this.loading.verifyEmail = false;
+      });
+    }
+  }
+
+  async addExperience(expData) {
+    if (this.loading.experience) return;
+    this.loading.experience = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest("/profile/experience", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify(expData),
+      });
+
+      runInAction(() => {
+        this.error = null;
+        if (response.user) {
+          this.currentUser = response.user;
+          localStorage.setItem("user", JSON.stringify(response.user));
+        }
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.experience = false;
+      });
+    }
+  }
+
+  async updateExperience(expId, expData) {
+    if (this.loading.experience) return;
+    this.loading.experience = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest(`/profile/experience/${expId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify(expData),
+      });
+
+      runInAction(() => {
+        this.error = null;
+        if (response.user) {
+          this.currentUser = response.user;
+          localStorage.setItem("user", JSON.stringify(response.user));
+        }
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.experience = false;
+      });
+    }
+  }
+
+  async deleteExperience(expId) {
+    if (this.loading.experience) return;
+    this.loading.experience = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest(`/profile/experience/${expId}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+
+      runInAction(() => {
+        this.error = null;
+        if (response.user) {
+          this.currentUser = response.user;
+          localStorage.setItem("user", JSON.stringify(response.user));
+        }
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.experience = false;
+      });
+    }
+  }
+
+  async updateNotificationPreferences(preferences) {
+    if (this.loading.notificationPreferences) return;
+    this.loading.notificationPreferences = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest("/notification-preferences", {
+        method: "PUT",
+        headers: {
+          ...getAuthHeaders(),
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(preferences),
+      });
+
+      runInAction(() => {
+        this.error = null;
+        if (response.user) {
+          this.currentUser = response.user;
+          localStorage.setItem("user", JSON.stringify(response.user));
+        } else if (response.notificationPreferences && this.currentUser) {
+          this.currentUser.notificationPreferences =
+            response.notificationPreferences;
+          localStorage.setItem("user", JSON.stringify(this.currentUser));
+        }
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.notificationPreferences = false;
       });
     }
   }

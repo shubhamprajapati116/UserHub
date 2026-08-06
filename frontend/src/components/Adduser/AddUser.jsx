@@ -1,5 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
-// import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import AppLayout from "../AppLayout/AppLayout";
@@ -64,7 +62,7 @@ function AddUser() {
   return (
     <AppLayout title="Add User" subtitle="Create a new user account">
       <div className="page-container-form">
-        <div className="card register-edit-card">
+        <div className="register-edit-card">
           <div className="register-edit-body">
             <div className="edit-user-form-header">
               <div className="edit-user-header-icon">

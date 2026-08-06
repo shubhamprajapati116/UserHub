@@ -5,7 +5,8 @@ import "../ForgotPassword/forgotpassword.css";
 import { toast } from "react-toastify";
 import { useStore } from "../../stores/StoreContext";
 import { observer } from "mobx-react-lite";
-import PasswordInput from "../PasswordInput/passwordinput";
+import AuthBrandPanel from "../AuthBrandPanel/AuthBrandPanel";
+
 function ResetPassword() {
   const { token } = useParams();
   const { userStore } = useStore();
@@ -63,19 +64,11 @@ function ResetPassword() {
 
   return (
     <div className="auth-split">
-      <div className="auth-split-brand">
-        <div className="auth-brand-content">
-          <div className="auth-brand-logo">
-            <div className="auth-brand-logo-icon">U</div>
-            <span>UserHub</span>
-          </div>
-          <h1 className="auth-brand-headline">Create a new password</h1>
-          <p className="auth-brand-desc">
-            Choose a strong password to keep your account secure. Use at least 8
-            characters with a mix of letters and numbers.
-          </p>
-        </div>
-      </div>
+      <AuthBrandPanel
+        title="Create a new password"
+        subtitle="Choose a strong password to keep your account secure. Use at least 8 characters with a mix of letters and numbers."
+        type="login"
+      />
 
       <div className="auth-split-form">
         <div className="auth-form-wrap">

@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../../stores/StoreContext";
 import { observer } from "mobx-react-lite";
+import AuthBrandPanel from "../AuthBrandPanel/AuthBrandPanel";
 
 function Forgotpassword() {
   const [error, seterror] = useState("");
@@ -41,19 +42,11 @@ function Forgotpassword() {
 
   return (
     <div className="auth-split">
-      <div className="auth-split-brand">
-        <div className="auth-brand-content">
-          <div className="auth-brand-logo">
-            <div className="auth-brand-logo-icon">U</div>
-            <span>UserHub</span>
-          </div>
-          <h1 className="auth-brand-headline">Forgot your password?</h1>
-          <p className="auth-brand-desc">
-            No worries — we&apos;ll send you a secure link to reset your
-            password and get back into your account.
-          </p>
-        </div>
-      </div>
+      <AuthBrandPanel
+        title="Forgot your password?"
+        subtitle="No worries — we'll send you a secure link to reset your password and get back into your account."
+        type="login"
+      />
 
       <div className="auth-split-form">
         <div className="auth-form-wrap">

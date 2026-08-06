@@ -10,13 +10,65 @@
   margin: 0 auto;
 }
 
-.register-header {
-  margin-bottom: 32px;
+/* ── Add User / Register Page Container ── */
+.page-container-form {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+  width: 100%;
 }
-.form-layout{
-    display:flex;
-    flex-direction:column;
-    
+
+.register-edit-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl, 16px);
+  box-shadow: var(--shadow-md, 0 4px 20px rgba(0, 0, 0, 0.2));
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.edit-user-form-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 1.25rem;
+}
+
+.edit-user-header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  color: #818cf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.edit-user-header-content h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.edit-user-header-content p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.edit-user-divider {
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 1.5rem;
+}
+
+.form-layout {
+  display: flex;
+  flex-direction: column;
 }
 .register-title-block h2 {
   font-size: 1.5rem;
@@ -116,31 +168,44 @@
   }
 }
 
-@media (max-width:768px){
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
 
-.form-grid{
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
 
-grid-template-columns:repeat(2,minmax(0,1fr));
-
-gap:18px;
-
+  .form-actions .btn {
+    width: 100%;
+  }
 }
 
-.form-actions{
+@media (max-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 
-flex-direction:column-reverse;
-
-}
-
-.form-actions .btn{
-
-width:100%;
-
-}
-
-}
-@media (max-width: 480px) {
   .register-split .register-form-side {
-    padding: 24px 16px;
+    padding: 20px 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-container-form {
+    padding: 0.75rem 0.5rem 2rem;
+  }
+
+  .register-edit-card {
+    padding: 1.25rem 1rem;
+    border-radius: 12px;
+  }
+
+  .register-split .register-form-side {
+    padding: 16px 12px;
   }
 }

@@ -5,10 +5,10 @@ import { FiEye, FiEdit2, FiTrash2 } from "react-icons/fi";
 import {
   useFloating,
   offset,
-  //   flip,
   shift,
   autoUpdate,
 } from "@floating-ui/react";
+
 function UserActionMenu({
   reference,
   user,
@@ -30,6 +30,7 @@ function UserActionMenu({
     ],
     whileElementsMounted: autoUpdate,
   });
+
   useLayoutEffect(() => {
     if (reference) {
       refs.setReference(reference);
@@ -54,6 +55,7 @@ function UserActionMenu({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [reference, refs, onClose]);
+
   useEffect(() => {
     function handleKeyDown(e) {
       if (e.key === "Escape") {
@@ -71,16 +73,18 @@ function UserActionMenu({
   if (!reference) {
     return null;
   }
+
   return createPortal(
     <div
-      // eslint-disable-next-line react-hooks/refs
       ref={refs.setFloating}
       className="dropdown-menu"
       style={floatingStyles}
+      onClick={(e) => e.stopPropagation()}
     >
       <button
         className="dropdown-item"
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation();
           onClose();
           navigate(`/admin/users/${user._id}/view`);
         }}
@@ -91,7 +95,8 @@ function UserActionMenu({
 
       <button
         className="dropdown-item"
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation();
           onClose();
           navigate(`/admin/users/${user._id}/userEdit`);
         }}
@@ -103,7 +108,8 @@ function UserActionMenu({
       {user.role !== "admin" && (
         <button
           className="dropdown-item"
-          onClick={async () => {
+          onClick={async (e) => {
+            e.stopPropagation();
             try {
               await makeUserAdmin(user._id);
             } finally {
@@ -121,7 +127,8 @@ function UserActionMenu({
 
       <button
         className="dropdown-item danger"
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation();
           onClose();
           setDeleteId(user._id);
           setShowModal(true);

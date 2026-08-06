@@ -1,0 +1,125 @@
+.del-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 21000;
+  padding: 20px;
+  animation: delFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes delFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.del-modal-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  padding: 28px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.del-modal-icon-wrap {
+  margin-bottom: 16px;
+}
+
+.del-modal-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.15);
+}
+
+.del-modal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.del-modal-desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+}
+
+.del-item-preview {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.del-item-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.del-item-sub {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #818cf8;
+}
+
+.del-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.del-cancel-btn {
+  flex: 1;
+  padding: 10px 16px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+}
+
+.del-confirm-btn {
+  flex: 1;
+  padding: 10px 16px;
+  font-weight: 600;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.del-confirm-btn:hover:not(:disabled) {
+  background: #dc2626;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+  transform: translateY(-1px);
+}

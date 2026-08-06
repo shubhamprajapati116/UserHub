@@ -9,7 +9,7 @@ function AdminRoute({ children }) {
   const token = localStorage.getItem("token");
 
   if (userStore.authLoading) {
-    return <div><FullScreenLoader></FullScreenLoader></div>;
+    return <FullScreenLoader />;
   }
 
   if (!token) {

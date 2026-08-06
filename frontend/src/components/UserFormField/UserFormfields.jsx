@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import PasswordInput from "../PasswordInput/passwordinput";
+import AppDatePicker from "../AppDatePicker/AppDatePicker";
+import CustomSelect from "../CustomSelect/CustomSelect";
 
 function UserFormFields({
   formData,
@@ -77,18 +79,20 @@ function UserFormFields({
               Gender
             </label>
 
-            <select
-              className="form-select"
+            <CustomSelect
               id="gender"
               name="gender"
               value={formData.gender}
               onChange={handleChange}
               disabled={loading}
-            >
-              <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
+              placeholder="Select gender"
+              error={!!errors.gender}
+              options={[
+                { label: "Male", value: "male" },
+                { label: "Female", value: "female" },
+                { label: "Other", value: "other" },
+              ]}
+            />
 
             {errors.gender && (
               <span className="form-error">{errors.gender}</span>
@@ -100,14 +104,15 @@ function UserFormFields({
               Date of birth
             </label>
 
-            <input
-              className="form-input"
-              type="date"
+            <AppDatePicker
               id="dob"
               name="dob"
               value={formData.dob}
               onChange={handleChange}
               disabled={loading}
+              maxDate={new Date()}
+              placeholderText="Select date of birth"
+              error={!!errors.dob}
             />
 
             {errors.dob && <span className="form-error">{errors.dob}</span>}

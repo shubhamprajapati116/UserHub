@@ -4,74 +4,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import PasswordInput from "../PasswordInput/passwordinput";
+import AuthBrandPanel from "../AuthBrandPanel/AuthBrandPanel";
 import { useStore } from "../../stores/StoreContext";
 import { observer } from "mobx-react-lite";
-function AuthBrandPanel() {
-  return (
-    <div className="auth-split-brand">
-      <div className="auth-brand-content">
-        <div className="auth-brand-logo">
-          <div className="auth-brand-logo-icon">U</div>
-          <span>UserHub</span>
-        </div>
-        <h1 className="auth-brand-headline">Manage users with confidence</h1>
-        <p className="auth-brand-desc">
-          A secure platform for user management, profile updates, and account
-          settings — built for teams.
-        </p>
-      </div>
-      <div className="auth-brand-features">
-        <div className="auth-brand-feature">
-          <span className="auth-brand-feature-icon">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-          </span>
-          Secure authentication & role-based access
-        </div>
-        <div className="auth-brand-feature">
-          <span className="auth-brand-feature-icon">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-            </svg>
-          </span>
-          Complete user profile management
-        </div>
-        <div className="auth-brand-feature">
-          <span className="auth-brand-feature-icon">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-          </span>
-          Password reset & account security
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function Loginform() {
   const { userStore } = useStore();
@@ -117,7 +52,11 @@ function Loginform() {
 
   return (
     <div className="auth-split">
-      <AuthBrandPanel />
+      <AuthBrandPanel
+        title="Manage users with confidence"
+        subtitle="A secure platform for user management, profile updates, and account settings — built for teams."
+        type="login"
+      />
       <div className="auth-split-form">
         <div className="auth-form-wrap">
           <div className="auth-mobile-logo">

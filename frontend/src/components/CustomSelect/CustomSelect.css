@@ -1,0 +1,118 @@
+.custom-form-select-wrapper {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.custom-form-select-btn {
+  width: 100%;
+  height: 38px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.custom-form-select-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.custom-form-select-wrapper.open .custom-form-select-btn {
+  border-color: var(--accent);
+  background: var(--bg-card);
+  box-shadow: 0 0 0 3px var(--accent-glow, rgba(99, 102, 241, 0.15));
+}
+
+.custom-form-select-wrapper.has-error .custom-form-select-btn {
+  border-color: var(--danger, #ef4444);
+}
+
+.custom-form-select-wrapper.disabled .custom-form-select-btn {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.placeholder-text {
+  color: var(--text-muted, #94a3b8);
+}
+
+.selected-text {
+  color: var(--text-primary);
+}
+
+.select-chevron {
+  color: var(--text-muted);
+  transition: transform 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.select-chevron.rotate {
+  transform: rotate(180deg);
+  color: var(--accent, #6366f1);
+}
+
+.custom-form-select-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: var(--bg-elevated, #1e293b);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 10px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.1);
+  padding: 5px;
+  z-index: 99999;
+  animation: selectFadeIn 0.15s ease-out forwards;
+  max-height: 220px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+@keyframes selectFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.custom-form-select-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: var(--radius-md, 6px);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.custom-form-select-item:hover {
+  background: rgba(99, 102, 241, 0.14);
+  color: var(--text-primary);
+}
+
+.custom-form-select-item.active {
+  background: rgba(99, 102, 241, 0.22);
+  color: var(--accent, #818cf8);
+  font-weight: 600;
+}

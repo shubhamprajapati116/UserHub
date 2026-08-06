@@ -1,0 +1,169 @@
+.cropper-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.cropper-modal-card {
+  width: 100%;
+  max-width: 460px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.cropper-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cropper-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.cropper-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-md);
+  transition: all var(--transition);
+}
+
+.cropper-close-btn:hover:not(:disabled) {
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.cropper-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cropper-instruction {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* ── Enlarged Cropper Stage Container ── */
+.cropper-stage {
+  position: relative;
+  width: 360px;
+  height: 350px;
+  background: #090d16;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: none;
+  border: 1px solid var(--border);
+}
+
+/* ── Enlarged 280px Circular Crop Mask Ring ── */
+.cropper-circle-ring {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  border: 3px solid #818cf8;
+  box-shadow: 0 0 0 9999px rgba(7, 10, 19, 0.72), 0 0 18px rgba(129, 140, 248, 0.55);
+  pointer-events: none;
+  z-index: 10;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.cropper-target-img {
+  position: absolute;
+  max-width: none !important;
+  max-height: none !important;
+  min-width: 300px;
+  min-height: 300px;
+  width: auto;
+  height: auto;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  user-select: none;
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.cropper-target-img.loaded {
+  opacity: 1;
+}
+
+/* ── Zoom Controls Bar ── */
+.cropper-controls {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.zoom-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+
+.zoom-btn:hover:not(:disabled) {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.cropper-zoom-range {
+  flex: 1;
+  height: 6px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.cropper-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-input);
+}

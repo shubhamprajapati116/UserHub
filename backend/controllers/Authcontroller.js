@@ -126,6 +126,7 @@ const registeruser = async (req, res) => {
   }
 };
 const loginuser = async (req, res) => {
+  
   const { error } = loginschema.validate(req.body);
   if (error) {
     return res.status(400).json({
@@ -160,7 +161,62 @@ const loginuser = async (req, res) => {
       message: "Invalid password",
     });
   }
+
+  // Extract User Agent & Client IP
+  const currentUA = req.headers["user-agent"] || "Unknown Browser / Device";
+  const currentIp =
+    req.ip ||
+    req.headers["x-forwarded-for"] ||
+    req.socket.remoteAddress ||
+    "127.0.0.1";
+
+  const isSecurityAlertEnabled =
+    user.notificationPreferences?.securityLoginAlerts !== false;
+  const previousUA = user.lastDeviceInfo?.userAgent;
+
+  // Check if User-Agent is new or changed (or first time logging in)
+  const isNewDevice = !previousUA || previousUA !== currentUA;
+
+  if (isNewDevice && isSecurityAlertEnabled) {
+    const loginTime = new Date().toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+    });
+    try {
+      await sendEmail(
+        user.email,
+        "Security Alert: New Device Login Detected",
+        `
+        <div style="max-width:600px; margin:auto; padding:30px; font-family:Arial,sans-serif; border:1px solid #e2e8f0; border-radius:10px; background-color:#ffffff;">
+          <h1 style="color:#2563eb; margin-bottom:10px;">UserHub Security</h1>
+          <h2 style="color:#1e293b; font-size:20px;">New Device Login Detected</h2>
+          <p style="color:#475569; font-size:15px; line-height:1.6;">
+            A new login was detected on your <strong>UserHub</strong> account from a new browser or device.
+          </p>
+          <div style="background-color:#f8fafc; padding:15px; border-left:4px solid #2563eb; border-radius:4px; margin:20px 0;">
+            <p style="margin:5px 0; color:#334155;"><strong>Time:</strong> ${loginTime} (IST)</p>
+            <p style="margin:5px 0; color:#334155;"><strong>Device / Browser:</strong> ${currentUA}</p>
+            <p style="margin:5px 0; color:#334155;"><strong>IP Address:</strong> ${currentIp}</p>
+          </div>
+          <p style="color:#64748b; font-size:14px;">
+            If this was you, no action is needed.<br/>
+            If you did not initiate this login, please change your password immediately to secure your account.
+          </p>
+          <hr style="border:none; border-top:1px solid #e2e8f0; margin:25px 0;" />
+          <small style="color:#94a3b8;">© 2026 UserHub Security Team. All rights reserved.</small>
+        </div>
+        `,
+      );
+    } catch (err) {
+      console.error("❌ Error sending security email:", err.message);
+    }
+  }
+
   user.lastLogin = new Date();
+  user.lastDeviceInfo = {
+    userAgent: currentUA,
+    ip: currentIp,
+    lastLoginAt: new Date(),
+  };
   await user.save();
 
   const token = jwt.sign(
@@ -179,7 +235,7 @@ const loginuser = async (req, res) => {
   delete userData.password;
   delete userData.resetPasswordToken;
   delete userData.resetPasswordExpire;
-
+  // console.log("✅ Login successful for:", userData);
   res.json({
     message: "Login Successfully",
     token,
@@ -226,7 +282,7 @@ const forgotpassword = async (req, res) => {
       <p>
         Click the button below to create a new password.
       </p>
-
+      
       <a
         href="${resetlink}"
         style="
@@ -249,7 +305,6 @@ const forgotpassword = async (req, res) => {
         If you did not request this password reset,
         please ignore this email.
       </p>
-
       <hr />
 
       <small>

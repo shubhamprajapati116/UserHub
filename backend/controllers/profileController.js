@@ -4,7 +4,6 @@ const { changePasswordValidation } = require("../validations/validate");
 const bcrypt = require("bcrypt");
 
 const getProfile = async (req, res) => {
-  console.log("getProfile called");
   try {
     const user = await User.findById(req.user.id).select(
       "-password -resetPasswordToken -resetPasswordExpire",
@@ -24,8 +23,6 @@ const getProfile = async (req, res) => {
   }
 };
 const updateProfile = async (req, res) => {
-   console.log("BODY:", req.body);
-  console.log("FILE:", req.file);
   try {
     const existingUser = await User.findOne({
       email: req.body.email,
@@ -126,10 +123,147 @@ const changepassword = async (req, res) => {
     });
   }
 };
+const addExperience = async (req, res) => {
+  try {
+    const {
+      title,
+      company,
+      employmentType,
+      location,
+      startDate,
+      endDate,
+      isCurrent,
+      description,
+    } = req.body;
+    if (!title || !company || !startDate) {
+      return res
+        .status(400)
+        .json({ message: "Title, Company, and Start Date are required" });
+    }
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.experience.unshift({
+      title,
+      company,
+      employmentType: employmentType || "Full-time",
+      location: location || "",
+      startDate,
+      endDate: isCurrent ? null : endDate,
+      isCurrent: Boolean(isCurrent),
+      description: description || "",
+    });
+
+    await user.save();
+    return res
+      .status(200)
+      .json({ message: "Experience added successfully", user });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const updateExperienceItem = async (req, res) => {
+  try {
+    const { expId } = req.params;
+    const {
+      title,
+      company,
+      employmentType,
+      location,
+      startDate,
+      endDate,
+      isCurrent,
+      description,
+    } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const expItem = user.experience.id(expId);
+
+    if (!expItem)
+      return res.status(404).json({ message: "Experience entry not found" });
+
+    if (title) expItem.title = title;
+    if (company) expItem.company = company;
+    if (employmentType) expItem.employmentType = employmentType;
+    if (location !== undefined) expItem.location = location;
+    if (startDate) expItem.startDate = startDate;
+    expItem.isCurrent = Boolean(isCurrent);
+    expItem.endDate = isCurrent ? null : endDate;
+    if (description !== undefined) expItem.description = description;
+
+    await user.save();
+    return res
+      .status(200)
+      .json({ message: "Experience updated successfully", user });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const deleteExperienceItem = async (req, res) => {
+  try {
+    const { expId } = req.params;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.experience = user.experience.filter(
+      (item) => item._id.toString() !== expId,
+    );
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ message: "Experience deleted successfully", user });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const updateNotificationPreferences = async (req, res) => {
+  try {
+    const { securityLoginAlerts } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (!user.notificationPreferences) {
+      user.notificationPreferences = {
+        securityLoginAlerts: true,
+      };
+    }
+
+    if (securityLoginAlerts !== undefined) {
+      user.notificationPreferences.securityLoginAlerts =
+        Boolean(securityLoginAlerts);
+    }
+
+    await user.save();
+
+    const updatedUser = user.toObject();
+    delete updatedUser.password;
+    delete updatedUser.resetPasswordToken;
+    delete updatedUser.resetPasswordExpire;
+
+    return res.status(200).json({
+      message: "Notification preferences updated successfully",
+      notificationPreferences: user.notificationPreferences,
+      user: updatedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
   deleteProfile,
-
   changepassword,
+  addExperience,
+  updateExperienceItem,
+  deleteExperienceItem,
+  updateNotificationPreferences,
 };

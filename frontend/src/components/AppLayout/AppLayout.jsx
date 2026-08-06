@@ -90,7 +90,7 @@ function AppLayout({ children, title, subtitle }) {
 
   const navItems = [
     ...(role === "admin"
-      ? [{ label: "Users", path: "/admin/users", icon: "users" }]
+      ? [{ label: "Admin Panel", path: "/admin/users", icon: "users" }]
       : []),
     { label: "My Profile", path: "/profile", icon: "profile" },
     { label: "Settings", path: "/settings", icon: "settings" },

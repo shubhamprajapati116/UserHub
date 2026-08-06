@@ -129,7 +129,7 @@ function ChangePassword() {
                 {error.confirmPassword && (
                   <span className="form-error">{error.confirmPassword}</span>
                 )}
-
+                  
                 <div className="change-password-actions">
                   <button
                     type="button"

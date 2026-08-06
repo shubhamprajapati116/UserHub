@@ -10,38 +10,78 @@ const {
   makeAdmin,
   getUserById,
   addUser,
-   verifyEmail,
+  verifyEmail,
+  bulkDeleteUsers,
+  bulkUpdateRole,
 } = require("../controllers/usercontroller");
 const {
   registeruser,
   loginuser,
   forgotpassword,
   resetPassword,
-} = require("../controllers/authcontroller");
+} = require("../controllers/Authcontroller");
 const {
   getProfile,
   updateProfile,
   deleteProfile,
   changepassword,
+  addExperience,
+  updateExperienceItem,
+  deleteExperienceItem,
+  updateNotificationPreferences,
 } = require("../controllers/profileController");
 
-
-const User = require("../models/user");
-const userSchema = require("../validations/validate");
-
 router.get("/profile", verifyToken, getProfile);
+router.put("/notification-preferences", verifyToken, updateNotificationPreferences);
+router.post("/profile/experience", verifyToken, addExperience);
+router.put("/profile/experience/:expId", verifyToken, updateExperienceItem);
+router.delete("/profile/experience/:expId", verifyToken, deleteExperienceItem);
+
 router.post("/register", upload.single("profilephoto"), registeruser);
+// Legacy Admin Routes
 router.get("/Users", verifyToken, verifyAdmin, getUsers);
 router.get("/Users/:id", verifyToken, verifyAdmin, getUserById);
 router.delete("/Users/:id", verifyToken, verifyAdmin, deleteuser);
-
 router.put(
   "/Users/:id",
+  verifyToken, 
+  verifyAdmin,
+  upload.single("profilephoto"),
+  updateuser,
+);
+router.post(
+  "/admin/users",
+  verifyToken,
+  verifyAdmin,
+  upload.single("profilephoto"),
+  addUser,
+);
+router.put("/Users/:id/make-admin", verifyToken, verifyAdmin, makeAdmin);
+
+// Standard RESTful Admin Panel Routes
+router.get("/api/admin/users", verifyToken, verifyAdmin, getUsers);
+router.post(
+  "/api/admin/users",
+  verifyToken,
+  verifyAdmin,
+  upload.single("profilephoto"),
+  addUser,
+);
+// Bulk Actions Routes (Must be declared before :id routes)
+router.post("/api/admin/users/bulk-delete", verifyToken, verifyAdmin, bulkDeleteUsers);
+router.put("/api/admin/users/bulk-role", verifyToken, verifyAdmin, bulkUpdateRole);
+
+router.get("/api/admin/users/:id", verifyToken, verifyAdmin, getUserById);
+router.put(
+  "/api/admin/users/:id",
   verifyToken,
   verifyAdmin,
   upload.single("profilephoto"),
   updateuser,
 );
+router.delete("/api/admin/users/:id", verifyToken, verifyAdmin, deleteuser);
+router.put("/api/admin/users/:id/role", verifyToken, verifyAdmin, makeAdmin);
+
 router.put(
   "/profile",
   verifyToken,
@@ -50,17 +90,9 @@ router.put(
 );
 
 router.delete("/account-delete", verifyToken, deleteProfile);
-router.post(
-  "/admin/users",
-  verifyToken,
-  verifyAdmin,
-  upload.single("profilephoto"),
-  addUser,
-);
 router.post("/login", loginuser);
 router.post("/forgot-password", forgotpassword);
 router.post("/reset-password/:token", resetPassword);
-router.put("/Users/:id/make-admin", verifyToken, verifyAdmin, makeAdmin);
 router.get("/verify-email/:token", verifyEmail);
 router.put("/change-password", verifyToken, changepassword);
 module.exports = router;

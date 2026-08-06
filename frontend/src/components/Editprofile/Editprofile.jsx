@@ -34,13 +34,12 @@ function EditProfile() {
         name: currentuser.name || "",
         email: currentuser.email || "",
         gender: currentuser.gender || "",
-        dob: currentuser.dob?.split("T")[0] || "",
+        dob: currentuser.dob ? (isNaN(new Date(currentuser.dob).getTime()) ? "" : new Date(currentuser.dob).toISOString().split("T")[0]) : "",
         phone: currentuser.phone || "",
         bio: currentuser.bio || "",
         country: currentuser.country || "",
         state: currentuser.state || "",
         city: currentuser.city || "",
-
         profilephoto: currentuser.profilephoto || "",
       });
     }
@@ -84,48 +83,22 @@ function EditProfile() {
       }
     }
   };
+
   return (
     <AppLayout title="Edit Profile" subtitle="Update your personal information">
-      <div className="page-container-form">
-        <div className="card register-edit-card">
-          <div className="register-edit-body">
-            <div className="edit-profile-form-header">
-              <div className="edit-profile-header-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 20h9" />
-                  <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                </svg>
-              </div>
-
-              <div className="edit-profile-header-content">
-                <h3>Edit profile</h3>
-                <p>Manage your personal information and account details.</p>
-              </div>
-            </div>
-            <div className="edit-profile-divider" />
-
-            <EditUserForm
-              formData={formData}
-              errors={errors}
-              handleChange={handleChange}
-              handleSubmit={handleSubmit}
-              submitText="Save Changes"
-              onCancel={() => navigate("/profile")}
-              loading={userStore.loading.updateProfile}
-              currentImage={currentuser?.profilephoto}
-              variant="profile"
-            />
-          </div>
+      <div className="split-page-wrapper">
+        <div className="form-main-card">
+          <EditUserForm
+            formData={formData}
+            errors={errors}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+            submitText="Save Changes"
+            onCancel={() => navigate("/profile")}
+            loading={userStore.loading.updateProfile}
+            currentImage={currentuser?.profilephoto}
+            variant="profile"
+          />
         </div>
       </div>
     </AppLayout>

@@ -1,13 +1,13 @@
 /* eslint-disable react-refresh/only-export-components */
 import "./ViewUser.css";
 import { Link, useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/StoreContext";
 import AppLayout from "../../components/AppLayout/AppLayout";
+import "../Experience/experience.css";
 
 import {
-  FaArrowLeft,
   FaUser,
   FaEnvelope,
   FaPhone,
@@ -27,6 +27,8 @@ function ViewUser() {
 
   const { userStore } = useStore();
 
+  const [isExpOpen, setIsExpOpen] = useState(false);
+
   useEffect(() => {
     userStore.fetchUserById(id);
   }, [id, userStore]);
@@ -34,14 +36,46 @@ function ViewUser() {
   const user = userStore.editUser || {};
   const loading = userStore.loading.fetchUserById || false;
 
+  const safeFormatDate = (dateVal, options = {}) => {
+    if (!dateVal) return "N/A";
+    try {
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return "N/A";
+      return d.toLocaleDateString("en-IN", options);
+    } catch {
+      return "N/A";
+    }
+  };
+
+  const safeFormatDateTime = (dateVal, options = {}) => {
+    if (!dateVal) return "Never";
+    try {
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return "Never";
+      return d.toLocaleString("en-IN", options);
+    } catch {
+      return "Never";
+    }
+  };
+
+  const formatDateStr = (dateVal) => {
+    if (!dateVal) return "";
+    try {
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return "";
+      return d.toLocaleDateString("en-IN", {
+        month: "short",
+        year: "numeric",
+      });
+    } catch {
+      return "";
+    }
+  };
+
   return (
     <AppLayout title="User Details" subtitle="View complete user information">
       <div className="userview-page">
         <div className="userview-container">
-          <Link to="/admin/users" className="userview-back-link">
-            <FaArrowLeft />
-            <span>Back to Users</span>
-          </Link>
           <div className="userview-header">
             <div className="userview-image">
               {loading ? (
@@ -84,15 +118,17 @@ function ViewUser() {
                     </span>
                   )}
 
-                  <span className="badge joined-badge">
-                    <FaCalendarAlt />
-                    Joined{" "}
-                    {new Date(user.createdAt).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </span>
+                  {user.createdAt ? (
+                    <span className="badge joined-badge">
+                      <FaCalendarAlt />
+                      Joined{" "}
+                      {safeFormatDate(user.createdAt, {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </span>
+                  ) : null}
                 </>
               )}
             </div>
@@ -214,7 +250,7 @@ function ViewUser() {
                       {loading ? (
                         <div className="skeleton skeleton-value"></div>
                       ) : user.dob ? (
-                        new Date(user.dob).toLocaleDateString("en-IN")
+                        safeFormatDate(user.dob)
                       ) : (
                         "Not Added"
                       )}
@@ -289,6 +325,158 @@ function ViewUser() {
               )}
             </div>
           </div>
+
+          <div className="userview-card">
+            <div
+              className="experience-toggle-header"
+              onClick={() => setIsExpOpen(!isExpOpen)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                cursor: "pointer",
+                userSelect: "none",
+              }}
+            >
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "10px" }}
+              >
+                <h3 style={{ margin: 0 }}>Work Experience</h3>
+                <span className="experience-badge">
+                  {user?.experience ? user.experience.length : 0}{" "}
+                  {user?.experience?.length === 1 ? "Role" : "Roles"}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                className="add-exp-btn"
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  color: "var(--text-primary)",
+                  borderColor: "var(--border)",
+                }}
+              >
+                {isExpOpen ? "▲ Hide" : "▼ View"}
+              </button>
+            </div>{" "}
+            {isExpOpen && (
+              <div className="timeline-container" style={{ marginTop: "18px" }}>
+                {loading ? (
+                  Array.from({ length: 2 }).map((_, idx) => (
+                    <div
+                      className="experience-card apple-card-style skeleton-exp-card"
+                      key={idx}
+                      style={{ opacity: 0.7 }}
+                    >
+                      <div className="apple-card-header">
+                        <div
+                          className="skeleton skeleton-avatar"
+                          style={{
+                            width: "46px",
+                            height: "46px",
+                            borderRadius: "12px",
+                            flexShrink: 0,
+                          }}
+                        ></div>
+
+                        <div
+                          className="apple-title-group"
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "8px",
+                          }}
+                        >
+                          <div
+                            className="skeleton skeleton-line"
+                            style={{ width: "55%", height: "18px" }}
+                          ></div>
+                          <div
+                            className="skeleton skeleton-line"
+                            style={{ width: "35%", height: "14px" }}
+                          ></div>
+                          <div
+                            className="skeleton skeleton-badge"
+                            style={{
+                              width: "180px",
+                              height: "22px",
+                              borderRadius: "999px",
+                              marginTop: "4px",
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : user?.experience && user.experience.length > 0 ? (
+                  user.experience.map((exp) => {
+                    const companyInitial = exp.company
+                      ? exp.company.charAt(0).toUpperCase()
+                      : "A";
+                    const cleanDesc = exp.description
+                      ? exp.description.replace(/^\/\/\s*/, "").trim()
+                      : "";
+                    return (
+                      <div
+                        className="experience-card apple-card-style"
+                        key={exp._id}
+                      >
+                        {/* Top Header Row */}
+                        <div className="apple-card-header">
+                          <div className="apple-company-logo">
+                            <span>{companyInitial}</span>
+                          </div>
+
+                          <div className="apple-title-group">
+                            <h3 className="apple-job-title">{exp.title}</h3>
+                            <div className="apple-company-sub">
+                              {exp.company}{" "}
+                              {exp.location ? `— ${exp.location}` : ""}
+                            </div>
+                            <div className="apple-blue-pill">
+                              {formatDateStr(exp.startDate).toUpperCase()} —{" "}
+                              {exp.isCurrent
+                                ? "PRESENT"
+                                : formatDateStr(exp.endDate).toUpperCase()}{" "}
+                              {exp.employmentType
+                                ? `• ${exp.employmentType.toUpperCase()}`
+                                : ""}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Bullet Description Section */}
+                        {cleanDesc && cleanDesc !== "//" && (
+                          <div className="apple-card-body">
+                            <div className="exp-desc-divider"></div>
+                            <div className="apple-bullet-list">
+                              {cleanDesc.split("\n").map((line, lIdx) => {
+                                const bulletLine = line
+                                  .replace(/^[•\-\\*]\s*/, "")
+                                  .trim();
+                                if (!bulletLine) return null;
+                                return (
+                                  <div className="apple-bullet-item" key={lIdx}>
+                                    <span className="apple-bullet-dot">•</span>
+                                    <span>{bulletLine}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="experience-empty">
+                    <p>No work experience added by this user yet.</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
           <div className="userview-bottom-section">
             <div className="userview-card">
               <h3>System Information</h3>
@@ -301,14 +489,12 @@ function ViewUser() {
                     <strong>
                       {loading ? (
                         <div className="skeleton skeleton-value"></div>
-                      ) : user.createdAt ? (
-                        new Date(user.createdAt).toLocaleDateString("en-IN", {
+                      ) : (
+                        safeFormatDate(user.createdAt, {
                           day: "numeric",
                           month: "long",
                           year: "numeric",
                         })
-                      ) : (
-                        "N/A"
                       )}
                     </strong>
                   </div>
@@ -321,16 +507,14 @@ function ViewUser() {
                     <strong>
                       {loading ? (
                         <div className="skeleton skeleton-value"></div>
-                      ) : user.lastLogin ? (
-                        new Date(user.lastLogin).toLocaleString("en-IN", {
+                      ) : (
+                        safeFormatDateTime(user.lastLogin, {
                           day: "numeric",
                           month: "short",
                           year: "numeric",
                           hour: "2-digit",
                           minute: "2-digit",
                         })
-                      ) : (
-                        "Never"
                       )}
                     </strong>
                   </div>

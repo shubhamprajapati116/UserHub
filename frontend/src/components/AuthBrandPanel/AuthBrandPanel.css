@@ -1,0 +1,189 @@
+/* ─── AuthBrandPanel Clean Modern SaaS Hero Banner ─── */
+
+.auth-split-brand {
+  position: relative;
+  background: linear-gradient(135deg, #070a13 0%, #0f172a 50%, #1e1b4b 100%);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4rem 3.5rem;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Ambient Glow Layer */
+.auth-brand-ambient-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 10% 15%, rgba(99, 102, 241, 0.3), transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.2), transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1), transparent 60%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Subtle Tech Grid Pattern Overlay */
+.auth-brand-grid-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  opacity: 0.5;
+  z-index: 1;
+}
+
+/* Top Section */
+.auth-brand-top {
+  position: relative;
+  z-index: 2;
+}
+
+.auth-brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 2.75rem;
+}
+
+.auth-brand-logo-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #ffffff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+  flex-shrink: 0;
+}
+
+.auth-brand-title-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-brand-name {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.auth-brand-tagline {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #818cf8;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+.auth-brand-headline {
+  font-size: 2.35rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  margin: 0 0 1rem;
+  color: #ffffff;
+  background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  max-width: 440px;
+}
+
+.auth-brand-desc {
+  font-size: 1rem;
+  color: #94a3b8;
+  line-height: 1.7;
+  margin: 0;
+  max-width: 440px;
+}
+
+.auth-brand-divider {
+  height: 2px;
+  width: 100px;
+  background: linear-gradient(90deg, #6366f1, transparent);
+  margin-top: 2rem;
+  border-radius: 2px;
+}
+
+/* ── Bottom Feature Items ── */
+.auth-brand-features {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.auth-brand-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.auth-brand-feature-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  color: #818cf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.auth-brand-feature-item:hover .auth-brand-feature-icon {
+  background: rgba(99, 102, 241, 0.25);
+  border-color: #6366f1;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+  transform: translateY(-1px);
+}
+
+.auth-brand-feature-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-feature-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0 0 2px;
+}
+
+.auth-feature-desc {
+  font-size: 0.83rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── 📱 Responsive ── */
+@media (max-width: 1024px) {
+  .auth-split-brand {
+    padding: 3rem 2rem;
+  }
+  .auth-brand-headline {
+    font-size: 1.95rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .auth-split-brand {
+    display: none; /* Mobile view shows top mobile logo */
+  }
+}

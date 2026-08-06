@@ -59,6 +59,27 @@ const UserSchema = new mongoose.Schema(
       default: null,
     },
 
+    notificationPreferences: {
+      securityLoginAlerts: {
+        type: Boolean,
+        default: true,
+      },
+    },
+
+    lastDeviceInfo: {
+      userAgent: {
+        type: String,
+        default: "",
+      },
+      ip: {
+        type: String,
+        default: "",
+      },
+      lastLoginAt: {
+        type: Date,
+      },
+    },
+
     resetPasswordToken: String,
 
     resetPasswordExpire: Date,
@@ -69,6 +90,19 @@ const UserSchema = new mongoose.Schema(
     },
 
     verificationToken: String,
+
+    experience: [
+      {
+        title: { type: String, required: true },
+        company: { type: String, required: true },
+        employmentType: { type: String, default: "Full-time" },
+        location: { type: String, default: "" },
+        startDate: { type: Date, required: true },
+        endDate: { type: Date },
+        isCurrent: { type: Boolean, default: false },
+        description: { type: String, default: "" },
+      },
+    ],
   },
   {
     timestamps: true, // createdAt & updatedAt automatically generate honge

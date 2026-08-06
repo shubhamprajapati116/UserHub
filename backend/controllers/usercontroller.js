@@ -1,10 +1,6 @@
 const User = require("../models/user");
-const sendEmail = require("../utils/sendEmail");
-const { userSchema } = require("../validations/validate");
-const crypto = require("crypto");
+const { userSchema, updateUserSchema } = require("../validations/validate");
 const bcrypt = require("bcrypt");
-
-const { updateUserSchema } = require("../validations/validate");
 const addUser = async (req, res) => {
   try {
     const { error } = userSchema.validate(req.body);
@@ -59,34 +55,61 @@ const addUser = async (req, res) => {
 };
 
 const getUsers = async (req, res) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 5;
-  const currentUserId = req.user.id;
-  const search = req.query.search || "";
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+    const currentUserId = req.user.id;
+    const search = req.query.search || "";
+    const role = req.query.role || "";
+    const gender = req.query.gender || "";
+    const country = req.query.country || "";
+    const sortBy = req.query.sortBy || "createdAt";
+    const sortOrder = req.query.sortOrder === "asc" ? 1 : -1;
 
-  const query = {
-    _id: {
-      $ne: currentUserId,
-    },
-    name: {
-      $regex: search,
-      $options: "i",
-    },
-  };
+    const query = {
+      _id: { $ne: currentUserId },
+    };
 
-  const users = await User.find(query)
-    .select(
-      "-password -resetPasswordToken -resetPasswordExpire -verificationToken",
-    )
-    .skip((page - 1) * limit)
-    .limit(limit);
+    if (search.trim()) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { phone: { $regex: search, $options: "i" } },
+      ];
+    }
 
-  const totalUsers = await User.countDocuments(query);
+    if (role === "admin" || role === "user") {
+      query.role = role;
+    }
 
-  res.json({
-    users,
-    totalUsers,
-  });
+    if (gender) {
+      query.gender = { $regex: gender, $options: "i" };
+    }
+
+    if (country) {
+      query.country = { $regex: country, $options: "i" };
+    }
+
+    const sortOptions = {};
+    sortOptions[sortBy] = sortOrder;
+
+    const users = await User.find(query)
+      .select(
+        "-password -resetPasswordToken -resetPasswordExpire -verificationToken",
+      )
+      .sort(sortOptions)
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const totalUsers = await User.countDocuments(query);
+
+    res.json({
+      users,
+      totalUsers,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 const deleteuser = async (req, res) => {
@@ -241,7 +264,61 @@ const verifyEmail = async (req, res) => {
   }
 };
 
+const bulkDeleteUsers = async (req, res) => {
+  try {
+    const { userIds } = req.body;
+    if (!Array.isArray(userIds) || userIds.length === 0) {
+      return res.status(400).json({ message: "No user IDs provided" });
+    }
+
+    const currentUserId = req.user.id;
+    const filteredIds = userIds.filter(
+      (id) => id.toString() !== currentUserId.toString(),
+    );
+
+    const result = await User.deleteMany({ _id: { $in: filteredIds } });
+
+    return res.status(200).json({
+      message: `${result.deletedCount} user(s) deleted successfully`,
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const bulkUpdateRole = async (req, res) => {
+  try {
+    const { userIds, role } = req.body;
+    if (!Array.isArray(userIds) || userIds.length === 0) {
+      return res.status(400).json({ message: "No user IDs provided" });
+    }
+
+    if (role !== "admin" && role !== "user") {
+      return res.status(400).json({ message: "Invalid role specified" });
+    }
+
+    const currentUserId = req.user.id;
+    const filteredIds = userIds.filter(
+      (id) => id.toString() !== currentUserId.toString(),
+    );
+
+    const result = await User.updateMany(
+      { _id: { $in: filteredIds } },
+      { $set: { role } },
+    );
+
+    return res.status(200).json({
+      message: `Role updated for ${result.modifiedCount} user(s)`,
+      modifiedCount: result.modifiedCount,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
+  // Legacy function names
   getUsers,
   deleteuser,
   updateuser,
@@ -249,4 +326,16 @@ module.exports = {
   getUserById,
   addUser,
   verifyEmail,
+
+  // Refactored Admin Controller Aliases
+  getAdminUsers: getUsers,
+  getAdminUserById: getUserById,
+  createAdminUser: addUser,
+  updateAdminUser: updateuser,
+  deleteAdminUser: deleteuser,
+  updateUserRole: makeAdmin,
+
+  // Bulk Operations
+  bulkDeleteUsers,
+  bulkUpdateRole,
 };
