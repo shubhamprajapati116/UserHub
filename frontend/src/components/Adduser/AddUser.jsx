@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import AppLayout from "../AppLayout/AppLayout";
@@ -18,7 +19,7 @@ function AddUser() {
     dob: "",
     profilephoto: "",
   });
-  
+
   const validateForm = () => {
     const newErrors = validateUserForm(formData, {
       requirePassword: true,
@@ -90,7 +91,7 @@ function AddUser() {
               </div>
             </div>
 
-            <div className="edit-user-divider"/>
+            <div className="edit-user-divider" />
 
             <UserFormFields
               formData={formData}

@@ -35,13 +35,13 @@ class UserStore {
   error = null;
   users = [];
   totalUsers = 0;
+  stats = null;
   editUser = null;
   authLoading = true;
 
   setAuthLoading(value) {
     this.authLoading = value;
   }
-
   clearCurrentUser() {
     this.currentUser = null;
     localStorage.removeItem("user");
@@ -148,6 +148,7 @@ class UserStore {
         sortBy,
         sortOrder,
       }).toString();
+      console.log(queryParams);
 
       const response = await apirequest(`/api/admin/users?${queryParams}`, {
         headers: getAuthHeaders(),
@@ -156,6 +157,7 @@ class UserStore {
       runInAction(() => {
         this.users = response.users;
         this.totalUsers = response.totalUsers;
+        this.stats = response.stats || null;
       });
 
       return response;
@@ -200,7 +202,6 @@ class UserStore {
 
   async updateProfile(formData) {
     if (this.loading.updateProfile) return;
-
     this.loading.updateProfile = true;
     this.error = null;
 

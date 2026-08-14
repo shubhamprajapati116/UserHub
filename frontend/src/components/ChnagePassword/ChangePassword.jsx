@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import PasswordInput from "../PasswordInput/passwordinput";
 import { useStore } from "../../stores/StoreContext";
 import { observer } from "mobx-react-lite";
+
 function ChangePassword() {
   const { userStore } = useStore();
   const loading = userStore.loading.changePassword;
@@ -87,49 +88,55 @@ function ChangePassword() {
               </div>
 
               <form className="change-password-form" onSubmit={handleSubmit}>
-                <label className="form-label" htmlFor="currentPassword">
-                  Current Password
-                </label>
-                <PasswordInput
-                  id="currentPassword"
-                  name="currentPassword"
-                  value={formData.currentPassword}
-                  onChange={handleChange}
-                  placeholder="Enter current password"
-                  error={error.currentPassword}
-                  disabled={loading}
-                />
+                <div className="form-group-compact">
+                  <label className="form-label" htmlFor="currentPassword">
+                    Current Password
+                  </label>
+                  <PasswordInput
+                    id="currentPassword"
+                    name="currentPassword"
+                    value={formData.currentPassword}
+                    onChange={handleChange}
+                    placeholder="Enter current password"
+                    error={error.currentPassword}
+                    disabled={loading}
+                  />
+                </div>
 
-                <label className="form-label" htmlFor="newPassword">
-                  New Password
-                </label>
-                <PasswordInput
-                  id="newPassword"
-                  name="newPassword"
-                  value={formData.newPassword}
-                  onChange={handleChange}
-                  placeholder="Enter new password"
-                  error={error.newPassword}
-                  disabled={loading}
-                />
+                <div className="form-group-compact">
+                  <label className="form-label" htmlFor="newPassword">
+                    New Password
+                  </label>
+                  <PasswordInput
+                    id="newPassword"
+                    name="newPassword"
+                    value={formData.newPassword}
+                    onChange={handleChange}
+                    placeholder="Enter new password"
+                    error={error.newPassword}
+                    disabled={loading}
+                  />
+                </div>
 
-                <label className="form-label" htmlFor="confirmPassword">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  className="form-input"
-                  name="confirmPassword"
-                  placeholder="Confirm new password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  disabled={loading}
-                />
-                {error.confirmPassword && (
-                  <span className="form-error">{error.confirmPassword}</span>
-                )}
-                  
+                <div className="form-group-compact">
+                  <label className="form-label" htmlFor="confirmPassword">
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    className="form-input"
+                    name="confirmPassword"
+                    placeholder="Confirm new password"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    disabled={loading}
+                  />
+                  {error.confirmPassword && (
+                    <span className="form-error">{error.confirmPassword}</span>
+                  )}
+                </div>
+
                 <div className="change-password-actions">
                   <button
                     type="button"

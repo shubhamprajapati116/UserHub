@@ -7,17 +7,17 @@
   justify-content: center;
   align-items: center;
   z-index: 20000;
-  padding: 20px;
+  padding: 14px;
   animation: fadeIn 0.2s ease;
 }
 
 .exp-modal-card {
   width: 100%;
-  max-width: 540px;
+  max-width: 440px;
   max-height: 90vh;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg, 8px);
   box-shadow: var(--shadow-xl);
   overflow: hidden;
   display: flex;
@@ -28,13 +28,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 24px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 
 .exp-modal-header h3 {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
@@ -44,10 +44,10 @@
   background: transparent;
   border: none;
   color: var(--text-muted);
-  font-size: 1.2rem;
+  font-size: 1rem;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: var(--radius-md);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm, 4px);
   transition: all var(--transition);
 }
 
@@ -57,47 +57,47 @@
 }
 
 .exp-modal-form {
-  padding: 20px 24px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
   overflow-y: auto;
-  max-height: calc(90vh - 65px);
+  max-height: calc(90vh - 55px);
 }
 
 .exp-form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   flex: 1;
 }
 
 .exp-form-row {
   display: flex;
-  gap: 16px;
+  gap: 10px;
 }
 
 .exp-label {
-  font-size: 0.8125rem;
+  font-size: 0.68rem;
   font-weight: 600;
   color: var(--text-secondary);
 }
 
 .exp-input {
   width: 100%;
-  padding: 10px 14px;
+  padding: 5px 9px;
   background: var(--bg-input);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm, 4px);
   color: var(--text-primary);
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   transition: border-color var(--transition);
 }
 
 .exp-input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
 }
 
 .exp-input.error {
@@ -106,34 +106,34 @@
 
 .exp-textarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 52px;
   font-family: inherit;
 }
 
 .exp-error-msg {
-  font-size: 0.75rem;
+  font-size: 0.66rem;
   color: var(--danger);
 }
 
 .exp-checkbox-group {
   display: flex;
   align-items: center;
-  margin: 2px 0;
+  margin: 1px 0;
 }
 
 .exp-checkbox-label {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
+  gap: 6px;
+  font-size: 0.72rem;
   color: var(--text-primary);
   cursor: pointer;
   user-select: none;
 }
 
 .exp-checkbox-label input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
+  width: 13px;
+  height: 13px;
   accent-color: var(--accent);
   cursor: pointer;
 }
@@ -142,9 +142,9 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 8px;
-  padding-top: 16px;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 10px;
   border-top: 1px solid var(--border);
 }
 
@@ -153,16 +153,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .add-exp-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: var(--radius-md);
-  font-size: 0.8rem;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.7rem;
   font-weight: 600;
   color: #818cf8;
   background: rgba(99, 102, 241, 0.12);
@@ -197,21 +197,21 @@
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
-  width: 36px;
+  width: 24px;
 }
 
 .timeline-node {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: #ffffff;
-  font-size: 1rem;
+  font-size: 0.72rem;
   font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.2);
   z-index: 2;
   flex-shrink: 0;
@@ -219,39 +219,39 @@
 
 .timeline-node.active {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.45);
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.45);
 }
 
 .timeline-line {
   flex: 1;
-  width: 2.5px;
+  width: 2px;
   background: linear-gradient(180deg, #6366f1 0%, rgba(99, 102, 241, 0.2) 100%);
-  margin-top: 6px;
-  margin-bottom: 6px;
-  min-height: 24px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  min-height: 18px;
 }
 
 .experience-card {
   flex: 1;
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 10px;
   background: var(--bg-input);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 14px 16px;
-  margin-bottom: 14px;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
   position: relative;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 
 .experience-company-tag {
-  font-size: 0.86rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: #818cf8;
   background: rgba(99, 102, 241, 0.12);
-  padding: 2px 10px;
+  padding: 1px 7px;
   border-radius: 999px;
   border: 1px solid rgba(99, 102, 241, 0.25);
 }
@@ -259,11 +259,11 @@
 .experience-company-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.88rem;
+  gap: 4px;
+  font-size: 0.72rem;
   font-weight: 600;
   color: #818cf8;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .experience-company-row svg {
@@ -273,24 +273,24 @@
 
 .experience-card:hover {
   border-color: rgba(255, 255, 255, 0.16);
-  transform: translateY(-0.8px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  transform: translateY(-0.5px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 }
 
 /* Company Initial Avatar Badge */
 .experience-avatar-badge {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: white;
-  font-size: 1.25rem;
+  font-size: 0.88rem;
   font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -303,19 +303,19 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 6px;
+  gap: 10px;
+  margin-bottom: 3px;
 }
 
 .experience-title-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .experience-title {
-  font-size: 1.05rem;
+  font-size: 0.84rem;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
@@ -323,20 +323,20 @@
 }
 
 .experience-company-sub {
-  font-size: 0.88rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: #818cf8;
-  margin-top: 3px;
+  margin-top: 2px;
 }
 
 .experience-date-row {
-  font-size: 0.82rem;
+  font-size: 0.68rem;
   color: var(--text-muted);
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .experience-simple-desc {
-  font-size: 0.86rem;
+  font-size: 0.72rem;
   color: var(--text-secondary);
   line-height: 1.6;
   margin-top: 10px;

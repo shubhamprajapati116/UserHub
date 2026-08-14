@@ -1,13 +1,8 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import "./UserActionMenu.css";
-import { useLayoutEffect, useEffect } from "react";
+import { useState, useLayoutEffect, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { FiEye, FiEdit2, FiTrash2 } from "react-icons/fi";
-import {
-  useFloating,
-  offset,
-  shift,
-  autoUpdate,
-} from "@floating-ui/react";
 
 function UserActionMenu({
   reference,
@@ -19,29 +14,55 @@ function UserActionMenu({
   userStore,
   onClose,
 }) {
-  const { refs, floatingStyles } = useFloating({
-    placement: "bottom-start",
-    middleware: [
-      offset(8),
-      shift({
-        padding: 8,
-        crossAxis: false,
-      }),
-    ],
-    whileElementsMounted: autoUpdate,
-  });
+  const menuRef = useRef(null);
+
+  const calculatePosition = () => {
+    if (!reference) return { top: 0, left: 0 };
+    const rect = reference.getBoundingClientRect();
+    const menuHeight = menuRef.current?.offsetHeight || (user?.role !== "admin" ? 138 : 108);
+    const menuWidth = menuRef.current?.offsetWidth || 142;
+
+    // Align dropdown to the right edge of the 3-dots trigger button
+    let left = rect.right - menuWidth;
+    
+    // Check available space
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    let top;
+    if (spaceBelow >= menuHeight + 6 || spaceBelow >= spaceAbove) {
+      // Open downwards right below the button
+      top = rect.bottom + 4;
+    } else {
+      // Open upwards snuggly above the button
+      top = rect.top - menuHeight - 4;
+    }
+
+    // Safety viewport clamping
+    if (left < 10) left = 10;
+    if (left + menuWidth > window.innerWidth - 10) {
+      left = window.innerWidth - menuWidth - 10;
+    }
+    if (top < 10) top = 10;
+    if (top + menuHeight > window.innerHeight - 10) {
+      top = window.innerHeight - menuHeight - 10;
+    }
+
+    return { top, left };
+  };
+
+  const [position, setPosition] = useState(calculatePosition);
 
   useLayoutEffect(() => {
-    if (reference) {
-      refs.setReference(reference);
-    }
-  }, [reference, refs]);
+    setPosition(calculatePosition());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reference, user]);
 
   useEffect(() => {
     function handleClickOutside(e) {
       if (
-        refs.floating.current &&
-        !refs.floating.current.contains(e.target) &&
+        menuRef.current &&
+        !menuRef.current.contains(e.target) &&
         reference &&
         !reference.contains(e.target)
       ) {
@@ -49,26 +70,28 @@ function UserActionMenu({
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    function handleScrollOrResize() {
+      onClose();
+    }
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [reference, refs, onClose]);
-
-  useEffect(() => {
     function handleKeyDown(e) {
       if (e.key === "Escape") {
         onClose();
       }
     }
 
+    document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", handleScrollOrResize, true);
+    window.addEventListener("resize", handleScrollOrResize);
     document.addEventListener("keydown", handleKeyDown);
 
     return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScrollOrResize, true);
+      window.removeEventListener("resize", handleScrollOrResize);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onClose]);
+  }, [reference, onClose]);
 
   if (!reference) {
     return null;
@@ -76,9 +99,13 @@ function UserActionMenu({
 
   return createPortal(
     <div
-      ref={refs.setFloating}
+      ref={menuRef}
       className="dropdown-menu"
-      style={floatingStyles}
+      style={{
+        position: "fixed",
+        top: `${position.top}px`,
+        left: `${position.left}px`,
+      }}
       onClick={(e) => e.stopPropagation()}
     >
       <button
@@ -89,7 +116,7 @@ function UserActionMenu({
           navigate(`/admin/users/${user._id}/view`);
         }}
       >
-        <FiEye size={17} />
+        <FiEye size={13} />
         <span>View Details</span>
       </button>
 
@@ -101,7 +128,7 @@ function UserActionMenu({
           navigate(`/admin/users/${user._id}/userEdit`);
         }}
       >
-        <FiEdit2 size={17} />
+        <FiEdit2 size={13} />
         <span>Edit User</span>
       </button>
 
@@ -116,10 +143,12 @@ function UserActionMenu({
               onClose();
             }
           }}
-          disabled={userStore.loading.makeAdmin}
+          disabled={userStore?.loading?.makeAdmin}
         >
-          👑
-          {userStore.loading.makeAdmin ? " Updating..." : " Make Admin"}
+          <span style={{ fontSize: "11px", lineHeight: 1 }}>👑</span>
+          <span>
+            {userStore?.loading?.makeAdmin ? " Updating..." : " Make Admin"}
+          </span>
         </button>
       )}
 
@@ -133,10 +162,12 @@ function UserActionMenu({
           setDeleteId(user._id);
           setShowModal(true);
         }}
-        disabled={userStore.loading.deleteUser}
+        disabled={userStore?.loading?.deleteUser}
       >
-        <FiTrash2 size={17} />
-        {userStore.loading.deleteUser ? " Deleting..." : " Delete User"}
+        <FiTrash2 size={13} />
+        <span>
+          {userStore?.loading?.deleteUser ? " Deleting..." : " Delete User"}
+        </span>
       </button>
     </div>,
     document.body,

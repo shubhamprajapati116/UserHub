@@ -5,12 +5,13 @@ import { toast } from "react-toastify";
 import "./applayout.css";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/StoreContext";
+import apirequest from "../../api/apirequest";
 const NavIcon = ({ name }) => {
   const icons = {
     users: (
       <svg
-        width="20"
-        height="20"
+        width="16"
+        height="16"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -26,8 +27,8 @@ const NavIcon = ({ name }) => {
     ),
     profile: (
       <svg
-        width="20"
-        height="20"
+        width="16"
+        height="16"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -41,8 +42,8 @@ const NavIcon = ({ name }) => {
     ),
     settings: (
       <svg
-        width="20"
-        height="20"
+        width="16"
+        height="16"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -56,8 +57,8 @@ const NavIcon = ({ name }) => {
     ),
     logout: (
       <svg
-        width="20"
-        height="20"
+        width="16"
+        height="16"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -113,9 +114,21 @@ function AppLayout({ children, title, subtitle }) {
     };
   }, [sidebarOpen]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setUserMenuOpen(false);
     setSidebarOpen(false);
+
+    try {
+      // Backend se session delete karo MongoDB me se (is device ka session remove hoga)
+      await apirequest("/logout", {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+    } catch {
+      // API fail hone par bhi local logout continue karega
+    }
 
     localStorage.removeItem("token");
     localStorage.removeItem("role");

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import "./userlist.css";
+import "./adminpanel.css";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -9,7 +9,7 @@ import { observer } from "mobx-react-lite";
 import UserActionMenu from "../UserActionMenu/UserActionMenu";
 
 // eslint-disable-next-line react-refresh/only-export-components
-function CustomDropdown({ options, value, onChange }) {
+function CustomDropdown({ options, value, onChange, dropUp = false }) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -28,7 +28,7 @@ function CustomDropdown({ options, value, onChange }) {
 
   return (
     <div
-      className="custom-dropdown-container"
+      className={`custom-dropdown-container ${dropUp ? "drop-up" : ""}`}
       ref={dropdownRef}
       onClick={(e) => e.stopPropagation()}
     >
@@ -43,8 +43,8 @@ function CustomDropdown({ options, value, onChange }) {
         <span>{selectedOption ? selectedOption.label : ""}</span>
         <svg
           className={`dropdown-chevron ${open ? "rotate" : ""}`}
-          width="14"
-          height="14"
+          width="12"
+          height="12"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -55,7 +55,7 @@ function CustomDropdown({ options, value, onChange }) {
       </button>
 
       {open && (
-        <div className="custom-dropdown-menu">
+        <div className={`custom-dropdown-menu ${dropUp ? "drop-up-menu" : ""}`}>
           {options.map((opt) => (
             <div
               key={opt.value}
@@ -69,8 +69,8 @@ function CustomDropdown({ options, value, onChange }) {
               {opt.label}
               {String(opt.value) === String(value) && (
                 <svg
-                  width="14"
-                  height="14"
+                  width="12"
+                  height="12"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -88,7 +88,7 @@ function CustomDropdown({ options, value, onChange }) {
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-function UserList() {
+function AdminPanel() {
   const { userStore } = useStore();
   const [search, setsearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -102,9 +102,10 @@ function UserList() {
   const [showModal, setShowModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [page, setpage] = useState(1);
+  const [limit, setLimit] = useState(5);
   const role = userStore.currentUser?.role;
   const navigate = useNavigate();
-  const totalPages = Math.max(1, Math.ceil(totalUsers / 5));
+  const totalPages = Math.max(1, Math.ceil(totalUsers / limit));
   const users = userStore.users;
   const loading = userStore.loading.fetchUsers && users.length === 0;
   const [showImageModal, setShowImageModal] = useState(false);
@@ -141,7 +142,10 @@ function UserList() {
 
   const handleBulkRoleChange = async (targetRole) => {
     try {
-      const res = await userStore.bulkUpdateUserRole(selectedUserIds, targetRole);
+      const res = await userStore.bulkUpdateUserRole(
+        selectedUserIds,
+        targetRole,
+      );
       toast.success(res.message);
       setSelectedUserIds([]);
       await fetchusers();
@@ -161,13 +165,17 @@ function UserList() {
       toast.error(error?.message || "Failed to delete selected users");
     }
   };
+
   const currentUser = userStore.currentUser;
 
-  // Check if logged-in Admin matches the currently applied filters
   const isCurrentUserMatchingFilter = (user) => {
     if (!user) return false;
     if (roleFilter && user.role !== roleFilter) return false;
-    if (genderFilter && user.gender?.toLowerCase() !== genderFilter.toLowerCase()) return false;
+    if (
+      genderFilter &&
+      user.gender?.toLowerCase() !== genderFilter.toLowerCase()
+    )
+      return false;
     if (debouncedSearch) {
       const s = debouncedSearch.toLowerCase().trim();
       const nameMatch = user.name?.toLowerCase().includes(s);
@@ -179,18 +187,30 @@ function UserList() {
   };
 
   const matchesCurrentUser = isCurrentUserMatchingFilter(currentUser);
-
+  const backendStats = userStore.stats;
   const systemTotalUsers = totalUsers + (matchesCurrentUser ? 1 : 0);
   const verifiedCount =
-    users.filter((u) => u.isVerified).length + (matchesCurrentUser && currentUser?.isVerified ? 1 : 0);
+    (backendStats
+      ? backendStats.verifiedUsersCount
+      : users.filter((u) => u.isVerified).length) +
+    (matchesCurrentUser && currentUser?.isVerified ? 1 : 0);
   const adminCount =
-    users.filter((u) => u.role === "admin").length + (matchesCurrentUser && currentUser?.role === "admin" ? 1 : 0);
+    (backendStats
+      ? backendStats.adminUsersCount
+      : users.filter((u) => u.role === "admin").length) +
+    (matchesCurrentUser && currentUser?.role === "admin" ? 1 : 0);
+
   const newTodayCount =
-    users.filter((u) => {
-      if (!u.createdAt) return false;
-      return new Date(u.createdAt).toDateString() === new Date().toDateString();
-    }).length +
-    (matchesCurrentUser && currentUser?.createdAt && new Date(currentUser.createdAt).toDateString() === new Date().toDateString()
+    (backendStats
+      ? backendStats.todayUsersCount
+      : users.filter(
+          (u) =>
+            u.createdAt &&
+            new Date(u.createdAt).toDateString() === new Date().toDateString(),
+        ).length) +
+    (matchesCurrentUser &&
+    currentUser?.createdAt &&
+    new Date(currentUser.createdAt).toDateString() === new Date().toDateString()
       ? 1
       : 0);
 
@@ -201,7 +221,14 @@ function UserList() {
       value: systemTotalUsers,
       colorClass: "icon-blue",
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
           <circle cx="9" cy="7" r="4" />
           <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -215,7 +242,14 @@ function UserList() {
       value: verifiedCount,
       colorClass: "icon-green",
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           <polyline points="9 12 11 14 15 10" />
         </svg>
@@ -227,7 +261,14 @@ function UserList() {
       value: adminCount,
       colorClass: "icon-purple",
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
           <circle cx="9" cy="7" r="4" />
         </svg>
@@ -239,7 +280,14 @@ function UserList() {
       value: newTodayCount,
       colorClass: "icon-amber",
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
           <line x1="16" y1="2" x2="16" y2="6" />
           <line x1="8" y1="2" x2="8" y2="6" />
@@ -253,7 +301,7 @@ function UserList() {
     try {
       await userStore.fetchUsers({
         page,
-        limit: 5,
+        limit,
         search: debouncedSearch.trim(),
         role: roleFilter,
         gender: genderFilter,
@@ -295,7 +343,7 @@ function UserList() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
-    }, 500);
+    }, 300);
 
     return () => {
       clearTimeout(timer);
@@ -306,7 +354,15 @@ function UserList() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedUserIds([]);
     fetchusers();
-  }, [debouncedSearch, page, roleFilter, genderFilter, sortBy, sortOrder]);
+  }, [
+    debouncedSearch,
+    page,
+    limit,
+    roleFilter,
+    genderFilter,
+    sortBy,
+    sortOrder,
+  ]);
 
   const handledelete = async () => {
     try {
@@ -324,24 +380,31 @@ function UserList() {
       toast.error(error?.message || "Try again");
     }
   };
-
   return (
     <AppLayout
       title="Admin Panel"
-      subtitle={`Admin User Management (${totalUsers} registered users)`}
+      subtitle={`Admin User Management(${totalUsers}registered users)`}
     >
       <div className="page-container-users">
         <div className="users-container">
-
-          {/* ── Page Header ── */}
           <div className="ul-page-header">
             <div className="ul-title-group">
               <h2 className="ul-page-title">Admin Management Dashboard</h2>
-              <p className="ul-page-sub">Comprehensive overview & control of all accounts</p>
+              <p className="ul-page-sub">
+                Comprehensive overview & control of all accounts
+              </p>
             </div>
             <div className="ul-header-right">
               <div className="search-wrap">
-                <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  className="search-icon"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <circle cx="11" cy="11" r="8" />
                   <path d="M21 21l-4.35-4.35" />
                 </svg>
@@ -350,12 +413,25 @@ function UserList() {
                   value={search}
                   placeholder="Search by name, email, or phone..."
                   className="search-input"
-                  onChange={(e) => { setsearch(e.target.value); setpage(1); }}
+                  onChange={(e) => {
+                    setsearch(e.target.value);
+                    setpage(1);
+                  }}
                 />
               </div>
               {role === "admin" && (
-                <button className="btn btn-primary" onClick={() => navigate("/admin/users/addNewUser")}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <button
+                  className="btn btn-primary"
+                  onClick={() => navigate("/admin/users/addNewUser")}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
                     <line x1="12" y1="5" x2="12" y2="19" />
                     <line x1="5" y1="12" x2="19" y2="12" />
                   </svg>
@@ -375,7 +451,9 @@ function UserList() {
                   <div className="ul-stat-box" key={s.label}>
                     <div className="ul-stat-top">
                       <span className="ul-stat-value">{s.value}</span>
-                      <span className={`ul-stat-icon ${s.colorClass}`}>{s.icon}</span>
+                      <span className={`ul-stat-icon ${s.colorClass}`}>
+                        {s.icon}
+                      </span>
                     </div>
                     <div className="ul-stat-info-group">
                       <span className="ul-stat-label">{s.label}</span>
@@ -441,7 +519,8 @@ function UserList() {
           {selectedUserIds.length > 0 && (
             <div className="ul-bulk-toolbar">
               <div className="ul-bulk-info">
-                <span className="ul-bulk-badge">{selectedUserIds.length}</span> user(s) selected
+                <span className="ul-bulk-badge">{selectedUserIds.length}</span>{" "}
+                user(s) selected
               </div>
               <div className="ul-bulk-actions">
                 {showMakeAdminBtn && (
@@ -515,12 +594,24 @@ function UserList() {
                       <th>Gender</th>
                       <th>Role</th>
                       <th>Verified</th>
-                      <th className="dob-sortable-th" onClick={() => handleSort("dob")}>
+                      <th
+                        className="dob-sortable-th"
+                        onClick={() => handleSort("dob")}
+                      >
                         <div className="dob-sort-btn">
                           <span className="dob-full-text">Date of birth</span>
                           <span className="dob-short-text">DOB</span>
-                          <span className={`dob-sort-icon ${sortBy === "dob" ? "active" : ""}`}>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <span
+                            className={`dob-sort-icon ${sortBy === "dob" ? "active" : ""}`}
+                          >
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                            >
                               {sortBy === "dob" ? (
                                 sortOrder === "asc" ? (
                                   <path d="M12 19V5M5 12l7-7 7 7" />
@@ -528,7 +619,7 @@ function UserList() {
                                   <path d="M12 5v14M5 12l7 7 7-7" />
                                 )
                               ) : (
-                                <path d="M7 15l5 5 5-5M7 9l5-5 5 5" />
+                                <path d="M7 15l5 5 5-5M7 9l5 5 5-5" />
                               )}
                             </svg>
                           </span>
@@ -549,31 +640,24 @@ function UserList() {
                             <td>
                               <div className="user-cell">
                                 <div className="skeleton skeleton-user-avatar"></div>
-
                                 <div className="skeleton skeleton-user-name"></div>
                               </div>
                             </td>
-
                             <td>
                               <div className="skeleton skeleton-user-email"></div>
                             </td>
-
                             <td>
                               <div className="skeleton skeleton-user-small"></div>
                             </td>
-
                             <td>
                               <div className="skeleton skeleton-user-role"></div>
                             </td>
-
                             <td>
                               <div className="skeleton skeleton-user-role"></div>
                             </td>
-
                             <td>
                               <div className="skeleton skeleton-user-date"></div>
                             </td>
-
                             {role === "admin" && (
                               <td>
                                 <div className="skeleton skeleton-user-action"></div>
@@ -584,7 +668,11 @@ function UserList() {
                       : users.map((user) => (
                           <tr
                             key={user._id}
-                            className={selectedUserIds.includes(user._id) ? "row-selected" : ""}
+                            className={
+                              selectedUserIds.includes(user._id)
+                                ? "row-selected"
+                                : ""
+                            }
                           >
                             <td className="checkbox-col">
                               <input
@@ -668,7 +756,9 @@ function UserList() {
                               {user.isVerified ? (
                                 <span className="verified-badge">Verified</span>
                               ) : (
-                                <span className="unverified-badge">Unverified</span>
+                                <span className="unverified-badge">
+                                  Unverified
+                                </span>
                               )}
                             </td>
 
@@ -677,7 +767,6 @@ function UserList() {
                                 ? new Date(user.dob).toLocaleDateString("en-IN")
                                 : "Not Added"}
                             </td>
-
                             {role === "admin" && (
                               <td>
                                 <div className="action-menu">
@@ -685,17 +774,33 @@ function UserList() {
                                     className="menu-trigger"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      if (menuState.open && menuState.user?._id === user._id) {
-                                        setMenuState({ open: false, user: null, reference: null });
+                                      if (
+                                        menuState.open &&
+                                        menuState.user?._id === user._id
+                                      ) {
+                                        setMenuState({
+                                          open: false,
+                                          user: null,
+                                          reference: null,
+                                        });
                                         return;
                                       }
-                                      setMenuState({ open: true, user, reference: e.currentTarget });
+                                      setMenuState({
+                                        open: true,
+                                        user,
+                                        reference: e.currentTarget,
+                                      });
                                     }}
                                   >
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                      <circle cx="12" cy="5" r="1.5"/>
-                                      <circle cx="12" cy="12" r="1.5"/>
-                                      <circle cx="12" cy="19" r="1.5"/>
+                                    <svg
+                                      width="16"
+                                      height="16"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                    >
+                                      <circle cx="12" cy="5" r="1.5" />
+                                      <circle cx="12" cy="12" r="1.5" />
+                                      <circle cx="12" cy="19" r="1.5" />
                                     </svg>
                                   </button>
                                 </div>
@@ -719,29 +824,92 @@ function UserList() {
               totalUsers > 0 && (
                 <div className="pagination">
                   <div className="pagination-info">
-                    Showing <b>{users.length}</b> of <b>{totalUsers}</b> users
+                    <span className="pagination-info-full">
+                      Showing <b>{users.length}</b> of <b>{totalUsers}</b> users
+                    </span>
+                    <span className="pagination-info-short">
+                      <b>{users.length}</b>/<b>{totalUsers}</b>
+                    </span>
                   </div>
 
-                  <div className="pagination-controls">
-                    <button
-                      className="btn-page"
-                      disabled={page <= 1}
-                      onClick={() => setpage((p) => Math.max(1, p - 1))}
-                    >
-                      Previous
-                    </button>
-                    <span className="page-indicator">
-                      Page <b>{page}</b> of <b>{totalPages}</b>
-                    </span>
-                    <button
-                      className="btn-page"
-                      disabled={page >= totalPages}
-                      onClick={() =>
-                        setpage((p) => Math.min(totalPages, p + 1))
-                      }
-                    >
-                      Next
-                    </button>
+                  <div className="pagination-right-group">
+                    <div className="pagination-rows-selector">
+                      <span className="rows-label rows-label-full">
+                        Rows per page:
+                      </span>
+                      <span className="rows-label rows-label-short">Rows:</span>
+                      <CustomDropdown
+                        dropUp={true}
+                        options={[
+                          { value: 5, label: "5" },
+                          { value: 10, label: "10" },
+                          { value: 20, label: "20" },
+                          { value: 50, label: "50" },
+                        ]}
+                        value={limit}
+                        onChange={(newLimit) => {
+                          setLimit(Number(newLimit));
+                          setpage(1);
+                        }}
+                      />
+                    </div>
+
+                    <div className="pagination-controls">
+                      <button
+                        className="btn-page"
+                        disabled={page <= 1}
+                        onClick={() => setpage((p) => Math.max(1, p - 1))}
+                        title="Previous Page"
+                        aria-label="Previous Page"
+                      >
+                        <span className="btn-page-text">Previous</span>
+                        <svg
+                          className="btn-page-arrow"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="15 18 9 12 15 6" />
+                        </svg>
+                      </button>
+                      <span className="page-indicator">
+                        <span className="page-indicator-full">
+                          Page <b>{page}</b> of <b>{totalPages}</b>
+                        </span>
+                        <span className="page-indicator-short">
+                          <b>{page}</b>/<b>{totalPages}</b>
+                        </span>
+                      </span>
+                      <button
+                        className="btn-page"
+                        disabled={page >= totalPages}
+                        onClick={() =>
+                          setpage((p) => Math.min(totalPages, p + 1))
+                        }
+                        title="Next Page"
+                        aria-label="Next Page"
+                      >
+                        <span className="btn-page-text">Next</span>
+                        <svg
+                          className="btn-page-arrow"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
               )
@@ -799,8 +967,8 @@ function UserList() {
             <div className="modal-icon">!</div>
             <h3>Delete {selectedUserIds.length} Selected User(s)?</h3>
             <p>
-              Are you sure you want to delete <b>{selectedUserIds.length}</b> selected account(s)?
-              This action cannot be undone.
+              Are you sure you want to delete <b>{selectedUserIds.length}</b>{" "}
+              selected account(s)? This action cannot be undone.
             </p>
             <div className="modal-buttons">
               <button
@@ -830,4 +998,4 @@ function UserList() {
   );
 }
 
-export default observer(UserList);
+export default observer(AdminPanel);

@@ -19,6 +19,10 @@ const {
   loginuser,
   forgotpassword,
   resetPassword,
+  logoutCurrentDevice,
+  logoutOtherSessions,
+  getSessions,
+  logoutSession,
 } = require("../controllers/Authcontroller");
 const {
   getProfile,
@@ -32,7 +36,11 @@ const {
 } = require("../controllers/profileController");
 
 router.get("/profile", verifyToken, getProfile);
-router.put("/notification-preferences", verifyToken, updateNotificationPreferences);
+router.put(
+  "/notification-preferences",
+  verifyToken,
+  updateNotificationPreferences,
+);
 router.post("/profile/experience", verifyToken, addExperience);
 router.put("/profile/experience/:expId", verifyToken, updateExperienceItem);
 router.delete("/profile/experience/:expId", verifyToken, deleteExperienceItem);
@@ -44,7 +52,7 @@ router.get("/Users/:id", verifyToken, verifyAdmin, getUserById);
 router.delete("/Users/:id", verifyToken, verifyAdmin, deleteuser);
 router.put(
   "/Users/:id",
-  verifyToken, 
+  verifyToken,
   verifyAdmin,
   upload.single("profilephoto"),
   updateuser,
@@ -58,7 +66,6 @@ router.post(
 );
 router.put("/Users/:id/make-admin", verifyToken, verifyAdmin, makeAdmin);
 
-// Standard RESTful Admin Panel Routes
 router.get("/api/admin/users", verifyToken, verifyAdmin, getUsers);
 router.post(
   "/api/admin/users",
@@ -67,10 +74,24 @@ router.post(
   upload.single("profilephoto"),
   addUser,
 );
-// Bulk Actions Routes (Must be declared before :id routes)
-router.post("/api/admin/users/bulk-delete", verifyToken, verifyAdmin, bulkDeleteUsers);
-router.put("/api/admin/users/bulk-role", verifyToken, verifyAdmin, bulkUpdateRole);
 
+router.post(
+  "/api/admin/users/bulk-delete",
+  verifyToken,
+  verifyAdmin,
+  bulkDeleteUsers,
+);
+router.put(
+  "/api/admin/users/bulk-role",
+  verifyToken,
+  verifyAdmin,
+  bulkUpdateRole,
+);
+
+router.delete("/logout", verifyToken, logoutCurrentDevice);
+router.delete("/sessions/logout-others", verifyToken, logoutOtherSessions);
+router.get("/sessions", verifyToken, getSessions);
+router.delete("/sessions/:sessionId", verifyToken, logoutSession);
 router.get("/api/admin/users/:id", verifyToken, verifyAdmin, getUserById);
 router.put(
   "/api/admin/users/:id",
@@ -88,7 +109,6 @@ router.put(
   upload.single("profilephoto"),
   updateProfile,
 );
-
 router.delete("/account-delete", verifyToken, deleteProfile);
 router.post("/login", loginuser);
 router.post("/forgot-password", forgotpassword);

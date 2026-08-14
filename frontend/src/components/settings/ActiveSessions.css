@@ -1,0 +1,279 @@
+/* ── 📱 Premium Active Sessions Panel ── */
+
+.compact-active-sessions-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.compact-session-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2px;
+}
+
+.compact-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.sessions-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.sessions-header-text h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 3px;
+  letter-spacing: -0.01em;
+}
+
+.sessions-header-text p {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.compact-logout-all-btn {
+  padding: 6px 14px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.compact-logout-all-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.35);
+}
+
+.compact-session-loading,
+.compact-session-empty {
+  padding: 16px 12px;
+  text-align: center;
+  color: var(--text-muted);
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.78rem;
+}
+
+.compact-sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Session Row ── */
+.compact-session-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: all 0.18s ease;
+  min-height: 50px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.compact-session-row.is-current {
+  border-left: 3px solid #10b981;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.06) 0%, var(--bg-input) 100%);
+}
+
+.compact-session-row:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+}
+
+/* ── Device Icon ── */
+.compact-device-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent, #6366f1);
+  flex-shrink: 0;
+}
+
+.compact-device-icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* ── Session Info ── */
+.compact-session-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+}
+
+.compact-title-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.compact-device-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compact-current-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 1px 7px;
+  border-radius: 999px;
+  line-height: 1.2;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.tiny-pulse-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 4px #10b981;
+  flex-shrink: 0;
+}
+
+.compact-meta-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.compact-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.compact-meta-pill svg {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+}
+
+/* ── Revoke Button — Crisp Active High-Contrast Danger Look ── */
+.compact-session-actions {
+  flex-shrink: 0;
+}
+
+.compact-revoke-btn {
+  padding: 5px 14px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.compact-revoke-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+}
+
+/* ==========================================================================
+   📱 RESPONSIVE — Active Sessions
+   ========================================================================== */
+
+@media (max-width: 560px) {
+  .compact-session-header {
+    gap: 10px;
+  }
+
+  .compact-header-left {
+    gap: 10px;
+  }
+
+  .compact-logout-all-btn {
+    width: 100%;
+    text-align: center;
+    padding: 7px 12px;
+  }
+
+  .compact-session-row {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .compact-device-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .compact-device-name {
+    font-size: 0.78rem;
+  }
+
+  .compact-current-badge {
+    font-size: 0.62rem;
+    padding: 1px 6px;
+  }
+
+  .compact-meta-line {
+    font-size: 0.68rem;
+    gap: 4px;
+  }
+
+  .compact-revoke-btn {
+    padding: 4px 10px;
+    font-size: 0.7rem;
+  }
+}

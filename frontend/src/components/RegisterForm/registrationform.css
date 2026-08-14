@@ -1,12 +1,14 @@
 .register-split .register-form-side {
-  /* align-items: flex-start; */
-  padding-top: 48px;
-  overflow-y: auto;
+  padding: 24px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .register-container {
   width: 100%;
-  max-width: 550px;
+  max-width: 380px;
   margin: 0 auto;
 }
 
@@ -14,30 +16,30 @@
 .page-container-form {
   max-width: 640px;
   margin: 0 auto;
-  padding: 1.5rem 1rem 3rem;
+  padding: 1rem 0.75rem 2rem;
   width: 100%;
 }
 
 .register-edit-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-xl, 16px);
-  box-shadow: var(--shadow-md, 0 4px 20px rgba(0, 0, 0, 0.2));
-  padding: 2rem;
-  overflow: hidden;
+  border-radius: var(--radius-lg, 10px);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem;
+  overflow: visible;
 }
 
 .edit-user-form-header {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 1.25rem;
+  gap: 10px;
+  margin-bottom: 0.85rem;
 }
 
 .edit-user-header-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
   border: 1px solid rgba(99, 102, 241, 0.35);
   color: #818cf8;
@@ -48,22 +50,22 @@
 }
 
 .edit-user-header-content h3 {
-  font-size: 1.25rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 4px;
+  margin: 0 0 2px;
 }
 
 .edit-user-header-content p {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
+  font-size: 0.74rem;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .edit-user-divider {
   height: 1px;
   background: var(--border);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .form-layout {
@@ -71,15 +73,16 @@
   flex-direction: column;
 }
 .register-title-block h2 {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.02em;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 .register-title-block p {
-  color: var(--text-secondary);
-  font-size: 0.9375rem;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  margin-bottom: 10px;
 }
 
 .register-form .form-label {
@@ -89,11 +92,11 @@
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 8px;
 }
 
 .form-field {
-  margin-bottom: 16px;
+  margin-bottom: 6px;
   display: flex;
   flex-direction: column;
 }
@@ -102,14 +105,15 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 14px;
-  margin-top: 20px;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .form-actions .btn {
   flex: 1;
-  min-width: 140px;
-  padding: 11px 20px;
+  min-width: 100px;
+  padding: 6px 14px;
+  font-size: 0.76rem;
   font-weight: 600;
 }
 
@@ -133,26 +137,30 @@
 .file-upload-label {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: 8px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0 10px;
   background: var(--bg-input);
-  border: 1px dashed var(--border-color, rgba(255, 255, 255, 0.18));
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  font-size: 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
   font-weight: 500;
+  box-sizing: border-box;
   transition: all 0.2s ease;
 }
 
 .custom-file-upload:hover .file-upload-label {
   border-color: var(--accent);
-  background: var(--bg-elevated);
   color: var(--text-primary);
 }
 
 .file-upload-label svg {
   color: var(--accent);
   flex-shrink: 0;
+  width: 14px;
+  height: 14px;
 }
 
 .file-upload-text {
@@ -161,37 +169,21 @@
   text-overflow: ellipsis;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 991px) {
   .register-split .register-form-side {
-    padding-top: 32px;
-    min-height: 100vh;
+    padding: 0 !important;
+    min-height: auto !important;
+    flex: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
   }
-}
 
-@media (max-width: 768px) {
   .form-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-  }
-
-  .form-actions {
-    flex-direction: column-reverse;
-    gap: 10px;
-  }
-
-  .form-actions .btn {
-    width: 100%;
-  }
-}
-
-@media (max-width: 600px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .register-split .register-form-side {
-    padding: 20px 14px;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
   }
 }
 
@@ -205,7 +197,8 @@
     border-radius: 12px;
   }
 
-  .register-split .register-form-side {
-    padding: 16px 12px;
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
   }
 }

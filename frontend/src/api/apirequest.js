@@ -4,7 +4,7 @@ const apirequest = async (url, options = {}) => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_API_URL}${url}`,
-      options
+      options,
     );
 
     const text = await response.text();
@@ -17,6 +17,23 @@ const apirequest = async (url, options = {}) => {
       data = {
         message: "Invalid server response",
       };
+    }
+    if (response.status === 401) {
+      if (!url.includes("/login")) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        // localStorage.removeItem("role");
+
+        if (!window.location.pathname.includes("/login")) {
+          toast.error(data?.message || "Session expired. Please login again.", {
+            toastId: "session-expired",
+          });
+
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 1000);
+        }
+      }
     }
 
     if (!response.ok) {
@@ -32,7 +49,8 @@ const apirequest = async (url, options = {}) => {
       error?.message?.includes("fetch")
     ) {
       const networkError = {
-        message: "Unable to connect to the server. Please try again in a few moments.",
+        message:
+          "Unable to connect to the server. Please try again in a few moments.",
         isNetworkError: true,
       };
       toast.error(networkError.message, { toastId: "server-unreachable" });

@@ -1,5 +1,5 @@
 const User = require("../models/user");
-
+const { updateUserSchema } = require("../validations/validate");
 const { changePasswordValidation } = require("../validations/validate");
 const bcrypt = require("bcrypt");
 
@@ -23,6 +23,15 @@ const getProfile = async (req, res) => {
   }
 };
 const updateProfile = async (req, res) => {
+  const { error } = updateUserSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({
+      field: error.details[0].path[0],
+      message: error.details[0].message,
+    });
+  }
+
   try {
     const existingUser = await User.findOne({
       email: req.body.email,
@@ -34,6 +43,19 @@ const updateProfile = async (req, res) => {
         field: "email",
         message: "Email already exists",
       });
+    }
+    if (req.body.phone) {
+      const existingPhoneUser = await User.findOne({
+        phone: req.body.phone,
+        _id: { $ne: req.user.id },
+      });
+
+      if (existingPhoneUser) {
+        return res.status(409).json({
+          field: "phone",
+          message: "Phone number already exists",
+        });
+      }
     }
 
     const updateData = {

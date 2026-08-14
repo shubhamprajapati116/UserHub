@@ -241,14 +241,11 @@ function EditUserForm({
                 type="text"
                 id="country"
                 name="country"
-                value={formData.country}
-                placeholder="India"
-                onChange={handleChange}
-                disabled={loading}
+                value="India"
+                readOnly
+                disabled
+                title="Service available for India only"
               />
-              {errors.country && (
-                <span className="form-error">{errors.country}</span>
-              )}
             </div>
 
             <div className="form-field">

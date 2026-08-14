@@ -26,7 +26,10 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-
+    phoneVerified: {
+      type: Boolean,
+      default: false,
+    },
     bio: {
       type: String,
       default: "",
@@ -34,7 +37,7 @@ const UserSchema = new mongoose.Schema(
 
     country: {
       type: String,
-      default: "",
+      default: "India",
     },
 
     state: {
@@ -106,7 +109,7 @@ const UserSchema = new mongoose.Schema(
   },
   {
     timestamps: true, // createdAt & updatedAt automatically generate honge
-  }
+  },
 );
 
 module.exports = mongoose.model("User", UserSchema);

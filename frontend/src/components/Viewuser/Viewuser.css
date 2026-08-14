@@ -1,17 +1,17 @@
 /* ==========================================================================
-   View User Profile - Modern Vibrant Design System
+   View User Profile - Modern Vibrant Balanced Design System
    ========================================================================== */
 
 .userview-page {
-  padding: 2rem;
-  max-width: 1240px;
+  padding: 10px 16px 26px;
+  max-width: 920px;
   margin: 0 auto;
 }
 
 .userview-container {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 12px;
 }
 
 /* ==========================================================================
@@ -20,14 +20,14 @@
 
 .userview-header {
   position: relative;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 24px;
-  padding: 3rem 2.5rem 2.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 10px);
+  padding: 24px 20px 20px;
   text-align: center;
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 /* Soft ambient background gradient glow */
@@ -37,16 +37,16 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 120px;
+  height: 75px;
   background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(124, 58, 237, 0.15), rgba(236, 72, 153, 0.1));
   z-index: 0;
 }
 
 .userview-image {
   position: relative;
-  width: 140px;
-  height: 140px;
-  margin: 0 auto 1.25rem;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 10px;
   z-index: 1;
 }
 
@@ -55,34 +55,33 @@
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
-  padding: 4px;
+  padding: 2.5px;
   background: linear-gradient(135deg, #2563eb, #7c3aed, #ec4899);
-  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+  transition: transform 0.2s ease;
 }
 
 .userview-image img:hover {
   transform: scale(1.04);
-  box-shadow: 0 16px 36px rgba(124, 58, 237, 0.35);
 }
 
 .userview-name {
   position: relative;
   z-index: 1;
-  margin: 0;
-  font-size: 2.2rem;
-  font-weight: 800;
+  margin: 0 0 3px;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: var(--text-primary);
-  letter-spacing: -0.5px;
+  letter-spacing: -0.02em;
 }
 
 .userview-badges {
   position: relative;
   z-index: 1;
-  margin-top: 1.25rem;
+  margin-top: 8px;
   display: flex;
   justify-content: center;
-  gap: 0.85rem;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
@@ -90,31 +89,31 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.55rem 1.15rem;
+  gap: 4px;
+  padding: 3px 10px;
   border-radius: 999px;
-  font-size: 0.85rem;
+  font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.2px;
-  transition: transform 0.2s ease;
+  transition: transform 0.18s ease;
 }
 
 .badge:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .verified-badge {
   background: rgba(16, 185, 129, 0.12);
   color: #10b981;
   border: 1px solid rgba(16, 185, 129, 0.25);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15);
 }
 
 .joined-badge {
   background: rgba(37, 99, 235, 0.12);
   color: #2563eb;
   border: 1px solid rgba(37, 99, 235, 0.25);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
 }
 
 /* ==========================================================================
@@ -124,85 +123,84 @@
 .userview-info-section {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.75rem;
+  gap: 12px;
 }
 
 .userview-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 22px;
-  padding: 2rem;
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.04);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 10px);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s ease;
 }
 
 .userview-card:hover {
-  border-color: rgba(37, 99, 235, 0.3);
-  box-shadow: 0 12px 32px -4px rgba(37, 99, 235, 0.08);
+  border-color: rgba(99, 102, 241, 0.3);
 }
 
 .userview-card h3 {
-  margin: 0 0 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
-  font-size: 1.15rem;
+  margin: 0 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--text-primary);
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 6px;
 }
 
 /* Accent bar under card title */
 .userview-card h3::after {
   content: "";
   display: block;
-  width: 40px;
-  height: 3px;
+  width: 28px;
+  height: 2px;
   background: linear-gradient(90deg, #2563eb, #7c3aed);
-  border-radius: 4px;
+  border-radius: 2px;
   margin-left: auto;
 }
 
 .userview-grid {
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
+  gap: 8px;
 }
 
 /* Item box with vibrant icon container */
 .userview-item {
   display: flex;
   align-items: center;
-  gap: 1.1rem;
-  padding: 1.1rem 1.25rem;
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
-  background: var(--surface-bg);
-  transition: all 0.25s ease;
+  gap: 10px;
+  padding: 8px 12px;
+  min-height: 40px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  transition: all 0.18s ease;
 }
 
 .userview-item:hover {
-  background: var(--card-bg);
-  border-color: rgba(37, 99, 235, 0.25);
-  transform: translateX(4px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.03);
+  background: var(--bg-card);
+  border-color: var(--accent);
+  transform: translateY(-1px);
 }
 
 /* Custom Colored Icon Containers */
 .userview-item svg {
   flex-shrink: 0;
-  width: 42px;
-  height: 42px;
-  padding: 10px;
-  border-radius: 12px;
+  width: 28px;
+  height: 28px;
+  padding: 6px;
+  border-radius: 6px;
   background: rgba(37, 99, 235, 0.1);
   color: #2563eb;
-  transition: transform 0.2s ease;
+  transition: transform 0.18s ease;
 }
 
 .userview-item:hover svg {
-  transform: scale(1.1);
+  transform: scale(1.06);
 }
 
 /* Color variations for specific icon types */
@@ -244,20 +242,20 @@
 }
 
 .userview-item span {
-  font-size: 0.76rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  color: var(--text-secondary);
-  margin-bottom: 0.3rem;
+  color: var(--text-muted);
+  margin-bottom: 2px;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.4px;
 }
 
 .userview-item strong {
-  font-size: 1rem;
+  font-size: 0.80rem;
   font-weight: 600;
   color: var(--text-primary);
   word-break: break-word;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 .userview-item strong.verified {
@@ -272,17 +270,17 @@
 
 /* Bio / About Section */
 .userview-about {
-  min-height: 140px;
+  min-height: 60px;
 }
 
 .userview-bio {
   margin: 0;
-  padding: 1.25rem;
-  background: var(--surface-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  font-size: 0.98rem;
-  line-height: 1.8;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: 0.78rem;
+  line-height: 1.55;
   color: var(--text-primary);
   white-space: pre-wrap;
   word-break: break-word;
@@ -290,131 +288,130 @@
 
 .empty-bio {
   margin: 0;
-  padding: 1.25rem;
-  background: var(--surface-bg);
-  border: 1px dashed var(--border-color);
-  border-radius: 16px;
-  color: var(--text-secondary);
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px dashed var(--border);
+  border-radius: 7px;
+  color: var(--text-muted);
   font-style: italic;
-  line-height: 1.7;
+  font-size: 0.74rem;
+  line-height: 1.4;
 }
 
-/* ==========================================================================
-   Action Buttons Bar
-   ========================================================================== */
+/* Experience Section in Viewuser */
+.userview-experience-section {
+  width: 100%;
+}
 
+.experience-collapsible-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 10px);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.experience-collapsible-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.experience-collapsible-left h3 {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.userview-bottom-section {
+  width: 100%;
+}
+
+/* Action Buttons Bar */
 .userview-button-group {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
-  gap: 1.2rem;
-  margin-top: 1rem;
+  gap: 10px;
+  margin-top: 8px;
 }
 
-.userview-back-btn,
+.userview-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.18s ease;
+}
+
+.userview-back-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
 .userview-edit-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.65rem;
-  padding: 0.85rem 1.8rem;
-  border-radius: 14px;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: white !important;
+  font-size: 0.78rem;
+  font-weight: 600;
   text-decoration: none;
-  font-weight: 700;
-  font-size: 0.95rem;
-  transition: all 0.25s ease;
-  cursor: pointer;
-}
-
-.userview-back-btn {
-  background: var(--card-bg);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-}
-
-.userview-back-btn:hover {
-  background: var(--surface-bg);
-  border-color: #2563eb;
-  color: #2563eb;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.12);
-}
-
-.userview-edit-btn {
-  background: linear-gradient(135deg, #2563eb, #4f46e5);
-  color: #ffffff !important;
-  border: none;
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+  transition: all 0.18s ease;
 }
 
 .userview-edit-btn:hover {
-  background: linear-gradient(135deg, #1d4ed8, #4338ca);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.4);
+  background: var(--accent-hover);
+  transform: translateY(-1px);
 }
 
-/* ==========================================================================
-   Dark Theme Adjustments
-   ========================================================================== */
-
-[data-theme="dark"] .userview-header::before {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(124, 58, 237, 0.25), rgba(236, 72, 153, 0.15));
+/* Skeletons */
+.skeleton-avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
 }
 
-[data-theme="dark"] .verified-badge {
-  background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
-  border-color: rgba(16, 185, 129, 0.35);
+.skeleton-name {
+  width: 150px;
+  height: 20px;
+  margin: 0 auto;
+  border-radius: 4px;
 }
 
-[data-theme="dark"] .joined-badge {
-  background: rgba(37, 99, 235, 0.2);
-  color: #60a5fa;
-  border-color: rgba(37, 99, 235, 0.35);
+.skeleton-badge {
+  width: 75px;
+  height: 20px;
+  border-radius: 999px;
 }
 
-[data-theme="dark"] .userview-item {
-  background: rgba(255, 255, 255, 0.03);
+.skeleton-btn {
+  width: 90px;
+  height: 32px;
+  border-radius: 5px;
 }
 
-[data-theme="dark"] .userview-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-/* ==========================================================================
-   Responsive Breakpoints
-   ========================================================================== */
-
-@media (max-width: 992px) {
-  .userview-page {
-    padding: 1.5rem;
-  }
-
-  .userview-header {
-    padding: 2.5rem 1.5rem 2.0rem;
-  }
-
+@media (max-width: 680px) {
   .userview-info-section {
     grid-template-columns: 1fr;
-  }
-
-  .userview-card {
-    padding: 1.5rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .userview-page {
-    padding: 1rem;
-  }
-
-  .userview-image {
-    width: 110px;
-    height: 110px;
-  }
-
-  .userview-name {
-    font-size: 1.75rem;
+    gap: 10px;
   }
 
   .userview-button-group {

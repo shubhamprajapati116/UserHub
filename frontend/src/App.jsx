@@ -2,7 +2,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
-import UserList from "./components/UserList/UserList";
+import AdminPanel from "./components/AdminPanel/AdminPanel";
 import Loginform from "./components/LoginForm/loginform";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -22,6 +22,7 @@ import AddUser from "./components/Adduser/AddUser";
 import { useStore } from "./stores/StoreContext";
 import Viewuser from "./components/Viewuser/Viewuser";
 import ErrorBoundary from "./components/ErrorBoundary";
+import ActiveSessions from "./components/settings/ActiveSessions";
 
 function App() {
   const { themeStore, userStore } = useStore();
@@ -75,6 +76,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/active-sessions" element={<ActiveSessions />} />
           <Route
             path="/admin/users/:id/view"
             element={
@@ -95,7 +97,7 @@ function App() {
             path="/admin/users"
             element={
               <AdminRoute>
-                <UserList />
+                <AdminPanel />
               </AdminRoute>
             }
           />
@@ -121,13 +123,12 @@ function App() {
           <Route path="/reset-password/:token" element={<ResetPassword />} />
         </Routes>
         <ToastContainer
-          position="top-right"
-          autoClose={3000}
+          position="top-center"
+          autoClose={2600}
           hideProgressBar={false}
           newestOnTop
           closeOnClick
           pauseOnHover
-          theme="light"
         />
       </BrowserRouter>
     </ErrorBoundary>

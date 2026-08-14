@@ -84,6 +84,7 @@ function AppDatePicker({
         className={`form-input dp-input ${inputClassName} ${error ? "error" : ""}`}
         calendarClassName="app-dp-calendar"
         popperPlacement="bottom-start"
+        portalId="root-portal"
       />
       <span className="dp-calendar-icon">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

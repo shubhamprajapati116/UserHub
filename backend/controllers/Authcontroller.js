@@ -5,6 +5,10 @@ const { userSchema, loginschema } = require("../validations/validate");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+const { v4: uuidv4 } = require("uuid");
+const Session = require("../models/session");
+const getDeviceInfo = require("../utils/getDeviceInfo");
+
 const registeruser = async (req, res) => {
   try {
     const { error } = userSchema.validate(req.body);
@@ -125,8 +129,8 @@ const registeruser = async (req, res) => {
     });
   }
 };
+
 const loginuser = async (req, res) => {
-  
   const { error } = loginschema.validate(req.body);
   if (error) {
     return res.status(400).json({
@@ -162,12 +166,24 @@ const loginuser = async (req, res) => {
     });
   }
 
+  const sessionId = uuidv4();
+  const { browser, os, device } = getDeviceInfo(req.headers["user-agent"]);
+
+  await Session.create({
+    userId: user._id,
+    sessionId,
+    browser,
+    os,
+    device,
+    ipAddress: req.headers["x-forwarded-for"] || req.ip,
+  });
+
   // Extract User Agent & Client IP
   const currentUA = req.headers["user-agent"] || "Unknown Browser / Device";
   const currentIp =
-    req.ip ||
+    req.ip || 
     req.headers["x-forwarded-for"] ||
-    req.socket.remoteAddress ||
+   req.socket.remoteAddress ||
     "127.0.0.1";
 
   const isSecurityAlertEnabled =
@@ -224,6 +240,7 @@ const loginuser = async (req, res) => {
       id: user._id,
       email: user.email,
       role: user.role,
+      sessionId,
     },
     process.env.JWT_SECRET,
     {
@@ -235,7 +252,6 @@ const loginuser = async (req, res) => {
   delete userData.password;
   delete userData.resetPasswordToken;
   delete userData.resetPasswordExpire;
-  // console.log("✅ Login successful for:", userData);
   res.json({
     message: "Login Successfully",
     token,
@@ -324,6 +340,104 @@ const forgotpassword = async (req, res) => {
     });
   }
 };
+const getSessions = async (req, res) => {
+  try {
+    const currentSessionId = req.user.sessionId;
+
+    const sessions = await Session.find({
+      userId: req.user.id,
+    }).sort({
+      createdAt: -1,
+    });
+
+    const formattedSessions = sessions.map((s) => ({
+      sessionId: s.sessionId,
+      browser: s.browser,
+      os: s.os,
+      device: s.device,
+      ipAddress: s.ipAddress,
+      createdAt: s.createdAt,
+      isCurrent: s.sessionId === currentSessionId,
+    }));
+
+    res.status(200).json(formattedSessions);
+  } catch (error) {
+    res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+const logoutSession = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+
+    if (sessionId === req.user.sessionId) {
+      return res.status(400).json({
+        message:
+          "Cannot revoke your current active device session from here. Use the main Logout button.",
+      });
+    }
+
+    const session = await Session.findOne({
+      sessionId,
+      userId: req.user.id,
+    });
+
+    if (!session) {
+      return res.status(404).json({
+        message: "Session not found",
+      });
+    }
+
+    await Session.deleteOne({
+      sessionId,
+      userId: req.user.id,
+    });
+
+    return res.status(200).json({
+      message: "Session revoked successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+const logoutCurrentDevice = async (req, res) => {
+  try {
+    await Session.deleteOne({
+      sessionId: req.user.sessionId,
+      userId: req.user.id,
+    });
+
+    return res.status(200).json({
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+const logoutOtherSessions = async (req, res) => {
+  try {
+    await Session.deleteMany({
+      userId: req.user.id,
+      sessionId: {
+        $ne: req.user.sessionId,
+      },
+    });
+
+    return res.status(200).json({
+      message: "Other devices logged out successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
 const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
@@ -364,4 +478,8 @@ module.exports = {
   loginuser,
   forgotpassword,
   resetPassword,
+  logoutCurrentDevice,
+  logoutOtherSessions,
+  getSessions,
+  logoutSession,
 };

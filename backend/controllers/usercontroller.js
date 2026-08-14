@@ -93,19 +93,49 @@ const getUsers = async (req, res) => {
     const sortOptions = {};
     sortOptions[sortBy] = sortOrder;
 
-    const users = await User.find(query)
-      .select(
-        "-password -resetPasswordToken -resetPasswordExpire -verificationToken",
-      )
-      .sort(sortOptions)
-      .skip((page - 1) * limit)
-      .limit(limit);
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
 
-    const totalUsers = await User.countDocuments(query);
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+
+    const [
+      users,
+      totalUsers,
+      verifiedUsersCount,
+      adminUsersCount,
+      todayUsersCount,
+    ] = await Promise.all([
+      User.find(query)
+        .select(
+          "-password -resetPasswordToken -resetPasswordExpire -verificationToken",
+        )
+        .sort(sortOptions)
+        .skip((page - 1) * limit)
+        .limit(limit),
+      User.countDocuments(query),
+      User.countDocuments({ ...query, isVerified: true }),
+      User.countDocuments({ ...query, role: "admin" }),
+      User.countDocuments({
+        ...query,
+        createdAt: { $gte: startOfToday, $lte: endOfToday },
+      }),
+    ]);
+
+    // console.log("Users fetched:", users);
+    // console.log("Total users count:", totalUsers);
+    // console.log("Verified users count:", verifiedUsersCount);
+    // console.log("Admin users count:", adminUsersCount);
+    // console.log("Today's users count:", todayUsersCount);
 
     res.json({
       users,
       totalUsers,
+      stats: {
+        verifiedUsersCount,
+        adminUsersCount,
+        todayUsersCount,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -139,6 +169,20 @@ const updateuser = async (req, res) => {
         field: "email",
         message: "Email already exists",
       });
+    }
+
+    if (req.body.phone) {
+      const existingPhoneUser = await User.findOne({
+        phone: req.body.phone,
+        _id: { $ne: req.params.id },
+      });
+
+      if (existingPhoneUser) {
+        return res.status(409).json({
+          field: "phone",
+          message: "Phone number already exists",
+        });
+      }
     }
 
     const updateData = {
