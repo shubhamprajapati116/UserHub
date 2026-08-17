@@ -92,7 +92,14 @@ function EditUser() {
   };
 
   return (
-    <AppLayout title="Edit User" subtitle="Update user information">
+    <AppLayout
+      title="Edit User"
+      breadcrumbs={[
+        { label: "Admin Panel", path: "/admin/users" },
+        { label: "Users", path: "/admin/users" },
+        { label: editUser?.name ? `Edit ${editUser.name}` : "Edit User" },
+      ]}
+    >
       <div className="split-page-wrapper">
         <div className="form-main-card">
           <EditUserForm

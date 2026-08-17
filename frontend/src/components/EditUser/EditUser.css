@@ -33,17 +33,19 @@
 }
 
 .left-card-title {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.4rem;
   letter-spacing: -0.01em;
 }
 
 .left-card-divider {
-  height: 1px;
-  background: var(--border);
-  margin-bottom: 1.25rem;
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1, #818cf8);
+  border-radius: 2px;
+  width: 100%;
+  margin-bottom: 1.1rem;
 }
 
 .left-card-box {
@@ -52,6 +54,9 @@
   border-radius: 12px;
   padding: 1.25rem;
   box-shadow: var(--shadow-xs);
+  max-width: 320px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .left-card-subtitle {
@@ -128,7 +133,6 @@
 .btn-update-picture:hover {
   background: linear-gradient(135deg, #4f46e5, #4338ca);
   box-shadow: 0 6px 16px rgba(99, 102, 241, 0.45);
-  transform: translateY(-1px);
 }
 
 .btn-remove-picture {
@@ -183,11 +187,12 @@
 
 /* Sub-section Headers */
 .right-section-subtitle {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 0.9rem;
-  display: inline-flex;
+  margin-top: 0.2rem;
+  margin-bottom: 1.1rem;
+  display: flex;
   align-items: center;
   gap: 0.5rem;
   border-left: 3px solid #6366f1;
@@ -198,20 +203,20 @@
 .sub-section-divider {
   height: 1px;
   background: var(--border);
-  margin: 1.25rem 0 1rem;
+  margin: 1.1rem 0 0.9rem;
 }
 
 /* Grids */
 .fields-grid-2col {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.85rem 1.25rem;
+  gap: 8px 16px;
 }
 
 .fields-grid-3col {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.85rem 1.25rem;
+  gap: 8px 16px;
 }
 
 .admin .form-field {
@@ -224,39 +229,57 @@
   width: 100%;
 }
 
+/* Phone sits in 2-col on desktop, becomes half-width on mobile next to a gap */
+.admin .form-field-phone {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
 .admin .form-label {
-  margin-bottom: 0.35rem;
-  font-size: 0.82rem;
-  font-weight: 500;
+  margin-bottom: 0.3rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
   color: var(--text-secondary);
+  line-height: 1.2;
 }
 
 .admin .form-input,
-.admin .form-select {
+.admin .form-select,
+.admin .custom-form-select-btn,
+.admin .dp-input {
   width: 100%;
-  height: 38px;
-  min-height: 38px;
-  padding: 0 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
+  height: 36px;
+  min-height: 36px;
+  padding: 0 11px;
+  border-radius: 4px;
+  border: 1px solid var(--border-input);
   background: var(--bg-input);
   color: var(--text-primary);
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   font-family: inherit;
   box-sizing: border-box;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
+.admin .dp-input {
+  padding: 0 32px 0 11px !important;
+}
+
+.admin .custom-form-select-btn .selected-text,
+.admin .custom-form-select-btn .placeholder-text {
+  font-size: 0.84rem;
+}
+
 .admin textarea.compact-textarea {
   width: 100%;
-  height: 70px;
-  min-height: 70px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
+  height: 64px;
+  min-height: 64px;
+  padding: 8px 11px;
+  border-radius: 6px;
+  border: 1px solid var(--border-input);
   background: var(--bg-input);
   color: var(--text-primary);
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   font-family: inherit;
   line-height: 1.4;
   resize: vertical;
@@ -264,18 +287,23 @@
 }
 
 .admin .form-input::placeholder,
+.admin .dp-input::placeholder,
 .admin textarea::placeholder {
   color: var(--text-muted);
 }
 
 .admin .form-input:hover,
 .admin .form-select:hover,
+.admin .custom-form-select-btn:hover:not(:disabled),
+.admin .dp-input:hover,
 .admin textarea:hover {
   border-color: var(--accent);
 }
 
 .admin .form-input:focus,
 .admin .form-select:focus,
+.admin .custom-form-select-wrapper.open .custom-form-select-btn,
+.admin .dp-input:focus,
 .admin textarea:focus {
   outline: none;
   border-color: var(--accent);
@@ -285,6 +313,8 @@
 
 .admin .form-input:disabled,
 .admin .form-select:disabled,
+.admin .custom-form-select-wrapper.disabled .custom-form-select-btn,
+.admin .dp-input:disabled,
 .admin textarea:disabled {
   cursor: not-allowed;
   opacity: 0.65;
@@ -327,7 +357,6 @@
 .btn-primary-save:hover:not(:disabled) {
   background: linear-gradient(135deg, #4f46e5, #4338ca);
   box-shadow: 0 6px 16px rgba(99, 102, 241, 0.45);
-  transform: translateY(-1px);
 }
 
 .btn-text-cancel {
@@ -357,9 +386,15 @@
   }
 
   .left-profile-column {
-    max-width: 480px;
-    margin: 0 auto 0.5rem;
+    max-width: 100%;
+    margin: 0 0 0.5rem;
     width: 100%;
+  }
+
+  .left-card-box {
+    max-width: 320px;
+    width: 100%;
+    margin: 0 auto;
   }
 
   .fields-grid-3col {
@@ -367,17 +402,85 @@
   }
 }
 
-@media (max-width: 900px) {
-  .fields-grid-2col,
+@media (max-width: 1024px) {
+  .form-main-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .left-profile-column {
+    max-width: 100%;
+    width: 100%;
+    margin: 0 0 0.5rem;
+  }
+
+  .left-card-box {
+    max-width: 320px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .fields-grid-2col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 12px;
+  }
+
   .fields-grid-3col {
-    grid-template-columns: 1fr;
-    gap: 0.85rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 12px;
+  }
+
+  .right-section-subtitle {
+    margin-bottom: 1rem !important;
+  }
+}
+
+@media (max-width: 900px) {
+  /* Personal info: keep 2 columns always */
+  .fields-grid-2col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 10px;
+  }
+
+  /* Location: keep 2 columns on mobile too */
+  .fields-grid-3col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 10px;
+  }
+
+  /* Phone: half width (sits in col 1, Bio stays full) */
+  .admin .form-field-phone {
+    grid-column: span 1;
+  }
+
+  .admin .form-label {
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
+  }
+
+  .right-section-subtitle {
+    margin-top: 0.25rem;
+    margin-bottom: 0.95rem !important;
+  }
+
+  .sub-section-divider {
+    margin: 0.85rem 0 0.75rem;
   }
 }
 
 @media (max-width: 768px) {
   .form-main-card {
     padding: 1.25rem 1rem;
+  }
+
+  .left-profile-column {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .left-card-box {
+    max-width: 320px;
+    width: 100%;
+    margin: 0 auto;
   }
 }
 

@@ -150,7 +150,19 @@ const loginuser = async (req, res) => {
       message: "Invalid Email",
     });
   }
-  const ismatch = await bcrypt.compare(password, user.password);
+
+  // ── 1. Check if Account is Currently Locked ──
+  if (user.lockUntil && user.lockUntil > Date.now()) {
+    const remainingMinutes = Math.ceil(
+      (user.lockUntil.getTime() - Date.now()) / (60 * 1000),
+    );
+    return res.status(403).json({
+      field: "email",
+      message: `Account is temporarily locked due to multiple failed login attempts. Please try again in ${remainingMinutes} minute(s).`,
+      isLocked: true,
+      remainingMinutes,
+    });
+  }
 
   if (!user.isVerified) {
     return res.status(400).json({
@@ -159,11 +171,43 @@ const loginuser = async (req, res) => {
     });
   }
 
+  const ismatch = await bcrypt.compare(password, user.password);
+
+  // ── 2. Handle Failed Password Attempt ──
   if (!ismatch) {
+    const MAX_ATTEMPTS = 5;
+    const LOCK_TIME_MS = 15 * 60 * 1000; // 15 Minutes
+
+    user.loginAttempts = (user.loginAttempts || 0) + 1;
+
+    // Check if limit exceeded
+    if (user.loginAttempts >= MAX_ATTEMPTS) {
+      user.lockUntil = new Date(Date.now() + LOCK_TIME_MS);
+      await user.save();
+
+      return res.status(403).json({
+        field: "password",
+        message:
+          "Too many failed login attempts. Your account has been locked for 15 minutes for security.",
+        isLocked: true,
+        remainingMinutes: 15,
+      });
+    }
+
+    await user.save();
+    const remainingAttempts = MAX_ATTEMPTS - user.loginAttempts;
+
     return res.status(400).json({
       field: "password",
-      message: "Invalid password",
+      message: `Invalid password. You have ${remainingAttempts} attempt(s) left before account lockout.`,
+      remainingAttempts,
     });
+  }
+
+  // ── 3. Successful Login: Reset Failed Attempts ──
+  if (user.loginAttempts > 0 || user.lockUntil) {
+    user.loginAttempts = 0;
+    user.lockUntil = null;
   }
 
   const sessionId = uuidv4();
@@ -181,9 +225,9 @@ const loginuser = async (req, res) => {
   // Extract User Agent & Client IP
   const currentUA = req.headers["user-agent"] || "Unknown Browser / Device";
   const currentIp =
-    req.ip || 
+    req.ip ||
     req.headers["x-forwarded-for"] ||
-   req.socket.remoteAddress ||
+    req.socket.remoteAddress ||
     "127.0.0.1";
 
   const isSecurityAlertEnabled =

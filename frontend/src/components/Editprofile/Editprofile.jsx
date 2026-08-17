@@ -85,7 +85,13 @@ function EditProfile() {
   };
 
   return (
-    <AppLayout title="Edit Profile" subtitle="Update your personal information">
+    <AppLayout
+      title="Edit Profile"
+      breadcrumbs={[
+        { label: "My Profile", path: "/profile" },
+        { label: "Edit Profile" },
+      ]}
+    >
       <div className="split-page-wrapper">
         <div className="form-main-card">
           <EditUserForm

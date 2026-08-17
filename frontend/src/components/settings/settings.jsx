@@ -128,6 +128,7 @@ function Settings() {
             </svg>
             <span>Email Notifications</span>
           </button>
+
           <button
             type="button"
             className={`settings-nav-item ${
@@ -308,8 +309,7 @@ function Settings() {
                     </span>
                   </h4>
                   <p>
-                    Jab aapka password change ho ya naye device se login ho, tab
-                    email par notification aaye.
+                    Receive email alerts whenever your password is changed or a login occurs from a new device.
                   </p>
                 </div>
                 <label className="switch">

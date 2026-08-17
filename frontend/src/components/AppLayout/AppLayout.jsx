@@ -6,6 +6,7 @@ import "./applayout.css";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/StoreContext";
 import apirequest from "../../api/apirequest";
+import Breadcrumb from "../Breadcrumb/Breadcrumb";
 const NavIcon = ({ name }) => {
   const icons = {
     users: (
@@ -75,7 +76,7 @@ const NavIcon = ({ name }) => {
   return icons[name] || null;
 };
 
-function AppLayout({ children, title, subtitle }) {
+function AppLayout({ children, title, subtitle, breadcrumbs }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { userStore } = useStore();
@@ -215,7 +216,11 @@ function AppLayout({ children, title, subtitle }) {
             </button>
             <div className="top-header-page-info">
               {title && <h1 className="top-header-title">{title}</h1>}
-              {subtitle && <p className="top-header-subtitle">{subtitle}</p>}
+              {breadcrumbs && breadcrumbs.length > 0 ? (
+                <Breadcrumb items={breadcrumbs} />
+              ) : (
+                subtitle && <p className="top-header-subtitle">{subtitle}</p>
+              )}
             </div>
           </div>
 

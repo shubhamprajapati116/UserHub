@@ -33,7 +33,7 @@
 }
 
 .left-card-title {
-  font-size: 0.92rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0 0 4px;
@@ -41,8 +41,10 @@
 }
 
 .left-card-divider {
-  height: 1px;
-  background: var(--border);
+  height: 2px;
+  background: linear-gradient(90deg, #6366f1, #818cf8);
+  border-radius: 2px;
+  width: 100%;
   margin-bottom: 10px;
 }
 
@@ -52,6 +54,9 @@
   border-radius: 6px;
   padding: 10px;
   box-shadow: var(--shadow-xs);
+  max-width: 220px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .left-card-subtitle {
@@ -223,6 +228,11 @@
   width: 100%;
 }
 
+.profile .form-field-phone {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
 .profile .form-label {
   margin-bottom: 3px;
   font-size: 0.68rem;
@@ -231,32 +241,42 @@
 }
 
 .profile .form-input,
-.profile .form-select {
+.profile .form-select,
+.profile .custom-form-select-btn,
+.profile .dp-input {
   width: 100%;
-  height: 30px;
-  min-height: 30px;
-  padding: 0 9px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 10px;
   border-radius: 4px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-input);
   background: var(--bg-input);
   color: var(--text-primary);
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-family: inherit;
   box-sizing: border-box;
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
+.profile .dp-input {
+  padding: 0 28px 0 10px !important;
+}
+
+.profile .custom-form-select-btn .selected-text,
+.profile .custom-form-select-btn .placeholder-text {
+  font-size: 0.78rem;
+}
 
 .profile textarea.compact-textarea {
   width: 100%;
-  height: 54px;
-  min-height: 54px;
-  padding: 6px 9px;
-  border-radius: 4px;
-  border: 1px solid var(--border);
+  height: 56px;
+  min-height: 56px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-input);
   background: var(--bg-input);
   color: var(--text-primary);
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-family: inherit;
   line-height: 1.4;
   resize: vertical;
@@ -264,18 +284,23 @@
 }
 
 .profile .form-input::placeholder,
+.profile .dp-input::placeholder,
 .profile textarea::placeholder {
   color: var(--text-muted);
 }
 
 .profile .form-input:hover,
 .profile .form-select:hover,
+.profile .custom-form-select-btn:hover:not(:disabled),
+.profile .dp-input:hover,
 .profile textarea:hover {
   border-color: var(--accent);
 }
 
 .profile .form-input:focus,
 .profile .form-select:focus,
+.profile .custom-form-select-wrapper.open .custom-form-select-btn,
+.profile .dp-input:focus,
 .profile textarea:focus {
   outline: none;
   border-color: var(--accent);
@@ -285,6 +310,8 @@
 
 .profile .form-input:disabled,
 .profile .form-select:disabled,
+.profile .custom-form-select-wrapper.disabled .custom-form-select-btn,
+.profile .dp-input:disabled,
 .profile textarea:disabled {
   cursor: not-allowed;
   opacity: 0.65;
@@ -352,9 +379,13 @@
   }
 
   .left-profile-column {
-    max-width: 360px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0 0 10px;
     width: 100%;
+  }
+
+  .left-card-box {
+    margin: 0 auto;
   }
 
   .fields-grid-3col {
@@ -367,10 +398,21 @@
     padding: 6px 4px 16px;
   }
 
-  .fields-grid-2col,
+  /* Personal info: keep 2 columns on mobile */
+  .fields-grid-2col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 8px;
+  }
+
+  /* Location: keep 2 columns on mobile */
   .fields-grid-3col {
-    grid-template-columns: 1fr;
-    gap: 7px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 8px;
+  }
+
+  /* Phone: half width on mobile */
+  .profile .form-field-phone {
+    grid-column: span 1;
   }
 
   .right-form-actions {

@@ -62,7 +62,13 @@ function ChangePassword() {
   };
 
   return (
-    <AppLayout title="Change Password" subtitle="Update your account password">
+    <AppLayout
+      title="Change Password"
+      breadcrumbs={[
+        { label: "Settings", path: "/settings" },
+        { label: "Change Password" },
+      ]}
+    >
       <div className="page-container-form">
         <div className="settings-grid">
           <div className="card change-password-layout">

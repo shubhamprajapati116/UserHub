@@ -73,7 +73,14 @@ function ViewUser() {
   };
 
   return (
-    <AppLayout title="User Details" subtitle="View complete user information">
+    <AppLayout
+      title="User Details"
+      breadcrumbs={[
+        { label: "Admin Panel", path: "/admin/users" },
+        { label: "Users", path: "/admin/users" },
+        { label: user.name || "User Details" },
+      ]}
+    >
       <div className="userview-page">
         <div className="userview-container">
           <div className="userview-header">
@@ -537,7 +544,7 @@ function ViewUser() {
                 </Link>
 
                 <Link
-                  to={`/admin/users/${user._id}/userEdit`}
+                  to={`/admin/users/${user._id}/edit`}
                   className="userview-edit-btn"
                 >
                   <FaEdit />

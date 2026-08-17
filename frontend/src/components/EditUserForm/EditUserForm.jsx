@@ -107,7 +107,7 @@ function EditUserForm({
             <div className="section-blue-line" />
           </div>
 
-          <span className="right-section-subtitle">Personal Details</span>
+          <div className="right-section-subtitle">Personal Details</div>
 
           {/* 2-Column Fields Grid */}
           <div className="fields-grid-2col">
@@ -188,7 +188,8 @@ function EditUserForm({
               {errors.dob && <span className="form-error">{errors.dob}</span>}
             </div>
 
-            <div className="form-field form-field-full">
+            {/* Phone + Bio full width rows */}
+            <div className="form-field form-field-phone">
               <label className="form-label" htmlFor="phone">
                 Phone
               </label>
@@ -229,7 +230,7 @@ function EditUserForm({
 
           {/* Location below Bio */}
           <div className="sub-section-divider" />
-          <span className="right-section-subtitle">Location</span>
+          <div className="right-section-subtitle">Location</div>
 
           <div className="fields-grid-3col">
             <div className="form-field">

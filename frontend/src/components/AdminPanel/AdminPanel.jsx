@@ -121,10 +121,8 @@ function AdminPanel() {
     selectedUsers.length > 0 && selectedUsers.every((u) => u.role === "user");
   const showMakeUserBtn =
     selectedUsers.length > 0 && selectedUsers.every((u) => u.role === "admin");
-
   const isAllSelected =
     users.length > 0 && users.every((u) => selectedUserIds.includes(u._id));
-
   const toggleSelectAll = () => {
     if (isAllSelected) {
       setSelectedUserIds([]);
@@ -217,9 +215,11 @@ function AdminPanel() {
   const inlineStats = [
     {
       label: "Total Users",
-      subtext: "(Admin + User)",
+      subtext: "System registered accounts",
       value: systemTotalUsers,
       colorClass: "icon-blue",
+      badge: "All Time",
+      badgeClass: "badge-blue",
       icon: (
         <svg
           width="18"
@@ -237,10 +237,12 @@ function AdminPanel() {
       ),
     },
     {
-      label: "Verified",
-      subtext: "Verified Accounts",
+      label: "Verified Users",
+      subtext: "Email confirmed accounts",
       value: verifiedCount,
       colorClass: "icon-green",
+      badge: `${systemTotalUsers > 0 ? Math.round((verifiedCount / systemTotalUsers) * 100) : 100}% verified`,
+      badgeClass: "badge-green",
       icon: (
         <svg
           width="18"
@@ -256,10 +258,12 @@ function AdminPanel() {
       ),
     },
     {
-      label: "Admin",
-      subtext: "Only Admin Accounts",
+      label: "Admin Accounts",
+      subtext: "System administrators",
       value: adminCount,
       colorClass: "icon-purple",
+      badge: "Full access",
+      badgeClass: "badge-purple",
       icon: (
         <svg
           width="18"
@@ -276,9 +280,11 @@ function AdminPanel() {
     },
     {
       label: "New Today",
-      subtext: "Registered Today",
+      subtext: "Registered in last 24h",
       value: newTodayCount,
       colorClass: "icon-amber",
+      badge: newTodayCount > 0 ? `+${newTodayCount} new` : "Today",
+      badgeClass: "badge-amber",
       icon: (
         <svg
           width="18"
@@ -422,7 +428,7 @@ function AdminPanel() {
               {role === "admin" && (
                 <button
                   className="btn btn-primary"
-                  onClick={() => navigate("/admin/users/addNewUser")}
+                  onClick={() => navigate("/admin/users/new")}
                 >
                   <svg
                     width="14"
@@ -441,23 +447,51 @@ function AdminPanel() {
             </div>
           </div>
 
-          {/* ── Inline Stats Row ── */}
+          {/* ── Inline Stats Row (Option 1 Glassmorphic Cards) ── */}
           <div className="ul-inline-stats">
             {loading
               ? Array.from({ length: 4 }).map((_, i) => (
-                  <div className="ul-stat-box skeleton-ul-stat" key={i}></div>
+                  <div className="ul-stat-box skeleton-stat-card" key={i}>
+                    <div className="ul-stat-top">
+                      <div className="ul-stat-main-info">
+                        <div className="skeleton skeleton-stat-label"></div>
+                        <div className="skeleton skeleton-stat-value"></div>
+                      </div>
+                      <div className="skeleton skeleton-stat-icon"></div>
+                    </div>
+                    <div className="ul-stat-bottom">
+                      <div className="skeleton skeleton-stat-badge"></div>
+                      <div className="skeleton skeleton-stat-subtext"></div>
+                    </div>
+                    <div className="ul-stat-progress-bar">
+                      <div className="skeleton skeleton-stat-progress"></div>
+                    </div>
+                  </div>
                 ))
               : inlineStats.map((s) => (
-                  <div className="ul-stat-box" key={s.label}>
+                  <div
+                    className={`ul-stat-box ${s.colorClass}-card`}
+                    key={s.label}
+                  >
                     <div className="ul-stat-top">
-                      <span className="ul-stat-value">{s.value}</span>
-                      <span className={`ul-stat-icon ${s.colorClass}`}>
+                      <div className="ul-stat-main-info">
+                        <span className="ul-stat-label">{s.label}</span>
+                        <span className="ul-stat-value">{s.value}</span>
+                      </div>
+                      <div className={`ul-stat-icon-wrapper ${s.colorClass}`}>
                         {s.icon}
-                      </span>
+                      </div>
                     </div>
-                    <div className="ul-stat-info-group">
-                      <span className="ul-stat-label">{s.label}</span>
+                    <div className="ul-stat-bottom">
+                      <span className={`ul-stat-badge ${s.badgeClass}`}>
+                        {s.badge}
+                      </span>
                       <span className="ul-stat-subtext">{s.subtext}</span>
+                    </div>
+                    <div className="ul-stat-progress-bar">
+                      <div
+                        className={`ul-stat-progress-fill ${s.colorClass}`}
+                      />
                     </div>
                   </div>
                 ))}
@@ -519,8 +553,12 @@ function AdminPanel() {
           {selectedUserIds.length > 0 && (
             <div className="ul-bulk-toolbar">
               <div className="ul-bulk-info">
-                <span className="ul-bulk-badge">{selectedUserIds.length}</span>{" "}
-                user(s) selected
+                <span className="ul-bulk-badge">{selectedUserIds.length}</span>
+                <span className="ul-bulk-text">
+                  {selectedUserIds.length === 1
+                    ? "user selected"
+                    : "users selected"}
+                </span>
               </div>
               <div className="ul-bulk-actions">
                 {showMakeAdminBtn && (
@@ -528,7 +566,17 @@ function AdminPanel() {
                     className="btn-bulk-action make-admin"
                     onClick={() => handleBulkRoleChange("admin")}
                   >
-                    Make Admin
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14v2H5v-2z" />
+                    </svg>
+                    <span>Make Admin</span>
                   </button>
                 )}
                 {showMakeUserBtn && (
@@ -536,20 +584,43 @@ function AdminPanel() {
                     className="btn-bulk-action make-user"
                     onClick={() => handleBulkRoleChange("user")}
                   >
-                    Make User
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    <span>Make User</span>
                   </button>
                 )}
                 <button
                   className="btn-bulk-action delete"
                   onClick={() => setShowBulkDeleteModal(true)}
                 >
-                  Delete Selected
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  </svg>
+                  <span>Delete Selected</span>
                 </button>
                 <button
                   className="btn-bulk-action clear"
                   onClick={() => setSelectedUserIds([])}
+                  title="Clear Selection"
                 >
-                  ✕ Clear
+                  <span>✕ Clear</span>
                 </button>
               </div>
             </div>
@@ -754,9 +825,13 @@ function AdminPanel() {
 
                             <td>
                               {user.isVerified ? (
-                                <span className="verified-badge">Verified</span>
+                                <span className="verified-badge">
+                                  <span className="status-dot green-dot" />
+                                  Verified
+                                </span>
                               ) : (
                                 <span className="unverified-badge">
+                                  <span className="status-dot amber-dot" />
                                   Unverified
                                 </span>
                               )}

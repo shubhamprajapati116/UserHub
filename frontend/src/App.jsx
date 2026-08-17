@@ -77,22 +77,7 @@ function App() {
             }
           />
           <Route path="/active-sessions" element={<ActiveSessions />} />
-          <Route
-            path="/admin/users/:id/view"
-            element={
-              <AdminRoute>
-                <Viewuser />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/users/:id/userEdit"
-            element={
-              <AdminRoute>
-                <EditUser />
-              </AdminRoute>
-            }
-          />
+          {/* Admin User Management Routes */}
           <Route
             path="/admin/users"
             element={
@@ -102,7 +87,49 @@ function App() {
             }
           />
           <Route
-            path="/profile/EditProfile"
+            path="/admin/users/new"
+            element={
+              <AdminRoute>
+                <AddUser />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/users/addNewUser"
+            element={<Navigate to="/admin/users/new" replace />}
+          />
+          <Route
+            path="/admin/users/:id/view"
+            element={
+              <AdminRoute>
+                <Viewuser />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/users/:id/edit"
+            element={
+              <AdminRoute>
+                <EditUser />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/users/:id/userEdit"
+            element={<Navigate to="/admin/users" replace />}
+          />
+
+          {/* Profile Routes */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/edit"
             element={
               <ProtectedRoute>
                 <EditProfile />
@@ -110,13 +137,10 @@ function App() {
             }
           />
           <Route
-            path="/admin/users/addNewUser"
-            element={
-              <AdminRoute>
-                <AddUser />
-              </AdminRoute>
-            }
+            path="/profile/EditProfile"
+            element={<Navigate to="/profile/edit" replace />}
           />
+
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Loginform />} />
           <Route path="/forgotpassword" element={<Forgotpassword />} />

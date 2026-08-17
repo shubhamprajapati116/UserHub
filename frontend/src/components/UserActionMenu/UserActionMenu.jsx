@@ -125,7 +125,7 @@ function UserActionMenu({
         onClick={(e) => {
           e.stopPropagation();
           onClose();
-          navigate(`/admin/users/${user._id}/userEdit`);
+          navigate(`/admin/users/${user._id}/edit`);
         }}
       >
         <FiEdit2 size={13} />

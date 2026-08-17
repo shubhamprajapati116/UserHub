@@ -61,7 +61,14 @@ function AddUser() {
     }
   };
   return (
-    <AppLayout title="Add User" subtitle="Create a new user account">
+    <AppLayout
+      title="Add User"
+      breadcrumbs={[
+        { label: "Admin Panel", path: "/admin/users" },
+        { label: "Users", path: "/admin/users" },
+        { label: "Add User" },
+      ]}
+    >
       <div className="page-container-form">
         <div className="register-edit-card">
           <div className="register-edit-body">

@@ -99,7 +99,7 @@
 }
 
 .badge:hover {
-  transform: translateY(-1px);
+  border-color: var(--accent);
 }
 
 .verified-badge {
@@ -184,7 +184,6 @@
 .userview-item:hover {
   background: var(--bg-card);
   border-color: var(--accent);
-  transform: translateY(-1px);
 }
 
 /* Custom Colored Icon Containers */
@@ -379,7 +378,6 @@
 
 .userview-edit-btn:hover {
   background: var(--accent-hover);
-  transform: translateY(-1px);
 }
 
 /* Skeletons */

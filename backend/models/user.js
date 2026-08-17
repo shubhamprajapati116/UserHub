@@ -93,7 +93,15 @@ const UserSchema = new mongoose.Schema(
     },
 
     verificationToken: String,
-
+    
+    loginAttempts: {
+      type: Number,
+      default: 0,
+    },
+    lockUntil: {
+      type: Date,
+      default: null,
+    },
     experience: [
       {
         title: { type: String, required: true },
