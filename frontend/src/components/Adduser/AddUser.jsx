@@ -65,7 +65,6 @@ function AddUser() {
       title="Add User"
       breadcrumbs={[
         { label: "Admin Panel", path: "/admin/users" },
-        { label: "Users", path: "/admin/users" },
         { label: "Add User" },
       ]}
     >

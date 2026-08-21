@@ -12,6 +12,11 @@ function EditUserForm({
   currentImage,
   variant = "profile",
 }) {
+  const avatarImageSrc =
+    formData.profilephoto instanceof File
+      ? URL.createObjectURL(formData.profilephoto)
+      : currentImage;
+
   return (
     <form
       noValidate
@@ -29,13 +34,9 @@ function EditUserForm({
 
             <div className="avatar-card-banner">
               <div className="avatar-circle-wrapper">
-                {currentImage || formData.profilephoto instanceof File ? (
+                {avatarImageSrc ? (
                   <img
-                    src={
-                      formData.profilephoto instanceof File
-                        ? URL.createObjectURL(formData.profilephoto)
-                        : currentImage
-                    }
+                    src={avatarImageSrc}
                     alt="Avatar"
                     onError={(e) => {
                       e.target.style.display = "none";
@@ -48,15 +49,12 @@ function EditUserForm({
                 <div
                   className="avatar-placeholder-svg"
                   style={{
-                    display:
-                      currentImage || formData.profilephoto instanceof File
-                        ? "none"
-                        : "flex",
+                    display: avatarImageSrc ? "none" : "flex",
                   }}
                 >
                   <svg
-                    width="40"
-                    height="40"
+                    width="44"
+                    height="44"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -67,10 +65,33 @@ function EditUserForm({
                   </svg>
                 </div>
               </div>
+
+              {/* User Name & Email display below photo */}
+              <div className="avatar-user-info">
+                <h5 className="avatar-user-name">
+                  {formData.name || "User Name"}
+                </h5>
+                <p className="avatar-user-email">
+                  {formData.email || "user@example.com"}
+                </p>
+              </div>
             </div>
 
             <div className="avatar-actions-row">
               <label htmlFor="profilephoto" className="btn-update-picture">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
                 Update Picture
               </label>
               <button
@@ -79,7 +100,21 @@ function EditUserForm({
                 onClick={() =>
                   handleChange({ target: { name: "profilephoto", value: "" } })
                 }
+                title="Remove profile picture"
               >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
                 Remove
               </button>
             </div>
@@ -109,7 +144,7 @@ function EditUserForm({
 
           <div className="right-section-subtitle">Personal Details</div>
 
-          {/* 2-Column Fields Grid */}
+          {/* 1. Name & Email in 2-Columns */}
           <div className="fields-grid-2col">
             <div className="form-field">
               <label className="form-label" htmlFor="name">
@@ -147,7 +182,10 @@ function EditUserForm({
                 <span className="form-error">{errors.email}</span>
               )}
             </div>
+          </div>
 
+          {/* 2. Gender, Date of Birth & Phone in 3-Columns (Desktop/Tablet) / 2-Columns (Mobile) */}
+          <div className="fields-grid-3col" style={{ marginTop: "10px" }}>
             <div className="form-field">
               <label className="form-label" htmlFor="gender">
                 Gender
@@ -182,13 +220,12 @@ function EditUserForm({
                 onChange={handleChange}
                 disabled={loading}
                 maxDate={new Date()}
-                placeholderText="Select date of birth"
+                placeholderText="DD / MM / YYYY"
                 error={!!errors.dob}
               />
               {errors.dob && <span className="form-error">{errors.dob}</span>}
             </div>
 
-            {/* Phone + Bio full width rows */}
             <div className="form-field form-field-phone">
               <label className="form-label" htmlFor="phone">
                 Phone
@@ -207,46 +244,57 @@ function EditUserForm({
                 <span className="form-error">{errors.phone}</span>
               )}
             </div>
+          </div>
 
-            {/* Bio in the middle right below personal details */}
-            <div className="form-field form-field-full">
+          {/* 3. Bio in Full Width with Character Counter */}
+          <div
+            className="form-field form-field-full"
+            style={{ marginTop: "10px" }}
+          >
+            <div className="label-counter-row">
               <label className="form-label" htmlFor="bio">
                 Bio
               </label>
-              <textarea
-                className="form-input compact-textarea"
-                id="bio"
-                name="bio"
-                rows="2"
-                maxLength={250}
-                value={formData.bio}
-                placeholder="Tell us something about yourself..."
-                onChange={handleChange}
-                disabled={loading}
-              />
-              {errors.bio && <span className="form-error">{errors.bio}</span>}
+              <span className="char-counter">
+                {(formData.bio || "").length}/250
+              </span>
             </div>
+            <textarea
+              className="form-input compact-textarea"
+              id="bio"
+              name="bio"
+              rows="2"
+              maxLength={250}
+              value={formData.bio}
+              placeholder="Tell us something about yourself..."
+              onChange={handleChange}
+              disabled={loading}
+            />
+            {errors.bio && <span className="form-error">{errors.bio}</span>}
           </div>
 
-          {/* Location below Bio */}
+          {/* 4. Location Section */}
           <div className="sub-section-divider" />
           <div className="right-section-subtitle">Location</div>
 
-          <div className="fields-grid-3col">
+          <div className="fields-grid-3col location-grid">
             <div className="form-field">
               <label className="form-label" htmlFor="country">
                 Country
               </label>
-              <input
-                className="form-input"
-                type="text"
-                id="country"
-                name="country"
-                value="India"
-                readOnly
-                disabled
-                title="Service available for India only"
-              />
+              <div className="readonly-input-wrap">
+                <input
+                  className="form-input readonly-input"
+                  type="text"
+                  id="country"
+                  name="country"
+                  value="India"
+                  readOnly
+                  disabled
+                  title="Service available for India only"
+                />
+                <span className="readonly-lock-icon">🔒</span>
+              </div>
             </div>
 
             <div className="form-field">
@@ -259,7 +307,7 @@ function EditUserForm({
                 id="state"
                 name="state"
                 value={formData.state}
-                placeholder="Gujarat"
+                placeholder="e.g. Gujarat"
                 onChange={handleChange}
                 disabled={loading}
               />
@@ -278,7 +326,7 @@ function EditUserForm({
                 id="city"
                 name="city"
                 value={formData.city}
-                placeholder="Ahmedabad"
+                placeholder="e.g. Ahmedabad"
                 onChange={handleChange}
                 disabled={loading}
               />
@@ -286,6 +334,7 @@ function EditUserForm({
             </div>
           </div>
 
+          {/* Bottom Actions */}
           <div className="right-form-actions">
             <button
               type="submit"
@@ -296,7 +345,7 @@ function EditUserForm({
             </button>
             <button
               type="button"
-              className="btn btn-text-cancel"
+              className="btn btn-secondary-cancel"
               onClick={onCancel}
               disabled={loading}
             >

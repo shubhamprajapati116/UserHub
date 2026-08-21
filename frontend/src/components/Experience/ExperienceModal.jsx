@@ -19,6 +19,13 @@ function ExperienceModal({ editData, onSave, onClose, loading }) {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  useEffect(() => {
     if (editData) {
       setFormData({
         title: editData.title || "",

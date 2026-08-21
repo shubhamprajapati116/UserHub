@@ -12,6 +12,13 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
   const imgRef = useRef(null);
 
   useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setZoom(1);
     setOffset({ x: 0, y: 0 });

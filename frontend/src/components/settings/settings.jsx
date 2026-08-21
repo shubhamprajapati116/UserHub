@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/StoreContext";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import AppLayout from "../AppLayout/AppLayout";
 import "./settings.css";
@@ -15,6 +15,17 @@ function Settings() {
   const { userStore, themeStore } = useStore();
   const darkMode = themeStore.darkMode;
   const loading = userStore.loading.deleteAccount;
+
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showModal]);
 
   const handledarkmode = () => {
     themeStore.toggleTheme();

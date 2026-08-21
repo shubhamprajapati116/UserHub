@@ -22,16 +22,33 @@
   height: 120px;
   overflow: hidden;
   border-radius: 10px 10px 0 0;
-  background: radial-gradient(circle at 15% 30%, #1e1b4b 0%, #0c1222 55%, #050811 100%);
+  background: radial-gradient(
+    circle at 15% 30%,
+    #1e1b4b 0%,
+    #0c1222 55%,
+    #050811 100%
+  );
 }
 
 .banner-aurora-glow {
   position: absolute;
   inset: 0;
-  background: 
-    radial-gradient(circle at 80% 25%, rgba(6, 182, 212, 0.28) 0%, transparent 50%),
-    radial-gradient(circle at 25% 75%, rgba(168, 85, 247, 0.32) 0%, transparent 55%),
-    radial-gradient(circle at 55% 40%, rgba(99, 102, 241, 0.22) 0%, transparent 60%);
+  background:
+    radial-gradient(
+      circle at 80% 25%,
+      rgba(6, 182, 212, 0.28) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 25% 75%,
+      rgba(168, 85, 247, 0.32) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 55% 40%,
+      rgba(99, 102, 241, 0.22) 0%,
+      transparent 60%
+    );
   pointer-events: none;
 }
 
@@ -52,7 +69,11 @@
   left: 0;
   right: 0;
   height: 35px;
-  background: linear-gradient(to bottom, transparent 0%, rgba(11, 15, 25, 0.5) 100%);
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(11, 15, 25, 0.5) 100%
+  );
   pointer-events: none;
 }
 
@@ -83,11 +104,12 @@
   box-shadow: 0 0 16px rgba(129, 140, 248, 0.35);
   display: block;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .profile-avatar:hover {
-  transform: scale(1.03);
   box-shadow: 0 0 22px rgba(129, 140, 248, 0.5);
 }
 
@@ -111,7 +133,7 @@
 
 .avatar-edit-btn:hover {
   background: var(--accent-hover);
-  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.6);
 }
 
 .avatar-save-btn {
@@ -178,7 +200,6 @@
 .profile-completion-mini-badge:hover {
   background: var(--bg-elevated);
   border-color: var(--accent);
-  transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
 }
 
@@ -204,12 +225,6 @@
 .mini-badge-arrow {
   font-size: 0.7rem;
   opacity: 0.7;
-  transition: transform 0.18s ease;
-}
-
-.profile-completion-mini-badge:hover .mini-badge-arrow {
-  transform: translateY(1px);
-  opacity: 1;
 }
 
 .profile-header-actions {
@@ -295,11 +310,14 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: all 0.18s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07);
   width: 100%;
   box-sizing: border-box;
   min-width: 0;
+  position: relative;
 }
 
 .meta-item:hover {
@@ -310,7 +328,7 @@
 .meta-item-header {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   margin-bottom: 3px;
 }
 
@@ -323,16 +341,14 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: transform 0.18s ease;
-}
-
-.meta-item:hover .meta-icon {
-  transform: scale(1.1);
+  position: relative;
 }
 
 .meta-icon svg {
   width: 11px;
   height: 11px;
+  display: block;
+  flex-shrink: 0;
 }
 
 /* 1. Name: Indigo */
@@ -588,7 +604,6 @@
   font-size: 0.74rem;
 }
 
-/* ── Work Experience Styles ── */
 .experience-section-header {
   display: flex;
   align-items: center;
@@ -740,7 +755,6 @@
   width: 68%;
   margin-bottom: 0;
 }
-
 /* ════════════════════════════════════════════════════════════════
    📱 TABLET & MOBILE RESPONSIVE LAYOUT (<= 1023px)
    - Stretches 100% Full Width (Zero empty right-side space!)
@@ -755,13 +769,11 @@
     gap: 14px;
     width: 100%;
   }
-
   .profile-left-col,
   .profile-right-col {
     display: contents;
     width: 100%;
   }
-
   /* 📱 Tablet & Mobile Ordering */
   .profile-completion-card {
     order: 1;
@@ -769,7 +781,6 @@
     margin-bottom: 0;
     box-sizing: border-box;
   }
-
   .profile-info-section {
     order: 2;
     width: 100% !important;
@@ -778,7 +789,6 @@
     margin-bottom: 0;
     box-sizing: border-box;
   }
-
   .profile-about-section {
     order: 3;
     width: 100% !important;
@@ -787,7 +797,6 @@
     margin-bottom: 0;
     box-sizing: border-box;
   }
-
   .profile-exp-section {
     order: 4;
     width: 100% !important;
@@ -905,55 +914,5 @@
 
   .meta-value {
     font-size: 0.76rem;
-  }
-}
-
-/* ── 🌞 Light Mode Specific Enhancements for Profile Page ── */
-:root:not([data-theme="dark"]) {
-  .profile-layout {
-    background: #ffffff;
-    border-color: #e2e8f0;
-    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
-  }
-
-  .meta-item {
-    background: #ffffff;
-    border-color: #e2e8f0;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-  }
-
-  .meta-item:hover {
-    border-color: #6366f1;
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.12);
-  }
-
-
-
-  .meta-label {
-    color: #64748b;
-  }
-
-  .meta-value {
-    color: #0f172a;
-  }
-
-  .profile-completion-card,
-  .bio-card,
-  .experience-empty {
-    background: #ffffff;
-    border-color: #e2e8f0;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-  }
-
-  .profile-section-title {
-    color: #475569;
-  }
-
-  .profile-banner {
-    background: radial-gradient(circle at 15% 30%, #312e81 0%, #1e1b4b 60%, #0f172a 100%);
-  }
-
-  .banner-overlay-fade {
-    background: linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.2) 100%);
   }
 }

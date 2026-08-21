@@ -11,6 +11,10 @@ const sessionSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    deviceId: {
+      type: String,
+      required: true,
+    },
     browser: String,
     os: String,
     device: String,

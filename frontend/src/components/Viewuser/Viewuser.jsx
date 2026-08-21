@@ -74,10 +74,9 @@ function ViewUser() {
 
   return (
     <AppLayout
-      title="User Details"
+      title={loading ? "User Details" : user.name || "User Details"}
       breadcrumbs={[
         { label: "Admin Panel", path: "/admin/users" },
-        { label: "Users", path: "/admin/users" },
         { label: user.name || "User Details" },
       ]}
     >
@@ -90,11 +89,11 @@ function ViewUser() {
               ) : (
                 <img
                   src={
-                    user.profilephoto
+                    user?.profilephoto
                       ? `${import.meta.env.VITE_API_URL}/uploads/${user.profilephoto}`
                       : "https://ui-avatars.com/api/?name=User"
                   }
-                  alt={user.name}
+                  alt={user?.name || "User"}
                   onError={(e) => {
                     e.target.src = "https://ui-avatars.com/api/?name=User";
                   }}
@@ -106,7 +105,7 @@ function ViewUser() {
               {loading ? (
                 <div className="skeleton skeleton-name"></div>
               ) : (
-                user.name
+                user?.name || "User"
               )}
             </h2>
 
@@ -333,23 +332,29 @@ function ViewUser() {
             </div>
           </div>
 
-          <div className="userview-card">
+          <div className="userview-card userview-exp-card">
             <div
               className="experience-toggle-header"
               onClick={() => setIsExpOpen(!isExpOpen)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                cursor: "pointer",
-                userSelect: "none",
-              }}
             >
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "10px" }}
-              >
-                <h3 style={{ margin: 0 }}>Work Experience</h3>
-                <span className="experience-badge">
+              <div className="exp-toggle-title-wrap">
+                <div className="exp-toggle-icon">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                  </svg>
+                </div>
+                <h3 className="exp-toggle-heading">Work Experience</h3>
+                <span className="exp-count-pill">
                   {user?.experience ? user.experience.length : 0}{" "}
                   {user?.experience?.length === 1 ? "Role" : "Roles"}
                 </span>
@@ -357,32 +362,44 @@ function ViewUser() {
 
               <button
                 type="button"
-                className="add-exp-btn"
-                style={{
-                  background: "rgba(255,255,255,0.06)",
-                  color: "var(--text-primary)",
-                  borderColor: "var(--border)",
-                }}
+                className="exp-collapse-btn"
+                aria-label={isExpOpen ? "Collapse Experience" : "Expand Experience"}
               >
-                {isExpOpen ? "▲ Hide" : "▼ View"}
+                <span>{isExpOpen ? "Hide" : "View"}</span>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{
+                    transform: isExpOpen ? "rotate(180deg)" : "rotate(0deg)",
+                    transition: "transform 0.2s ease",
+                  }}
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
               </button>
-            </div>{" "}
+            </div>
+
             {isExpOpen && (
-              <div className="timeline-container" style={{ marginTop: "18px" }}>
+              <div className="timeline-container exp-view-timeline">
                 {loading ? (
-                  Array.from({ length: 2 }).map((_, idx) => (
+                  Array.from({ length: 1 }).map((_, idx) => (
                     <div
                       className="experience-card apple-card-style skeleton-exp-card"
                       key={idx}
-                      style={{ opacity: 0.7 }}
                     >
                       <div className="apple-card-header">
                         <div
                           className="skeleton skeleton-avatar"
                           style={{
-                            width: "46px",
-                            height: "46px",
-                            borderRadius: "12px",
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "7px",
                             flexShrink: 0,
                           }}
                         ></div>
@@ -392,24 +409,24 @@ function ViewUser() {
                           style={{
                             display: "flex",
                             flexDirection: "column",
-                            gap: "8px",
+                            gap: "6px",
                           }}
                         >
                           <div
                             className="skeleton skeleton-line"
-                            style={{ width: "55%", height: "18px" }}
+                            style={{ width: "50%", height: "14px" }}
                           ></div>
                           <div
                             className="skeleton skeleton-line"
-                            style={{ width: "35%", height: "14px" }}
+                            style={{ width: "30%", height: "11px" }}
                           ></div>
                           <div
                             className="skeleton skeleton-badge"
                             style={{
-                              width: "180px",
-                              height: "22px",
+                              width: "140px",
+                              height: "18px",
                               borderRadius: "999px",
-                              marginTop: "4px",
+                              marginTop: "2px",
                             }}
                           ></div>
                         </div>
@@ -429,27 +446,35 @@ function ViewUser() {
                         className="experience-card apple-card-style"
                         key={exp._id}
                       >
-                        {/* Top Header Row */}
+                        {/* Top Header Row - Clean Balanced Layout */}
                         <div className="apple-card-header">
-                          <div className="apple-company-logo">
-                            <span>{companyInitial}</span>
+                          <div className="apple-card-header-top">
+                            <div className="apple-header-left">
+                              <div className="apple-company-logo">
+                                <span>{companyInitial}</span>
+                              </div>
+
+                              <div className="apple-title-group">
+                                <div className="apple-title-row">
+                                  <h4 className="apple-job-title">{exp.title}</h4>
+                                  <span className="apple-company-sep">@</span>
+                                  <span className="apple-company-name">{exp.company}</span>
+                                  {exp.location && (
+                                    <span className="apple-company-loc">({exp.location})</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
                           </div>
 
-                          <div className="apple-title-group">
-                            <h3 className="apple-job-title">{exp.title}</h3>
-                            <div className="apple-company-sub">
-                              {exp.company}{" "}
-                              {exp.location ? `— ${exp.location}` : ""}
-                            </div>
-                            <div className="apple-blue-pill">
-                              {formatDateStr(exp.startDate).toUpperCase()} —{" "}
-                              {exp.isCurrent
-                                ? "PRESENT"
-                                : formatDateStr(exp.endDate).toUpperCase()}{" "}
-                              {exp.employmentType
-                                ? `• ${exp.employmentType.toUpperCase()}`
-                                : ""}
-                            </div>
+                          <div className="apple-blue-pill">
+                            {formatDateStr(exp.startDate).toUpperCase()} —{" "}
+                            {exp.isCurrent
+                              ? "PRESENT"
+                              : formatDateStr(exp.endDate).toUpperCase()}{" "}
+                            {exp.employmentType
+                              ? `• ${exp.employmentType.toUpperCase()}`
+                              : ""}
                           </div>
                         </div>
 

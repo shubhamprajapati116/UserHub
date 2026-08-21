@@ -43,7 +43,7 @@ function Regiform() {
       Object.entries(formData).forEach(([key, value]) => {
         formDataObj.append(key, value);
       });
-
+        console.log("Submitting registration form with data:", formData);
       const data = await userStore.register(formDataObj);
 
       toast.success(data.message);

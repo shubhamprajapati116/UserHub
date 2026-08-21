@@ -158,9 +158,25 @@ textarea.exp-textarea {
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
-  margin-top: 6px;
-  padding-top: 10px;
+  margin-top: 8px;
+  padding-top: 12px;
   border-top: 1px solid var(--border);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.exp-modal-actions .btn {
+  height: 34px;
+  min-height: 34px;
+  padding: 0 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: var(--radius-md, 6px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s ease;
+  cursor: pointer;
 }
 
 /* ── Work Experience List Section inside Profile.jsx ── */
@@ -439,34 +455,41 @@ textarea.exp-textarea {
 .experience-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 6px;
+  flex: 0 0 auto;
+  margin-left: auto;
   flex-shrink: 0;
 }
 
 .exp-action-btn {
-  width: 28px;
-  height: 28px;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  min-height: 26px !important;
+  max-width: 26px !important;
+  max-height: 26px !important;
   border-radius: 6px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.18s ease;
-  padding: 0;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  padding: 0 !important;
   box-sizing: border-box;
   background: rgba(99, 102, 241, 0.08) !important;
   border: 1px solid rgba(99, 102, 241, 0.25) !important;
   color: #6366f1 !important;
-  overflow: visible;
+  overflow: hidden;
   line-height: 0;
   flex-shrink: 0;
 }
 
 .exp-action-btn svg {
-  width: 14px;
-  height: 14px;
-  min-width: 14px;
-  min-height: 14px;
+  width: 13px;
+  height: 13px;
+  min-width: 13px;
+  min-height: 13px;
   stroke: currentColor;
   fill: none;
   display: block;
@@ -480,7 +503,6 @@ textarea.exp-textarea {
   color: #ffffff !important;
   border-color: #6366f1 !important;
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
-  transform: translateY(-1px);
 }
 
 .exp-action-btn.delete:hover {
@@ -488,7 +510,6 @@ textarea.exp-textarea {
   color: #ffffff !important;
   border-color: #dc2626 !important;
   box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
-  transform: translateY(-1px);
 }
 
 .experience-empty {
@@ -511,7 +532,11 @@ textarea.exp-textarea {
   flex-direction: column;
   gap: 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  max-width: 100%;
 }
 
 .apple-card-style:hover {
@@ -521,25 +546,45 @@ textarea.exp-textarea {
 
 .apple-card-header {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  flex-direction: column;
+  gap: 5px;
   width: 100%;
+  box-sizing: border-box;
+}
+
+.apple-card-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.apple-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .apple-company-logo {
-  width: 32px;
-  height: 32px;
-  border-radius: 7px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   border: 1px solid var(--border);
   color: #ffffff;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 28px;
   flex-shrink: 0;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  margin-top: 1px;
 }
 
 :root:not([data-theme="dark"]) .apple-company-logo {
@@ -547,37 +592,76 @@ textarea.exp-textarea {
 }
 
 .apple-title-group {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   min-width: 0;
+  flex: 1 1 auto;
+}
+
+.apple-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+  line-height: 1.3;
 }
 
 .apple-job-title {
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
   letter-spacing: -0.01em;
   line-height: 1.25;
+  word-break: break-word;
 }
 
-.apple-company-sub {
-  font-size: 0.78rem;
+.apple-company-sep {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.apple-company-name {
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-secondary);
-  margin-top: 2px;
+  word-break: break-word;
+}
+
+.apple-company-loc {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  word-break: break-word;
+}
+
+.experience-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  margin-left: 6px;
 }
 
 .apple-blue-pill {
-  display: inline-block;
-  font-size: 0.68rem;
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  margin-left: 36px;
+  font-size: 0.64rem;
   font-weight: 700;
   letter-spacing: 0.03em;
   color: var(--accent);
   background: rgba(99, 102, 241, 0.1);
   border: 1px solid rgba(99, 102, 241, 0.25);
-  padding: 2px 8px;
+  padding: 2px 7px;
   border-radius: 999px;
-  margin-top: 5px;
+  line-height: 1.2;
+  white-space: nowrap;
+  max-width: calc(100% - 36px);
+  box-sizing: border-box;
 }
 
 .apple-card-divider {
@@ -587,6 +671,7 @@ textarea.exp-textarea {
 .apple-card-body {
   width: 100%;
   margin-top: 8px;
+  box-sizing: border-box;
 }
 
 .exp-desc-divider {
@@ -601,6 +686,8 @@ textarea.exp-textarea {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .apple-bullet-item {
@@ -610,6 +697,10 @@ textarea.exp-textarea {
   font-size: 0.78rem;
   color: var(--text-secondary);
   line-height: 1.45;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .apple-bullet-dot {
@@ -619,6 +710,9 @@ textarea.exp-textarea {
   flex-shrink: 0;
 }
 
+/* ════════════════════════════════════════════════════════════════
+   📱 Responsive Media Queries (Mobile & Tablet)
+   ════════════════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
   .exp-modal-overlay {
     padding: 10px;
@@ -626,31 +720,88 @@ textarea.exp-textarea {
 
   .exp-modal-card {
     max-height: 92vh;
+    width: 95%;
   }
 
   .exp-modal-form {
-    padding: 16px;
-    gap: 12px;
+    padding: 14px;
+    gap: 10px;
     max-height: calc(92vh - 60px);
   }
 
   .exp-form-row {
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
   }
 
-  .experience-card {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 16px;
-  }
-
-  .experience-header-row {
+  .exp-modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     width: 100%;
+    margin-top: 6px;
+    padding-top: 10px;
   }
 
-  .experience-actions {
-    align-self: flex-start;
+  .exp-modal-actions .btn {
+    flex: 1;
+    height: 38px;
+    min-height: 38px;
+    font-size: 0.82rem;
+    padding: 0 10px;
+  }
+
+  .apple-card-style {
+    padding: 10px 12px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .apple-card-header {
+    gap: 6px;
+  }
+
+  .apple-company-logo {
+    width: 26px;
+    height: 26px;
+    font-size: 0.78rem;
+    border-radius: 6px;
+    flex: 0 0 26px;
+  }
+
+  .apple-job-title {
+    font-size: 0.85rem;
+  }
+
+  .apple-company-name {
+    font-size: 0.78rem;
+  }
+
+  .apple-company-loc {
+    font-size: 0.72rem;
+  }
+
+  .exp-action-btn {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    min-height: 26px !important;
+  }
+
+  .exp-action-btn svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .apple-blue-pill {
+    margin-left: 34px;
+    font-size: 0.62rem;
+    padding: 2px 6px;
+    max-width: calc(100% - 34px);
+  }
+
+  .apple-bullet-item {
+    font-size: 0.74rem;
   }
 }
 
@@ -660,32 +811,103 @@ textarea.exp-textarea {
   }
 
   .exp-modal-header {
-    padding: 12px 16px;
+    padding: 10px 12px;
   }
 
   .exp-modal-header h3 {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
   .exp-modal-form {
-    padding: 12px 14px;
-    gap: 10px;
-    max-height: calc(95vh - 55px);
+    padding: 10px 12px;
+    gap: 8px;
+    max-height: calc(95vh - 50px);
   }
 
   .exp-input {
-    padding: 8px 12px;
-    font-size: 0.85rem;
+    padding: 0 8px;
+    font-size: 0.75rem;
+    height: 32px;
   }
 
   .exp-modal-actions {
-    padding-top: 12px;
-    gap: 8px;
+    padding-top: 10px;
+    gap: 6px;
   }
 
-  .exp-modal-actions button {
+  .exp-modal-actions .btn {
     flex: 1;
-    padding: 8px 12px;
+    height: 36px;
+    min-height: 36px;
+    font-size: 0.78rem;
+    padding: 0 8px;
+  }
+
+  .apple-card-style {
+    padding: 9px 10px;
+    border-radius: 6px;
+  }
+
+  .apple-card-header-top {
+    gap: 6px;
+  }
+
+  .apple-company-logo {
+    width: 24px;
+    height: 24px;
+    font-size: 0.74rem;
+    border-radius: 5px;
+    flex: 0 0 24px;
+  }
+
+  .apple-job-title {
     font-size: 0.82rem;
+    line-height: 1.2;
+  }
+
+  .apple-company-name {
+    font-size: 0.75rem;
+  }
+
+  .apple-company-loc {
+    font-size: 0.7rem;
+  }
+
+  .apple-blue-pill {
+    margin-left: 30px;
+    font-size: 0.60rem;
+    padding: 1.5px 6px;
+    max-width: calc(100% - 30px);
+  }
+
+  .experience-actions {
+    gap: 4px;
+  }
+
+  .exp-action-btn {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+  }
+
+  .exp-action-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .apple-bullet-item {
+    font-size: 0.72rem;
+    gap: 4px;
+  }
+}
+
+@media (max-width: 360px) {
+  .apple-blue-pill {
+    margin-left: 0;
+    max-width: 100%;
+    font-size: 0.58rem;
+    padding: 1.5px 5px;
+    letter-spacing: 0.01em;
   }
 }

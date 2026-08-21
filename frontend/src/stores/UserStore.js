@@ -13,6 +13,7 @@ class UserStore {
     }
   })();
   loading = {
+    resendLoginOtp: false,
     login: false,
     register: false,
     fetchProfile: false,
@@ -32,6 +33,20 @@ class UserStore {
     experience: false,
     notificationPreferences: false,
   };
+  // Device ID generator & getter
+  getDeviceId() {
+    let deviceId = localStorage.getItem("deviceId");
+    if (!deviceId) {
+      // Unique random device fingerprint string (e.g. dev_8f9a2b1c...)
+      deviceId =
+        "dev_" +
+        Math.random().toString(36).substring(2, 12) +
+        "_" +
+        Date.now().toString(36);
+      localStorage.setItem("deviceId", deviceId);
+    }
+    return deviceId;
+  }
   error = null;
   users = [];
   totalUsers = 0;
@@ -91,13 +106,18 @@ class UserStore {
     this.error = null;
 
     try {
+      const deviceId = this.getDeviceId();
       const response = await apirequest("/login", {
         method: "POST",
         headers: {
           "content-type": "application/json",
         },
-        body: JSON.stringify(formdata),
+        body: JSON.stringify({ ...formdata, deviceId }),
       });
+
+      if (response.requireOtp || response.requireotp) {
+        return response;
+      }
 
       localStorage.setItem("token", response.token);
 
@@ -121,7 +141,71 @@ class UserStore {
       });
     }
   }
+  // ── 1. Verify Login OTP Method ──
+  async verifyLoginOtp(email, otp) {
+    this.loading.login = true;
+    this.error = null;
 
+    try {
+      const deviceId = this.getDeviceId();
+
+      const response = await apirequest("/verify-login-otp", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ email, otp, deviceId }),
+      });
+
+      // Token save karo aur Current User state update karo
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+
+        runInAction(() => {
+          if (response.user) {
+            this.currentUser = response.user;
+            localStorage.setItem("user", JSON.stringify(response.user));
+          }
+        });
+      }
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.login = false;
+      });
+    }
+  }
+
+  // ── 2. Resend Login OTP Method ──
+  async resendLoginOtp(email) {
+    if (this.loading.resendLoginOtp) return;
+    this.loading.resendLoginOtp = true;
+    this.error = null;
+
+    try {
+      return await apirequest("/resend-login-otp", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+    } finally {
+      runInAction(() => {
+        this.loading.resendLoginOtp = false;
+      });
+    }
+  }
   async fetchUsers({
     page = 1,
     limit = 5,

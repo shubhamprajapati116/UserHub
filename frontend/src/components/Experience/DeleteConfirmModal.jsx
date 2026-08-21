@@ -1,6 +1,14 @@
+import { useEffect } from "react";
 import "./deleteconfirm.css";
 
 function DeleteConfirmModal({ title, subtitle, onConfirm, onCancel, loading }) {
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
   return (
     <div className="del-modal-overlay" onClick={onCancel}>
       <div className="del-modal-card" onClick={(e) => e.stopPropagation()}>

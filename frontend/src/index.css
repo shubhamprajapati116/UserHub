@@ -1028,7 +1028,9 @@ input[type="file"].form-input::file-selector-button:hover {
   background: var(--bg-card) !important;
   color: var(--text-primary) !important;
   border: 1px solid var(--border) !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.22),
+    0 1px 3px rgba(0, 0, 0, 0.1) !important;
   margin-bottom: 6px !important;
   cursor: pointer !important;
 }
@@ -1043,7 +1045,9 @@ input[type="file"].form-input::file-selector-button:hover {
   background: #ffffff !important;
   color: #0f172a !important;
   border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1), 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.1),
+    0 1px 3px rgba(15, 23, 42, 0.05) !important;
 }
 
 .Toastify__toast-body {
@@ -1115,4 +1119,3 @@ input[type="file"].form-input::file-selector-button:hover {
     font-size: 0.75rem !important;
   }
 }
-

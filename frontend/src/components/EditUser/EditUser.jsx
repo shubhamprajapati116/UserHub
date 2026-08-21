@@ -96,7 +96,6 @@ function EditUser() {
       title="Edit User"
       breadcrumbs={[
         { label: "Admin Panel", path: "/admin/users" },
-        { label: "Users", path: "/admin/users" },
         { label: editUser?.name ? `Edit ${editUser.name}` : "Edit User" },
       ]}
     >

@@ -116,6 +116,18 @@ function AdminPanel() {
     reference: null,
   });
 
+  const isAnyModalOpen = showModal || showBulkDeleteModal || showImageModal;
+  useEffect(() => {
+    if (isAnyModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isAnyModalOpen]);
+
   const selectedUsers = users.filter((u) => selectedUserIds.includes(u._id));
   const showMakeAdminBtn =
     selectedUsers.length > 0 && selectedUsers.every((u) => u.role === "user");
@@ -215,7 +227,7 @@ function AdminPanel() {
   const inlineStats = [
     {
       label: "Total Users",
-      subtext: "System registered accounts",
+      subtext: "System registered",
       value: systemTotalUsers,
       colorClass: "icon-blue",
       badge: "All Time",
@@ -238,7 +250,7 @@ function AdminPanel() {
     },
     {
       label: "Verified Users",
-      subtext: "Email confirmed accounts",
+      subtext: "Email confirmed",
       value: verifiedCount,
       colorClass: "icon-green",
       badge: `${systemTotalUsers > 0 ? Math.round((verifiedCount / systemTotalUsers) * 100) : 100}% verified`,
@@ -259,7 +271,7 @@ function AdminPanel() {
     },
     {
       label: "Admin Accounts",
-      subtext: "System administrators",
+      subtext: "System managers",
       value: adminCount,
       colorClass: "icon-purple",
       badge: "Full access",
@@ -280,7 +292,7 @@ function AdminPanel() {
     },
     {
       label: "New Today",
-      subtext: "Registered in last 24h",
+      subtext: "Registered today",
       value: newTodayCount,
       colorClass: "icon-amber",
       badge: newTodayCount > 0 ? `+${newTodayCount} new` : "Today",

@@ -88,7 +88,6 @@
   letter-spacing: -0.02em;
 }
 
-/* Glowing Circular Icon Container */
 .ul-stat-icon-wrapper {
   width: 36px;
   height: 36px;
@@ -97,11 +96,6 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
-}
-
-.ul-stat-box:hover .ul-stat-icon-wrapper {
-  transform: scale(1.08);
 }
 
 /* Bottom Row with Badge & Subtext */
@@ -799,11 +793,6 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 4px;
-  transition: transform 0.25s ease;
-}
-
-.stat-card:hover .stat-card-icon {
-  transform: scale(1.1);
 }
 
 .users-stats .stat-card:nth-child(1) .stat-card-icon {
@@ -1028,12 +1017,12 @@
   object-fit: cover;
   border: 1.5px solid var(--border);
   cursor: pointer;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .user-avatar:hover {
   border-color: var(--accent);
-  transform: scale(1.08);
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.3);
 }
 
 .user-avatar-initials {
@@ -1050,11 +1039,10 @@
   letter-spacing: 0.05em;
   box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
   cursor: pointer;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease;
 }
 
 .user-avatar-initials:hover {
-  transform: scale(1.08);
   box-shadow: 0 4px 10px rgba(99, 102, 241, 0.45);
 }
 
@@ -1937,16 +1925,40 @@
   }
 
   .ul-stat-box {
-    padding: 10px 12px;
+    padding: 10px 10px 8px;
+    min-height: auto;
   }
 
   .ul-stat-value {
     font-size: 1.15rem;
   }
 
-  .ul-stat-icon {
-    width: 32px;
-    height: 32px;
+  .ul-stat-icon-wrapper {
+    width: 30px;
+    height: 30px;
+  }
+
+  .ul-stat-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    margin-top: 6px;
+  }
+
+  .ul-stat-badge {
+    font-size: 0.64rem;
+    padding: 1px 6px;
+    align-self: flex-start;
+  }
+
+  .ul-stat-subtext {
+    font-size: 0.62rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
   }
 
   .ul-filter-row {

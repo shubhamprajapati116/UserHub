@@ -139,11 +139,8 @@ const loginuser = async (req, res) => {
     });
   }
 
-  const { email, password } = req.body;
-
-  const user = await User.findOne({
-    email,
-  });
+  const { email, password, deviceId } = req.body;
+  const user = await User.findOne({ email });
   if (!user) {
     return res.status(400).json({
       field: "email",
@@ -151,7 +148,7 @@ const loginuser = async (req, res) => {
     });
   }
 
-  // ── 1. Check if Account is Currently Locked ──
+  // 1. Account Lockout Check
   if (user.lockUntil && user.lockUntil > Date.now()) {
     const remainingMinutes = Math.ceil(
       (user.lockUntil.getTime() - Date.now()) / (60 * 1000),
@@ -163,7 +160,6 @@ const loginuser = async (req, res) => {
       remainingMinutes,
     });
   }
-
   if (!user.isVerified) {
     return res.status(400).json({
       field: "email",
@@ -171,16 +167,15 @@ const loginuser = async (req, res) => {
     });
   }
 
+  // 2. Password Check
   const ismatch = await bcrypt.compare(password, user.password);
 
-  // ── 2. Handle Failed Password Attempt ──
   if (!ismatch) {
     const MAX_ATTEMPTS = 5;
-    const LOCK_TIME_MS = 15 * 60 * 1000; // 15 Minutes
+    const LOCK_TIME_MS = 15 * 60 * 1000;
 
     user.loginAttempts = (user.loginAttempts || 0) + 1;
 
-    // Check if limit exceeded
     if (user.loginAttempts >= MAX_ATTEMPTS) {
       user.lockUntil = new Date(Date.now() + LOCK_TIME_MS);
       await user.save();
@@ -204,72 +199,78 @@ const loginuser = async (req, res) => {
     });
   }
 
-  // ── 3. Successful Login: Reset Failed Attempts ──
+  // Reset login attempts on correct password
   if (user.loginAttempts > 0 || user.lockUntil) {
     user.loginAttempts = 0;
     user.lockUntil = null;
   }
 
+  // 3. 🛡️ DEVICE CHECK: Known vs Unknown Device
+  const currentUA = req.headers["user-agent"] || "Unknown Browser / Device";
+  const currentIp =
+    req.headers["x-forwarded-for"] ||
+    req.socket.remoteAddress ||
+    req.ip ||
+    "127.0.0.1";
+
+  // Check if deviceId is in trustedDevices list
+  const isKnownDevice =
+    deviceId &&
+    user.trustedDevices &&
+    user.trustedDevices.some((d) => d.deviceId === deviceId);
+
+  // ── UNKNOWN DEVICE: Send OTP & Require 2FA ──
+  if (!isKnownDevice) {
+    // 6-digit random OTP generate karo
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log(`🔐 [LOGIN OTP for ${user.email}]: ${otp}`);
+    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes expiry
+
+    user.loginOtp = otp;
+    user.loginOtpExpire = otpExpiry;
+    await user.save();
+
+    // Send OTP email
+    try {
+      await sendEmail(
+        user.email,
+        "Your Login Verification OTP - UserHub",
+        `
+        <div style="max-width:550px; margin:auto; padding:25px; font-family:Arial,sans-serif; border:1px solid #e2e8f0; border-radius:10px; background:#ffffff;">
+          <h2 style="color:#2563eb; margin-bottom:5px;">UserHub Security Verification</h2>
+          <p style="color:#475569; font-size:15px;">A login attempt was made from a new or unrecognized device.</p>
+          <div style="background:#f1f5f9; padding:20px; text-align:center; border-radius:8px; margin:20px 0;">
+            <span style="font-size:32px; font-weight:bold; letter-spacing:6px; color:#1e293b;">${otp}</span>
+          </div>
+          <p style="color:#64748b; font-size:14px;">This code is valid for <strong>5 minutes</strong>. If you did not attempt this login, please change your password immediately.</p>
+        </div>
+        `,
+      );
+    } catch (err) {
+      console.error("Error sending OTP email:", err.message);
+    }
+
+    return res.status(200).json({
+      requireOtp: true,
+      message:
+        "Unrecognized device detected. A 6-digit OTP has been sent to your email.",
+      email: user.email,
+    });
+  }
+
+  // ── KNOWN DEVICE: Direct JWT Generation ──
   const sessionId = uuidv4();
   const { browser, os, device } = getDeviceInfo(req.headers["user-agent"]);
 
   await Session.create({
     userId: user._id,
     sessionId,
+    deviceId,
     browser,
     os,
     device,
-    ipAddress: req.headers["x-forwarded-for"] || req.ip,
+    ipAddress: currentIp,
   });
-
-  // Extract User Agent & Client IP
-  const currentUA = req.headers["user-agent"] || "Unknown Browser / Device";
-  const currentIp =
-    req.ip ||
-    req.headers["x-forwarded-for"] ||
-    req.socket.remoteAddress ||
-    "127.0.0.1";
-
-  const isSecurityAlertEnabled =
-    user.notificationPreferences?.securityLoginAlerts !== false;
-  const previousUA = user.lastDeviceInfo?.userAgent;
-
-  // Check if User-Agent is new or changed (or first time logging in)
-  const isNewDevice = !previousUA || previousUA !== currentUA;
-
-  if (isNewDevice && isSecurityAlertEnabled) {
-    const loginTime = new Date().toLocaleString("en-IN", {
-      timeZone: "Asia/Kolkata",
-    });
-    try {
-      await sendEmail(
-        user.email,
-        "Security Alert: New Device Login Detected",
-        `
-        <div style="max-width:600px; margin:auto; padding:30px; font-family:Arial,sans-serif; border:1px solid #e2e8f0; border-radius:10px; background-color:#ffffff;">
-          <h1 style="color:#2563eb; margin-bottom:10px;">UserHub Security</h1>
-          <h2 style="color:#1e293b; font-size:20px;">New Device Login Detected</h2>
-          <p style="color:#475569; font-size:15px; line-height:1.6;">
-            A new login was detected on your <strong>UserHub</strong> account from a new browser or device.
-          </p>
-          <div style="background-color:#f8fafc; padding:15px; border-left:4px solid #2563eb; border-radius:4px; margin:20px 0;">
-            <p style="margin:5px 0; color:#334155;"><strong>Time:</strong> ${loginTime} (IST)</p>
-            <p style="margin:5px 0; color:#334155;"><strong>Device / Browser:</strong> ${currentUA}</p>
-            <p style="margin:5px 0; color:#334155;"><strong>IP Address:</strong> ${currentIp}</p>
-          </div>
-          <p style="color:#64748b; font-size:14px;">
-            If this was you, no action is needed.<br/>
-            If you did not initiate this login, please change your password immediately to secure your account.
-          </p>
-          <hr style="border:none; border-top:1px solid #e2e8f0; margin:25px 0;" />
-          <small style="color:#94a3b8;">© 2026 UserHub Security Team. All rights reserved.</small>
-        </div>
-        `,
-      );
-    } catch (err) {
-      console.error("❌ Error sending security email:", err.message);
-    }
-  }
 
   user.lastLogin = new Date();
   user.lastDeviceInfo = {
@@ -287,22 +288,182 @@ const loginuser = async (req, res) => {
       sessionId,
     },
     process.env.JWT_SECRET,
-    {
-      expiresIn: "1d",
-    },
+    { expiresIn: "1d" },
   );
 
   const userData = user.toObject();
   delete userData.password;
   delete userData.resetPasswordToken;
   delete userData.resetPasswordExpire;
-  res.json({
+  delete userData.loginOtp;
+  delete userData.loginOtpExpire;
+
+  return res.json({
     message: "Login Successfully",
     token,
     role: user.role,
     user: userData,
   });
 };
+
+const verifyLoginOtp = async (req, res) => {
+  try {
+    const { email, otp, deviceId } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({ message: "Email and OTP are required" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // OTP match aur expiry check
+    if (!user.loginOtp || user.loginOtp !== otp.trim()) {
+      return res
+        .status(400)
+        .json({ message: "Invalid OTP. Please check and try again." });
+    }
+
+    if (user.loginOtpExpire && user.loginOtpExpire < Date.now()) {
+      return res
+        .status(400)
+        .json({ message: "OTP has expired. Please request a new one." });
+    }
+
+    // OTP verified -> Clear OTP fields
+    user.loginOtp = null;
+    user.loginOtpExpire = null;
+
+    // 🛡️ TRUST THIS DEVICE: Add to trustedDevices list
+    const currentUA = req.headers["user-agent"] || "Unknown Browser / Device";
+    const currentIp =
+      req.headers["x-forwarded-for"] ||
+      req.socket.remoteAddress ||
+      req.ip ||
+      "127.0.0.1";
+
+    if (deviceId) {
+      const alreadyTrusted = user.trustedDevices?.some(
+        (d) => d.deviceId === deviceId,
+      );
+      if (!alreadyTrusted) {
+        user.trustedDevices.push({
+          deviceId,
+          userAgent: currentUA,
+          ip: currentIp,
+          trustedAt: new Date(),
+        });
+      }
+    }
+
+    // Create session
+    const sessionId = uuidv4();
+    const { browser, os, device } = getDeviceInfo(req.headers["user-agent"]);
+
+    await Session.create({
+      userId: user._id,
+      sessionId,
+      deviceId,
+      browser,
+      os,
+      device,
+      ipAddress: currentIp,
+    });
+
+    user.lastLogin = new Date();
+    user.lastDeviceInfo = {
+      userAgent: currentUA,
+      ip: currentIp,
+      lastLoginAt: new Date(),
+    };
+    await user.save();
+
+    // JWT sign
+    const token = jwt.sign(
+      {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        sessionId,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" },
+    );
+
+    const userData = user.toObject();
+    delete userData.password;
+    delete userData.resetPasswordToken;
+    delete userData.resetPasswordExpire;
+    delete userData.loginOtp;
+    delete userData.loginOtpExpire;
+
+    return res.status(200).json({
+      message: "Device verified and Login successful!",
+      token,
+      role: user.role,
+      user: userData,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+
+
+
+const resendLoginOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const COOLDOWN_MS = 60 * 1000; // 1 minute cooldown
+    if (
+      user.lastOtpSentAt &&
+      Date.now() - user.lastOtpSentAt.getTime() < COOLDOWN_MS
+    ) {
+      const remainingSeconds = Math.ceil(
+        (COOLDOWN_MS - (Date.now() - user.lastOtpSentAt.getTime())) / 1000,
+      );
+      return res.status(429).json({
+        message: `Please wait ${remainingSeconds}s before requesting a new OTP.`,
+        remainingSeconds,
+      });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.loginOtp = otp;
+    user.loginOtpExpire = new Date(Date.now() + 5 * 60 * 1000);
+    user.lastOtpSentAt = new Date(); // ✅ Cooldown timestamp update
+    await user.save();
+
+    await sendEmail(
+      user.email,
+      "Your New Login Verification OTP - UserHub",
+      `
+      <div style="max-width:550px; margin:auto; padding:25px; font-family:Arial,sans-serif; border:1px solid #e2e8f0; border-radius:10px; background:#ffffff;">
+        <h2 style="color:#2563eb;">UserHub Security Verification</h2>
+        <p style="color:#475569;">Here is your new OTP code for login:</p>
+        <div style="background:#f1f5f9; padding:20px; text-align:center; border-radius:8px; margin:20px 0;">
+          <span style="font-size:32px; font-weight:bold; letter-spacing:6px; color:#1e293b;">${otp}</span>
+        </div>
+        <p style="color:#64748b; font-size:14px;">Valid for 5 minutes.</p>
+      </div>
+      `,
+    );
+
+    return res
+      .status(200)
+      .json({ message: "A new OTP has been sent to your email." });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 const forgotpassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -434,6 +595,14 @@ const logoutSession = async (req, res) => {
       });
     }
 
+    if (session.deviceId) {
+      await User.findByIdAndUpdate(req.user.id, {
+        $pull: {
+          trustedDevices: { deviceId: session.deviceId },
+        },
+      });
+    }
+
     await Session.deleteOne({
       sessionId,
       userId: req.user.id,
@@ -466,6 +635,26 @@ const logoutCurrentDevice = async (req, res) => {
 };
 const logoutOtherSessions = async (req, res) => {
   try {
+    // 1. Baaki saare sessions find karo taaki unke deviceIds nikal sakein
+    const otherSessions = await Session.find({
+      userId: req.user.id,
+      sessionId: {
+        $ne: req.user.sessionId,
+      },
+    });
+
+    const otherDeviceIds = otherSessions.map((s) => s.deviceId).filter(Boolean);
+
+    // 2. 🛡️ UNTRUST ALL OTHER DEVICES: user.trustedDevices se un sabhi ko hata do
+    if (otherDeviceIds.length > 0) {
+      await User.findByIdAndUpdate(req.user.id, {
+        $pull: {
+          trustedDevices: { deviceId: { $in: otherDeviceIds } },
+        },
+      });
+    }
+
+    // 3. Baaki saare sessions delete karo
     await Session.deleteMany({
       userId: req.user.id,
       sessionId: {
@@ -474,7 +663,7 @@ const logoutOtherSessions = async (req, res) => {
     });
 
     return res.status(200).json({
-      message: "Other devices logged out successfully",
+      message: "Other devices logged out and untrusted successfully",
     });
   } catch (error) {
     return res.status(500).json({
@@ -526,4 +715,6 @@ module.exports = {
   logoutOtherSessions,
   getSessions,
   logoutSession,
+  resendLoginOtp,
+  verifyLoginOtp,
 };

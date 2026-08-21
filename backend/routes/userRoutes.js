@@ -23,6 +23,8 @@ const {
   logoutOtherSessions,
   getSessions,
   logoutSession,
+  resendLoginOtp,
+  verifyLoginOtp,
 } = require("../controllers/Authcontroller");
 const {
   getProfile,
@@ -110,6 +112,8 @@ router.put(
   updateProfile,
 );
 router.delete("/account-delete", verifyToken, deleteProfile);
+router.post("/verify-login-otp", verifyLoginOtp);
+router.post("/resend-login-otp", resendLoginOtp); 
 router.post("/login", loginuser);
 router.post("/forgot-password", forgotpassword);
 router.post("/reset-password/:token", resetPassword);

@@ -10,6 +10,7 @@ const userSchema = joi.object({
 const loginschema = joi.object({
   email: joi.string().trim().email().required(),
   password: joi.string().required(),
+  deviceId: joi.string().allow("").optional(),
 });
 const updateUserSchema = joi.object({
   name: joi.string().trim().min(3).max(50).required(),

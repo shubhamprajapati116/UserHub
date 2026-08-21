@@ -58,11 +58,11 @@
   padding: 2.5px;
   background: linear-gradient(135deg, #2563eb, #7c3aed, #ec4899);
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
-  transition: transform 0.2s ease;
+  transition: box-shadow 0.2s ease;
 }
 
 .userview-image img:hover {
-  transform: scale(1.04);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4);
 }
 
 .userview-name {
@@ -139,7 +139,7 @@
   border-color: rgba(99, 102, 241, 0.3);
 }
 
-.userview-card h3 {
+.userview-card > h3 {
   margin: 0 0 10px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--border);
@@ -152,7 +152,7 @@
 }
 
 /* Accent bar under card title */
-.userview-card h3::after {
+.userview-card > h3::after {
   content: "";
   display: block;
   width: 28px;
@@ -195,11 +195,6 @@
   border-radius: 6px;
   background: rgba(37, 99, 235, 0.1);
   color: #2563eb;
-  transition: transform 0.18s ease;
-}
-
-.userview-item:hover svg {
-  transform: scale(1.06);
 }
 
 /* Color variations for specific icon types */
@@ -297,34 +292,97 @@
   line-height: 1.4;
 }
 
-/* Experience Section in Viewuser */
-.userview-experience-section {
-  width: 100%;
+/* ══════════════════════════════════════════════════════════════════════════
+   Work Experience Section in View User
+   ══════════════════════════════════════════════════════════════════════════ */
+.userview-exp-card {
+  transition: all 0.2s ease;
 }
 
-.experience-collapsible-header {
+.experience-toggle-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg, 10px);
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
+  user-select: none;
+  padding: 2px 0;
+  transition: opacity 0.18s ease;
 }
 
-.experience-collapsible-left {
+.experience-toggle-header:hover {
+  opacity: 0.92;
+}
+
+.exp-toggle-title-wrap {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.experience-collapsible-left h3 {
-  margin: 0;
-  font-size: 0.88rem;
+.exp-toggle-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #6366f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.exp-toggle-heading {
+  margin: 0 !important;
+  padding: 0 !important;
+  border-bottom: none !important;
+  font-size: 0.88rem !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+}
+
+.exp-toggle-heading::after {
+  display: none !important;
+}
+
+.exp-count-pill {
+  font-size: 0.68rem;
   font-weight: 700;
+  color: var(--accent);
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  padding: 2px 8px;
+  border-radius: 999px;
+  line-height: 1.2;
+}
+
+.exp-collapse-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.exp-collapse-btn:hover {
+  background: var(--bg-elevated);
   color: var(--text-primary);
+  border-color: var(--accent);
+}
+
+.exp-view-timeline {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .userview-bottom-section {
