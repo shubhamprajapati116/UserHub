@@ -52,22 +52,24 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/admin/users" replace />} />
           <Route path="/verify-email/:token" element={<VerifyEmail />} />
+          
+          {/* Settings & Profile Routes */}
           <Route
             path="/settings"
             element={
               <ProtectedRoute>
-                <Settings></Settings>
+                <Settings />
               </ProtectedRoute>
             }
-          ></Route>
+          />
           <Route
             path="/settings/change-password"
             element={
               <ProtectedRoute>
-                <Changepassword></Changepassword>
+                <Changepassword />
               </ProtectedRoute>
             }
-          ></Route>
+          />
           <Route
             path="/profile"
             element={
@@ -76,7 +78,27 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/active-sessions" element={<ActiveSessions />} />
+          <Route
+            path="/profile/edit"
+            element={
+              <ProtectedRoute>
+                <EditProfile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/EditProfile"
+            element={<Navigate to="/profile/edit" replace />}
+          />
+          <Route
+            path="/active-sessions"
+            element={
+              <ProtectedRoute>
+                <ActiveSessions />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Admin User Management Routes */}
           <Route
             path="/admin/users"
@@ -119,31 +141,11 @@ function App() {
             element={<Navigate to="/admin/users" replace />}
           />
 
-          {/* Profile Routes */}
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile/edit"
-            element={
-              <ProtectedRoute>
-                <EditProfile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile/EditProfile"
-            element={<Navigate to="/profile/edit" replace />}
-          />
-
+          {/* Auth Routes */}
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Loginform />} />
           <Route path="/forgotpassword" element={<Forgotpassword />} />
+          <Route path="/forgot-password" element={<Forgotpassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
         </Routes>
         <ToastContainer

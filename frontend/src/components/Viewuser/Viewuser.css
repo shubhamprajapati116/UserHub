@@ -402,20 +402,25 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 16px;
-  border-radius: 5px;
+  height: 34px;
+  padding: 0 16px;
+  border-radius: var(--radius-md, 6px);
   border: 1px solid var(--border);
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  font-size: 0.78rem;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.80rem;
   font-weight: 600;
-  text-decoration: none;
-  transition: all 0.18s ease;
+  cursor: pointer;
+  outline: none;
+  box-sizing: border-box;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .userview-back-btn:hover {
   background: var(--bg-hover);
-  color: var(--text-primary);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .userview-edit-btn {
@@ -423,19 +428,35 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 6px 16px;
-  border-radius: 5px;
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-  color: white !important;
-  font-size: 0.78rem;
+  height: 34px;
+  padding: 0 16px;
+  border-radius: var(--radius-md, 6px);
+  border: none;
+  background: var(--accent);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.80rem;
   font-weight: 600;
-  text-decoration: none;
-  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
-  transition: all 0.18s ease;
+  cursor: pointer;
+  outline: none;
+  box-shadow: 0 2px 6px var(--accent-glow);
+  box-sizing: border-box;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
 
 .userview-edit-btn:hover {
   background: var(--accent-hover);
+  box-shadow: 0 3px 8px var(--accent-glow);
+}
+
+.userview-edit-btn:active {
+  opacity: 0.9;
+}
+
+.last-login-pending {
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.76rem;
 }
 
 /* Skeletons */

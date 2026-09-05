@@ -30,6 +30,7 @@ const updateUserSchema = joi.object({
   country: joi.string().trim().max(100).allow("").optional(),
   state: joi.string().trim().max(100).allow("").optional(),
   city: joi.string().trim().max(100).allow("").optional(),
+  role: joi.string().valid("admin", "user").optional(),
   profilephoto: joi.any().optional(),
 });
 

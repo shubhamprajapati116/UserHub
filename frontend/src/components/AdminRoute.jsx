@@ -16,14 +16,26 @@ function AdminRoute({ children }) {
     return <Navigate to="/login" replace />;
   }
 
-  if (!userStore.currentUser) {
+  // Get active user from store or local cache
+  const effectiveUser =
+    userStore.currentUser ||
+    (() => {
+      try {
+        const u = localStorage.getItem("user");
+        return u ? JSON.parse(u) : null;
+      } catch {
+        return null;
+      }
+    })();
+
+  if (!effectiveUser) {
     if (userStore.error?.isNetworkError) {
       return children;
     }
     return <Navigate to="/login" replace />;
   }
 
-  if (userStore.currentUser.role !== "admin") {
+  if (effectiveUser.role !== "admin") {
     return <Navigate to="/profile" replace />;
   }
 

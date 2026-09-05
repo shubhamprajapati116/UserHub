@@ -9,6 +9,7 @@ function UserActionMenu({
   user,
   navigate,
   makeUserAdmin,
+  openMakeAdminModal,
   setDeleteId,
   setShowModal,
   userStore,
@@ -135,12 +136,13 @@ function UserActionMenu({
       {user.role !== "admin" && (
         <button
           className="dropdown-item"
-          onClick={async (e) => {
+          onClick={(e) => {
             e.stopPropagation();
-            try {
-              await makeUserAdmin(user._id);
-            } finally {
-              onClose();
+            onClose();
+            if (openMakeAdminModal) {
+              openMakeAdminModal(user);
+            } else if (makeUserAdmin) {
+              makeUserAdmin(user._id);
             }
           }}
           disabled={userStore?.loading?.makeAdmin}

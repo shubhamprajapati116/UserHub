@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable react-hooks/exhaustive-deps */
 import "./adminpanel.css";
 import { useState, useEffect, useRef } from "react";
@@ -7,6 +8,7 @@ import AppLayout from "../AppLayout/AppLayout";
 import { useStore } from "../../stores/StoreContext";
 import { observer } from "mobx-react-lite";
 import UserActionMenu from "../UserActionMenu/UserActionMenu";
+import UserGrowthChart from "../UserGrowthChart/UserGrowthChart";
 
 // eslint-disable-next-line react-refresh/only-export-components
 function CustomDropdown({ options, value, onChange, dropUp = false }) {
@@ -59,15 +61,16 @@ function CustomDropdown({ options, value, onChange, dropUp = false }) {
           {options.map((opt) => (
             <div
               key={opt.value}
-              className={`custom-dropdown-item ${String(opt.value) === String(value) ? "active" : ""}`}
+              className={`custom-dropdown-item ${String(opt.value) === String(value) ? "active" : ""} ${opt.disabled ? "item-disabled" : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
+                if (opt.disabled) return;
                 onChange(opt.value);
                 setOpen(false);
               }}
             >
               {opt.label}
-              {String(opt.value) === String(value) && (
+              {!opt.disabled && String(opt.value) === String(value) && (
                 <svg
                   width="12"
                   height="12"
@@ -87,6 +90,16 @@ function CustomDropdown({ options, value, onChange, dropUp = false }) {
   );
 }
 
+// Helper to calculate available page size tiers dynamically based on total users count
+const getAvailableLimitOptions = (total) => {
+  const allTiers = [5, 10, 20, 50];
+  return allTiers.filter((tier, index) => {
+    if (index === 0) return true; // 5 is always available
+    const prevTier = allTiers[index - 1];
+    return total > prevTier;
+  });
+};
+
 // eslint-disable-next-line react-refresh/only-export-components
 function AdminPanel() {
   const { userStore } = useStore();
@@ -98,6 +111,14 @@ function AdminPanel() {
   const [sortOrder, setSortOrder] = useState("desc");
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const [singleAdminModal, setSingleAdminModal] = useState({
+    open: false,
+    user: null,
+  });
+  const [bulkRoleModal, setBulkRoleModal] = useState({
+    open: false,
+    targetRole: "",
+  });
   const totalUsers = userStore.totalUsers;
   const [showModal, setShowModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -116,7 +137,42 @@ function AdminPanel() {
     reference: null,
   });
 
-  const isAnyModalOpen = showModal || showBulkDeleteModal || showImageModal;
+  const [showTableLoader, setShowTableLoader] = useState(false);
+  const isFetchingUsers = userStore.loading.fetchUsers;
+
+  // Debounced Table Loader: 150ms threshold
+  // On Fast Networks (<150ms): API returns before 150ms -> 0% flicker!
+  // On 3G Networks (>150ms): Translucent table overlay cleanly appears.
+  useEffect(() => {
+    let timer;
+    if (isFetchingUsers) {
+      timer = setTimeout(() => {
+        setShowTableLoader(true);
+      }, 150);
+    } else {
+      setShowTableLoader(false);
+    }
+    return () => clearTimeout(timer);
+  }, [isFetchingUsers]);
+
+  const availableLimitOptions = getAvailableLimitOptions(totalUsers);
+
+  // Auto-adjust limit if total count changes and current limit is no longer available
+  useEffect(() => {
+    const available = getAvailableLimitOptions(totalUsers);
+    if (!available.includes(limit)) {
+      const fallback = available[available.length - 1] || 5;
+      setLimit(fallback);
+      setpage(1);
+    }
+  }, [totalUsers, limit]);
+
+  const isAnyModalOpen =
+    showModal ||
+    showBulkDeleteModal ||
+    showImageModal ||
+    singleAdminModal.open ||
+    bulkRoleModal.open;
   useEffect(() => {
     if (isAnyModalOpen) {
       document.body.style.overflow = "hidden";
@@ -150,7 +206,11 @@ function AdminPanel() {
     );
   };
 
+  const [modalActionLoading, setModalActionLoading] = useState(false);
+
   const handleBulkRoleChange = async (targetRole) => {
+    if (!targetRole || selectedUserIds.length === 0 || modalActionLoading) return;
+    setModalActionLoading(true);
     try {
       const res = await userStore.bulkUpdateUserRole(
         selectedUserIds,
@@ -159,20 +219,27 @@ function AdminPanel() {
       toast.success(res.message);
       setSelectedUserIds([]);
       await fetchusers();
+      setBulkRoleModal({ open: false, targetRole: "" });
     } catch (error) {
       toast.error(error?.message || "Failed to update roles");
+    } finally {
+      setModalActionLoading(false);
     }
   };
 
   const handleBulkDelete = async () => {
+    if (selectedUserIds.length === 0 || modalActionLoading) return;
+    setModalActionLoading(true);
     try {
       const res = await userStore.bulkDeleteUsers(selectedUserIds);
       toast.success(res.message);
       setSelectedUserIds([]);
-      setShowBulkDeleteModal(false);
       await fetchusers();
+      setShowBulkDeleteModal(false);
     } catch (error) {
       toast.error(error?.message || "Failed to delete selected users");
+    } finally {
+      setModalActionLoading(false);
     }
   };
 
@@ -234,8 +301,8 @@ function AdminPanel() {
       badgeClass: "badge-blue",
       icon: (
         <svg
-          width="18"
-          height="18"
+          width="21"
+          height="21"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -257,8 +324,8 @@ function AdminPanel() {
       badgeClass: "badge-green",
       icon: (
         <svg
-          width="18"
-          height="18"
+          width="21"
+          height="21"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -278,8 +345,8 @@ function AdminPanel() {
       badgeClass: "badge-purple",
       icon: (
         <svg
-          width="18"
-          height="18"
+          width="21"
+          height="21"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -299,8 +366,8 @@ function AdminPanel() {
       badgeClass: "badge-amber",
       icon: (
         <svg
-          width="18"
-          height="18"
+          width="21"
+          height="21"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -369,7 +436,6 @@ function AdminPanel() {
   }, [search]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedUserIds([]);
     fetchusers();
   }, [
@@ -383,6 +449,8 @@ function AdminPanel() {
   ]);
 
   const handledelete = async () => {
+    if (!deleteId || modalActionLoading) return;
+    setModalActionLoading(true);
     try {
       const data = await userStore.deleteUser(deleteId);
       toast.success(data.message);
@@ -395,7 +463,25 @@ function AdminPanel() {
         reference: null,
       });
     } catch (error) {
-      toast.error(error?.message || "Try again");
+      toast.error(error?.message || "Failed to delete user");
+    } finally {
+      setModalActionLoading(false);
+    }
+  };
+
+  const handleSingleMakeAdminSubmit = async () => {
+    const targetId = singleAdminModal.user?._id;
+    if (!targetId || modalActionLoading) return;
+    setModalActionLoading(true);
+    try {
+      const data = await userStore.makeAdmin(targetId);
+      toast.success(data.message);
+      await fetchusers();
+      setSingleAdminModal({ open: false, user: null });
+    } catch (error) {
+      toast.error(error?.message || "Failed to promote user to admin");
+    } finally {
+      setModalActionLoading(false);
     }
   };
   return (
@@ -509,6 +595,9 @@ function AdminPanel() {
                 ))}
           </div>
 
+          {/* ── User Registration Growth Timeline Analytics Chart ── */}
+          <UserGrowthChart />
+
           {/* ── Filter & Sort Toolbar ── */}
           <div className="ul-filter-row">
             <div className="ul-filter-group">
@@ -576,7 +665,9 @@ function AdminPanel() {
                 {showMakeAdminBtn && (
                   <button
                     className="btn-bulk-action make-admin"
-                    onClick={() => handleBulkRoleChange("admin")}
+                    onClick={() =>
+                      setBulkRoleModal({ open: true, targetRole: "admin" })
+                    }
                   >
                     <svg
                       width="13"
@@ -594,7 +685,9 @@ function AdminPanel() {
                 {showMakeUserBtn && (
                   <button
                     className="btn-bulk-action make-user"
-                    onClick={() => handleBulkRoleChange("user")}
+                    onClick={() =>
+                      setBulkRoleModal({ open: true, targetRole: "user" })
+                    }
                   >
                     <svg
                       width="13"
@@ -661,6 +754,12 @@ function AdminPanel() {
               </div>
             ) : (
               <div className="table-wrap">
+                {showTableLoader && (
+                  <div className="table-loading-overlay">
+                    <div className="table-spinner"></div>
+                    <span>Updating user list...</span>
+                  </div>
+                )}
                 <table className="user-table">
                   <thead>
                     <tr>
@@ -927,12 +1026,10 @@ function AdminPanel() {
                       <span className="rows-label rows-label-short">Rows:</span>
                       <CustomDropdown
                         dropUp={true}
-                        options={[
-                          { value: 5, label: "5" },
-                          { value: 10, label: "10" },
-                          { value: 20, label: "20" },
-                          { value: 50, label: "50" },
-                        ]}
+                        options={availableLimitOptions.map((v) => ({
+                          value: v,
+                          label: String(v),
+                        }))}
                         value={limit}
                         onChange={(newLimit) => {
                           setLimit(Number(newLimit));
@@ -1010,6 +1107,9 @@ function AdminPanel() {
           user={menuState.user}
           navigate={navigate}
           makeUserAdmin={makeUserAdmin}
+          openMakeAdminModal={(targetUser) =>
+            setSingleAdminModal({ open: true, user: targetUser })
+          }
           setDeleteId={setDeleteId}
           setShowModal={setShowModal}
           userStore={userStore}
@@ -1021,6 +1121,93 @@ function AdminPanel() {
             })
           }
         />
+      )}
+      {/* ── Single User Make Admin Confirmation Modal ── */}
+      {singleAdminModal.open && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-icon admin">👑</div>
+            <h3>Grant Admin Privileges?</h3>
+            <p>
+              You are granting full Admin access to{" "}
+              <b>{singleAdminModal.user?.name || "this user"}</b>. They will
+              have full permissions to manage accounts and database records. Are
+              you sure you want to proceed?
+            </p>
+            <div className="modal-buttons">
+              <button
+                className="btn btn-secondary"
+                disabled={modalActionLoading}
+                onClick={() => setSingleAdminModal({ open: false, user: null })}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary"
+                disabled={modalActionLoading}
+                onClick={handleSingleMakeAdminSubmit}
+              >
+                {modalActionLoading ? (
+                  <>
+                    <span className="btn-spinner"></span>
+                    <span>Granting Admin...</span>
+                  </>
+                ) : (
+                  "Yes, Grant Admin"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ── Bulk Role Change Confirmation Modal ── */}
+      {bulkRoleModal.open && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div
+              className={`modal-icon ${bulkRoleModal.targetRole === "admin" ? "admin" : "warning"}`}
+            >
+              {bulkRoleModal.targetRole === "admin" ? "👑" : "🛡️"}
+            </div>
+            <h3>
+              {bulkRoleModal.targetRole === "admin"
+                ? `Grant Admin Access to ${selectedUserIds.length} User(s)?`
+                : `Demote ${selectedUserIds.length} Admin(s) to Regular User?`}
+            </h3>
+            <p>
+              {bulkRoleModal.targetRole === "admin"
+                ? `Are you sure you want to grant full administrative privileges to ${selectedUserIds.length} selected account(s)?`
+                : `Are you sure you want to revoke admin permissions from ${selectedUserIds.length} selected account(s)? They will lose access to the Admin Panel.`}
+            </p>
+            <div className="modal-buttons">
+              <button
+                className="btn btn-secondary"
+                disabled={modalActionLoading}
+                onClick={() =>
+                  setBulkRoleModal({ open: false, targetRole: "" })
+                }
+              >
+                Cancel
+              </button>
+              <button
+                className={`btn ${bulkRoleModal.targetRole === "admin" ? "btn-primary" : "btn-danger"}`}
+                disabled={modalActionLoading}
+                onClick={() => handleBulkRoleChange(bulkRoleModal.targetRole)}
+              >
+                {modalActionLoading ? (
+                  <>
+                    <span className="btn-spinner"></span>
+                    <span>Updating Roles...</span>
+                  </>
+                ) : bulkRoleModal.targetRole === "admin" ? (
+                  "Yes, Grant Admin"
+                ) : (
+                  "Yes, Demote to User"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
       {showModal && (
         <div className="modal-overlay">
@@ -1034,6 +1221,7 @@ function AdminPanel() {
             <div className="modal-buttons">
               <button
                 className="btn btn-secondary"
+                disabled={modalActionLoading}
                 onClick={() => {
                   setShowModal(false);
                   setDeleteId(null);
@@ -1041,8 +1229,19 @@ function AdminPanel() {
               >
                 Cancel
               </button>
-              <button className="btn btn-danger" onClick={handledelete}>
-                Delete
+              <button
+                className="btn btn-danger"
+                onClick={handledelete}
+                disabled={modalActionLoading}
+              >
+                {modalActionLoading ? (
+                  <>
+                    <span className="btn-spinner"></span>
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  "Delete"
+                )}
               </button>
             </div>
           </div>
@@ -1060,12 +1259,24 @@ function AdminPanel() {
             <div className="modal-buttons">
               <button
                 className="btn btn-secondary"
+                disabled={modalActionLoading}
                 onClick={() => setShowBulkDeleteModal(false)}
               >
                 Cancel
               </button>
-              <button className="btn btn-danger" onClick={handleBulkDelete}>
-                Delete Selected
+              <button
+                className="btn btn-danger"
+                onClick={handleBulkDelete}
+                disabled={modalActionLoading}
+              >
+                {modalActionLoading ? (
+                  <>
+                    <span className="btn-spinner"></span>
+                    <span>Deleting Selected...</span>
+                  </>
+                ) : (
+                  "Delete Selected"
+                )}
               </button>
             </div>
           </div>

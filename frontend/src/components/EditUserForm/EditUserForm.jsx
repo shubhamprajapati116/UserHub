@@ -1,6 +1,15 @@
 import AppDatePicker from "../AppDatePicker/AppDatePicker";
 import CustomSelect from "../CustomSelect/CustomSelect";
 
+function Spinner() {
+  return (
+    <svg className="btn-spinner" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
+      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function EditUserForm({
   formData,
   errors,
@@ -24,10 +33,11 @@ function EditUserForm({
       className={`edit-user-form ${variant}`}
     >
       <div className="form-split-container">
-        {/* ── LEFT SIDE COLUMN: Profile Details & Picture ── */}
+        {/* ── LEFT SIDE COLUMN: Profile Details & Picture (~30% / 290px) ── */}
         <div className="left-profile-column">
-          <h4 className="left-card-title">Profile Details</h4>
-          <div className="left-card-divider" />
+          <div className="section-header-wrap">
+            <h3 className="section-main-title">Profile Details</h3>
+          </div>
 
           <div className="left-card-box">
             <span className="left-card-subtitle">Profile Picture</span>
@@ -103,8 +113,8 @@ function EditUserForm({
                 title="Remove profile picture"
               >
                 <svg
-                  width="12"
-                  height="12"
+                  width="13"
+                  height="13"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -112,8 +122,10 @@ function EditUserForm({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  <line x1="10" y1="11" x2="10" y2="17" />
+                  <line x1="14" y1="11" x2="14" y2="17" />
                 </svg>
                 Remove
               </button>
@@ -135,17 +147,15 @@ function EditUserForm({
           </div>
         </div>
 
-        {/* ── RIGHT SIDE COLUMN: Personal Information, Bio, Location ── */}
+        {/* ── RIGHT SIDE COLUMN: Personal Information, Bio, Location (~70%) ── */}
         <div className="right-fields-column">
-          <div className="right-section-header">
-            <h3>Personal Information</h3>
-            <div className="section-blue-line" />
+          <div className="section-header-wrap">
+            <h3 className="section-main-title">Personal Information</h3>
           </div>
 
-          <div className="right-section-subtitle">Personal Details</div>
-
-          {/* 1. Name & Email in 2-Columns */}
+          {/* Unified Compact 2-Columns Grid for All Fields */}
           <div className="fields-grid-2col">
+            {/* Row 1: Name & Email */}
             <div className="form-field">
               <label className="form-label" htmlFor="name">
                 Full Name
@@ -169,12 +179,12 @@ function EditUserForm({
                 Email Address
               </label>
               <input
-                className="form-input"
+                className={`form-input ${errors.email ? "input-error" : ""}`}
                 type="email"
                 id="email"
                 name="email"
                 value={formData.email}
-                placeholder="john.doe@notion.com"
+                placeholder="john.doe@example.com"
                 onChange={handleChange}
                 disabled={loading}
               />
@@ -182,10 +192,45 @@ function EditUserForm({
                 <span className="form-error">{errors.email}</span>
               )}
             </div>
-          </div>
 
-          {/* 2. Gender, Date of Birth & Phone in 3-Columns (Desktop/Tablet) / 2-Columns (Mobile) */}
-          <div className="fields-grid-3col" style={{ marginTop: "10px" }}>
+            {/* Row 2: Phone & Date of Birth */}
+            <div className="form-field form-field-phone">
+              <label className="form-label" htmlFor="phone">
+                Phone
+              </label>
+              <input
+                className="form-input"
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                placeholder="9876543210"
+                onChange={handleChange}
+                disabled={loading}
+              />
+              {errors.phone && (
+                <span className="form-error">{errors.phone}</span>
+              )}
+            </div>
+
+            <div className="form-field">
+              <label className="form-label" htmlFor="dob">
+                Date of Birth
+              </label>
+              <AppDatePicker
+                id="dob"
+                name="dob"
+                value={formData.dob}
+                onChange={handleChange}
+                disabled={loading}
+                maxDate={new Date()}
+                placeholderText="DD / MM / YYYY"
+                error={!!errors.dob}
+              />
+              {errors.dob && <span className="form-error">{errors.dob}</span>}
+            </div>
+
+            {/* Row 3: Gender & Country */}
             <div className="form-field">
               <label className="form-label" htmlFor="gender">
                 Gender
@@ -210,75 +255,6 @@ function EditUserForm({
             </div>
 
             <div className="form-field">
-              <label className="form-label" htmlFor="dob">
-                Date of Birth
-              </label>
-              <AppDatePicker
-                id="dob"
-                name="dob"
-                value={formData.dob}
-                onChange={handleChange}
-                disabled={loading}
-                maxDate={new Date()}
-                placeholderText="DD / MM / YYYY"
-                error={!!errors.dob}
-              />
-              {errors.dob && <span className="form-error">{errors.dob}</span>}
-            </div>
-
-            <div className="form-field form-field-phone">
-              <label className="form-label" htmlFor="phone">
-                Phone
-              </label>
-              <input
-                className="form-input"
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                placeholder="9876543210"
-                onChange={handleChange}
-                disabled={loading}
-              />
-              {errors.phone && (
-                <span className="form-error">{errors.phone}</span>
-              )}
-            </div>
-          </div>
-
-          {/* 3. Bio in Full Width with Character Counter */}
-          <div
-            className="form-field form-field-full"
-            style={{ marginTop: "10px" }}
-          >
-            <div className="label-counter-row">
-              <label className="form-label" htmlFor="bio">
-                Bio
-              </label>
-              <span className="char-counter">
-                {(formData.bio || "").length}/250
-              </span>
-            </div>
-            <textarea
-              className="form-input compact-textarea"
-              id="bio"
-              name="bio"
-              rows="2"
-              maxLength={250}
-              value={formData.bio}
-              placeholder="Tell us something about yourself..."
-              onChange={handleChange}
-              disabled={loading}
-            />
-            {errors.bio && <span className="form-error">{errors.bio}</span>}
-          </div>
-
-          {/* 4. Location Section */}
-          <div className="sub-section-divider" />
-          <div className="right-section-subtitle">Location</div>
-
-          <div className="fields-grid-3col location-grid">
-            <div className="form-field">
               <label className="form-label" htmlFor="country">
                 Country
               </label>
@@ -291,12 +267,31 @@ function EditUserForm({
                   value="India"
                   readOnly
                   disabled
-                  title="Service available for India only"
+                  title="Country cannot be changed"
                 />
-                <span className="readonly-lock-icon">🔒</span>
+                <span
+                  className="readonly-lock-icon"
+                  title="Country cannot be changed"
+                  aria-label="Country cannot be changed"
+                >
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                </span>
               </div>
             </div>
 
+            {/* Row 4: State & City */}
             <div className="form-field">
               <label className="form-label" htmlFor="state">
                 State
@@ -332,17 +327,34 @@ function EditUserForm({
               />
               {errors.city && <span className="form-error">{errors.city}</span>}
             </div>
+
+            {/* Row 5: Bio in Full Width */}
+            <div className="form-field form-field-full">
+              <div className="label-counter-row">
+                <label className="form-label" htmlFor="bio">
+                  Bio
+                </label>
+                <span className="char-counter">
+                  {(formData.bio || "").length}/250
+                </span>
+              </div>
+              <textarea
+                className="form-input bio-textarea"
+                id="bio"
+                name="bio"
+                rows="2"
+                maxLength={250}
+                value={formData.bio}
+                placeholder="Tell us something about yourself..."
+                onChange={handleChange}
+                disabled={loading}
+              />
+              {errors.bio && <span className="form-error">{errors.bio}</span>}
+            </div>
           </div>
 
-          {/* Bottom Actions */}
+          {/* Bottom Actions: [ Cancel ] [ Save Changes ] */}
           <div className="right-form-actions">
-            <button
-              type="submit"
-              className="btn btn-primary-save"
-              disabled={loading}
-            >
-              {loading ? "Saving..." : submitText}
-            </button>
             <button
               type="button"
               className="btn btn-secondary-cancel"
@@ -350,6 +362,13 @@ function EditUserForm({
               disabled={loading}
             >
               Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary-save"
+              disabled={loading}
+            >
+              {loading ? <><Spinner /> Saving...</> : submitText}
             </button>
           </div>
         </div>

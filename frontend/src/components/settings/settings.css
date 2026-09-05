@@ -26,9 +26,9 @@
   border-radius: 10px;
   padding: 8px;
   box-shadow: var(--shadow-xs);
-  min-height: 340px;
-  position: sticky;
-  top: 20px;
+  height: fit-content;
+  align-self: start;
+  box-sizing: border-box;
 }
 
 .settings-nav-item {
@@ -52,8 +52,8 @@
 
 .settings-nav-item svg {
   flex-shrink: 0;
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   opacity: 0.85;
 }
 
@@ -106,22 +106,24 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  min-height: 100%;
+  height: 100%;
 }
 
 /* ── Section Header (icon + title + desc) ── */
 .setting-info {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 11px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--border);
   margin-bottom: 2px;
 }
 
 .setting-info-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -129,8 +131,8 @@
 }
 
 .setting-info-icon svg {
-  width: 17px;
-  height: 17px;
+  width: 15px;
+  height: 15px;
 }
 
 .setting-info-icon.security {
@@ -292,6 +294,52 @@
 
 .switch input:checked + .slider::before {
   transform: translateX(18px);
+}
+
+/* ── Contextual Advisory Note Boxes ── */
+.settings-advisory-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  margin-top: auto;
+  padding-top: 10px;
+  box-sizing: border-box;
+}
+
+.settings-advisory-note.info {
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: var(--text-secondary);
+}
+
+.settings-advisory-note.info .advisory-note-icon {
+  color: var(--accent, #6366f1);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.settings-advisory-note.danger {
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  color: var(--text-secondary);
+}
+
+.settings-advisory-note.danger .advisory-note-icon {
+  color: #ef4444;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.advisory-note-text strong {
+  color: var(--text-primary);
+}
+
+.settings-advisory-note.danger .advisory-note-text strong {
+  color: #ef4444;
 }
 
 /* ==========================================================================

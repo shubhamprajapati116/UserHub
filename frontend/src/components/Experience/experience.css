@@ -547,7 +547,7 @@ textarea.exp-textarea {
 .apple-card-header {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 2px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -570,18 +570,18 @@ textarea.exp-textarea {
 }
 
 .apple-company-logo {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   border: 1px solid var(--border);
   color: #ffffff;
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 28px;
+  flex: 0 0 34px;
   flex-shrink: 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   margin-top: 1px;
@@ -594,7 +594,7 @@ textarea.exp-textarea {
 .apple-title-group {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
   flex: 1 1 auto;
 }
@@ -649,18 +649,19 @@ textarea.exp-textarea {
   display: inline-flex;
   align-items: center;
   align-self: flex-start;
-  margin-left: 36px;
+  margin-left: 0;
+  margin-top: 1px;
   font-size: 0.64rem;
   font-weight: 700;
   letter-spacing: 0.03em;
   color: var(--accent);
   background: rgba(99, 102, 241, 0.1);
   border: 1px solid rgba(99, 102, 241, 0.25);
-  padding: 2px 7px;
+  padding: 1.5px 7px;
   border-radius: 999px;
   line-height: 1.2;
   white-space: nowrap;
-  max-width: calc(100% - 36px);
+  max-width: 100%;
   box-sizing: border-box;
 }
 
@@ -758,15 +759,15 @@ textarea.exp-textarea {
   }
 
   .apple-card-header {
-    gap: 6px;
+    gap: 2px;
   }
 
   .apple-company-logo {
-    width: 26px;
-    height: 26px;
-    font-size: 0.78rem;
-    border-radius: 6px;
-    flex: 0 0 26px;
+    width: 30px;
+    height: 30px;
+    font-size: 0.84rem;
+    border-radius: 7px;
+    flex: 0 0 30px;
   }
 
   .apple-job-title {
@@ -794,10 +795,11 @@ textarea.exp-textarea {
   }
 
   .apple-blue-pill {
-    margin-left: 34px;
+    margin-left: 0;
+    margin-top: 1px;
     font-size: 0.62rem;
-    padding: 2px 6px;
-    max-width: calc(100% - 34px);
+    padding: 1.5px 6px;
+    max-width: 100%;
   }
 
   .apple-bullet-item {
@@ -853,11 +855,11 @@ textarea.exp-textarea {
   }
 
   .apple-company-logo {
-    width: 24px;
-    height: 24px;
-    font-size: 0.74rem;
-    border-radius: 5px;
-    flex: 0 0 24px;
+    width: 28px;
+    height: 28px;
+    font-size: 0.78rem;
+    border-radius: 6px;
+    flex: 0 0 28px;
   }
 
   .apple-job-title {
@@ -874,10 +876,11 @@ textarea.exp-textarea {
   }
 
   .apple-blue-pill {
-    margin-left: 30px;
+    margin-left: 0;
+    margin-top: 1px;
     font-size: 0.60rem;
-    padding: 1.5px 6px;
-    max-width: calc(100% - 30px);
+    padding: 1px 6px;
+    max-width: 100%;
   }
 
   .experience-actions {

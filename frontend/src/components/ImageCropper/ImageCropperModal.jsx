@@ -1,6 +1,15 @@
 import { useState, useRef, useEffect } from "react";
 import "./imagecropper.css";
 
+function Spinner() {
+  return (
+    <svg className="btn-spinner" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
+      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
   const [zoom, setZoom] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -241,7 +250,7 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
             onClick={handleSaveCrop}
             disabled={loading}
           >
-            {loading ? "Saving..." : "Apply & Save"}
+            {loading ? <><Spinner /> Saving...</> : "Apply & Save"}
           </button>
         </div>
       </div>

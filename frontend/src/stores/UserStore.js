@@ -28,10 +28,14 @@ class UserStore {
     changePassword: false,
     forgotPassword: false,
     resetPassword: false,
+    verifyResetToken: false,
     deleteAccount: false,
     verifyEmail: false,
     experience: false,
     notificationPreferences: false,
+    fetchAnalytics: false,
+    verifyEmailChangeOtp: false,
+    resendEmailChangeOtp: false,
   };
   // Device ID generator & getter
   getDeviceId() {
@@ -51,6 +55,7 @@ class UserStore {
   users = [];
   totalUsers = 0;
   stats = null;
+  userGrowthAnalytics = null;
   editUser = null;
   authLoading = true;
 
@@ -85,7 +90,14 @@ class UserStore {
     } catch (error) {
       runInAction(() => {
         this.error = error;
-        if (!error?.isNetworkError) {
+        // Only clear credentials on actual 401 unauthorized errors, NEVER on 429 rate limit or server blips
+        if (
+          error?.status === 401 ||
+          error?.statusCode === 401 ||
+          error?.message?.includes("Invalid Token") ||
+          error?.message?.includes("Session expired") ||
+          error?.message?.includes("Access Denied")
+        ) {
           this.currentUser = null;
           localStorage.removeItem("user");
           localStorage.removeItem("token");
@@ -258,6 +270,37 @@ class UserStore {
     }
   }
 
+  async fetchUserGrowthAnalytics(timeframe = "30d") {
+    this.loading.fetchAnalytics = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest(
+        `/api/admin/analytics/user-growth?timeframe=${timeframe}`,
+        {
+          headers: getAuthHeaders(),
+        },
+      );
+
+      runInAction(() => {
+        this.userGrowthAnalytics = response;
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+        // Keep existing analytics data if fetch fails — don't clear the chart
+      });
+      // Do NOT re-throw: let chart handle empty/stale state gracefully
+      return null;
+    } finally {
+      runInAction(() => {
+        this.loading.fetchAnalytics = false;
+      });
+    }
+  }
+
   async register(formData) {
     if (this.loading.register) return;
 
@@ -298,7 +341,10 @@ class UserStore {
 
       runInAction(() => {
         this.error = null;
-        this.currentUser = response.user;
+        if (response.user) {
+          this.currentUser = response.user;
+          localStorage.setItem("user", JSON.stringify(response.user));
+        }
       });
 
       return response;
@@ -311,6 +357,65 @@ class UserStore {
     } finally {
       runInAction(() => {
         this.loading.updateProfile = false;
+      });
+    }
+  }
+
+  async verifyEmailChangeOtp(otp) {
+    if (this.loading.verifyEmailChangeOtp) return;
+    this.loading.verifyEmailChangeOtp = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest("/profile/verify-email-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ otp }),
+      });
+
+      runInAction(() => {
+        this.error = null;
+        if (response.user) {
+          this.currentUser = response.user;
+          localStorage.setItem("user", JSON.stringify(response.user));
+        }
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.verifyEmailChangeOtp = false;
+      });
+    }
+  }
+
+  async resendEmailChangeOtp() {
+    if (this.loading.resendEmailChangeOtp) return;
+    this.loading.resendEmailChangeOtp = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest("/profile/resend-email-otp", {
+        method: "POST",
+        headers: getAuthHeaders(),
+      });
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.resendEmailChangeOtp = false;
       });
     }
   }
@@ -526,13 +631,12 @@ class UserStore {
     }
   }
   async fetchUserById(id) {
-    if (this.loading.fetchUserById) return;
-
     this.loading.fetchUserById = true;
     this.error = null;
+    this.editUser = null;
 
     try {
-      const response = await apirequest(`/Users/${id}`, {
+      const response = await apirequest(`/api/admin/users/${id}`, {
         headers: getAuthHeaders(),
       });
 
@@ -658,6 +762,30 @@ class UserStore {
       });
     }
   }
+  async verifyResetToken(token) {
+    this.loading.verifyResetToken = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest(`/verify-reset-token/${token}`);
+
+      runInAction(() => {
+        this.error = null;
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.verifyResetToken = false;
+      });
+    }
+  }
   async deleteAccount() {
     if (this.loading.deleteAccount) return;
 
@@ -689,8 +817,6 @@ class UserStore {
     }
   }
   async verifyEmail(token) {
-    if (this.loading.verifyEmail) return;
-
     this.loading.verifyEmail = true;
     this.error = null;
 

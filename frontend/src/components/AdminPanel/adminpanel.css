@@ -89,8 +89,8 @@
 }
 
 .ul-stat-icon-wrapper {
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -142,11 +142,15 @@
   border-radius: 0 2px 2px 0;
 }
 
-/* 🌞 LIGHT MODE THEMED STYLES ── */
+/* ══════════════════════════════════════════════════════════
+   ⭐ STAT CARDS: BLUE + EMERALD + VIOLET + AMBER PALETTE
+   ══════════════════════════════════════════════════════════ */
+
+/* ── 1. TOTAL USERS (BLUE) ── */
 :root:not([data-theme="dark"]) .icon-blue-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
-  border: 1px solid #bfdbfe;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.06);
+  background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+  border: 1px solid #2563eb;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.12), 0 0 10px rgba(96, 165, 250, 0.15);
 }
 :root:not([data-theme="dark"]) .icon-blue-card .ul-stat-icon-wrapper {
   background: #dbeafe;
@@ -154,146 +158,164 @@
   box-shadow: 0 0 12px rgba(37, 99, 235, 0.25);
 }
 :root:not([data-theme="dark"]) .badge-blue {
-  background: #dbeafe;
-  color: #1e40af;
-  border: 1px solid #93c5fd;
+  background: #1d4ed8;
+  color: #dbeafe;
+  border: 1px solid #2563eb;
 }
 :root:not([data-theme="dark"]) .ul-stat-progress-fill.icon-blue {
-  background: linear-gradient(90deg, #2563eb, #60a5fa);
+  background: #3b82f6;
 }
 
-:root:not([data-theme="dark"]) .icon-green-card {
-  background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%);
-  border: 1px solid #a7f3d0;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.06);
+[data-theme="dark"] .icon-blue-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(10, 15, 30, 0.95) 100%);
+  border: 1px solid #2563eb;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), 0 0 14px rgba(37, 99, 235, 0.22);
 }
-:root:not([data-theme="dark"]) .icon-green-card .ul-stat-icon-wrapper {
+[data-theme="dark"] .icon-blue-card .ul-stat-icon-wrapper {
+  background: rgba(37, 99, 235, 0.2);
+  color: #60a5fa;
+  box-shadow: 0 0 14px rgba(96, 165, 250, 0.4);
+}
+[data-theme="dark"] .badge-blue {
+  background: rgba(29, 78, 216, 0.45);
+  color: #bfdbfe;
+  border: 1px solid #2563eb;
+}
+[data-theme="dark"] .ul-stat-progress-fill.icon-blue {
+  background: #3b82f6;
+}
+
+/* ── 2. VERIFIED USERS (EMERALD) ── */
+:root:not([data-theme="dark"]) .icon-green-card,
+:root:not([data-theme="dark"]) .icon-emerald-card {
+  background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%);
+  border: 1px solid #059669;
+  box-shadow: 0 4px 16px rgba(5, 150, 105, 0.12), 0 0 10px rgba(52, 211, 153, 0.15);
+}
+:root:not([data-theme="dark"]) .icon-green-card .ul-stat-icon-wrapper,
+:root:not([data-theme="dark"]) .icon-emerald-card .ul-stat-icon-wrapper {
   background: #d1fae5;
   color: #047857;
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+  box-shadow: 0 0 12px rgba(5, 150, 105, 0.25);
 }
-:root:not([data-theme="dark"]) .badge-green {
-  background: #d1fae5;
-  color: #065f46;
-  border: 1px solid #6ee7b7;
+:root:not([data-theme="dark"]) .badge-green,
+:root:not([data-theme="dark"]) .badge-emerald {
+  background: #047857;
+  color: #d1fae5;
+  border: 1px solid #059669;
 }
-:root:not([data-theme="dark"]) .ul-stat-progress-fill.icon-green {
-  background: linear-gradient(90deg, #10b981, #34d399);
+:root:not([data-theme="dark"]) .ul-stat-progress-fill.icon-green,
+:root:not([data-theme="dark"]) .ul-stat-progress-fill.icon-emerald {
+  background: #10b981;
 }
 
-:root:not([data-theme="dark"]) .icon-purple-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
-  border: 1px solid #ddd6fe;
-  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.06);
+[data-theme="dark"] .icon-green-card,
+[data-theme="dark"] .icon-emerald-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(6, 25, 18, 0.95) 100%);
+  border: 1px solid #059669;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), 0 0 14px rgba(5, 150, 105, 0.22);
 }
-:root:not([data-theme="dark"]) .icon-purple-card .ul-stat-icon-wrapper {
+[data-theme="dark"] .icon-green-card .ul-stat-icon-wrapper,
+[data-theme="dark"] .icon-emerald-card .ul-stat-icon-wrapper {
+  background: rgba(5, 150, 105, 0.2);
+  color: #34d399;
+  box-shadow: 0 0 14px rgba(52, 211, 153, 0.4);
+}
+[data-theme="dark"] .badge-green,
+[data-theme="dark"] .badge-emerald {
+  background: rgba(4, 120, 87, 0.45);
+  color: #a7f3d0;
+  border: 1px solid #059669;
+}
+[data-theme="dark"] .ul-stat-progress-fill.icon-green,
+[data-theme="dark"] .ul-stat-progress-fill.icon-emerald {
+  background: #10b981;
+}
+
+/* ── 3. ADMIN ACCOUNTS (VIOLET) ── */
+:root:not([data-theme="dark"]) .icon-purple-card,
+:root:not([data-theme="dark"]) .icon-violet-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
+  border: 1px solid #7c3aed;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.12), 0 0 10px rgba(167, 139, 250, 0.15);
+}
+:root:not([data-theme="dark"]) .icon-purple-card .ul-stat-icon-wrapper,
+:root:not([data-theme="dark"]) .icon-violet-card .ul-stat-icon-wrapper {
   background: #ede9fe;
   color: #6d28d9;
   box-shadow: 0 0 12px rgba(124, 58, 237, 0.25);
 }
-:root:not([data-theme="dark"]) .badge-purple {
-  background: #ede9fe;
-  color: #5b21b6;
-  border: 1px solid #c4b5fd;
+:root:not([data-theme="dark"]) .badge-purple,
+:root:not([data-theme="dark"]) .badge-violet {
+  background: #6d28d9;
+  color: #ede9fe;
+  border: 1px solid #7c3aed;
 }
-:root:not([data-theme="dark"]) .ul-stat-progress-fill.icon-purple {
-  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+:root:not([data-theme="dark"]) .ul-stat-progress-fill.icon-purple,
+:root:not([data-theme="dark"]) .ul-stat-progress-fill.icon-violet {
+  background: #8b5cf6;
 }
 
+[data-theme="dark"] .icon-purple-card,
+[data-theme="dark"] .icon-violet-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(20, 10, 35, 0.95) 100%);
+  border: 1px solid #7c3aed;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), 0 0 14px rgba(124, 58, 237, 0.22);
+}
+[data-theme="dark"] .icon-purple-card .ul-stat-icon-wrapper,
+[data-theme="dark"] .icon-violet-card .ul-stat-icon-wrapper {
+  background: rgba(124, 58, 237, 0.2);
+  color: #a78bfa;
+  box-shadow: 0 0 14px rgba(167, 139, 250, 0.4);
+}
+[data-theme="dark"] .badge-purple,
+[data-theme="dark"] .badge-violet {
+  background: rgba(109, 40, 217, 0.45);
+  color: #ddd6fe;
+  border: 1px solid #7c3aed;
+}
+[data-theme="dark"] .ul-stat-progress-fill.icon-purple,
+[data-theme="dark"] .ul-stat-progress-fill.icon-violet {
+  background: #8b5cf6;
+}
+
+/* ── 4. NEW TODAY (AMBER) ── */
 :root:not([data-theme="dark"]) .icon-amber-card {
   background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%);
-  border: 1px solid #fde68a;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.06);
+  border: 1px solid #d97706;
+  box-shadow: 0 4px 16px rgba(217, 119, 6, 0.12), 0 0 10px rgba(251, 191, 36, 0.15);
 }
 :root:not([data-theme="dark"]) .icon-amber-card .ul-stat-icon-wrapper {
   background: #fef3c7;
-  color: #b45309;
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+  color: #92400e;
+  box-shadow: 0 0 12px rgba(217, 119, 6, 0.25);
 }
 :root:not([data-theme="dark"]) .badge-amber {
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fcd34d;
+  background: #92400e;
+  color: #fef3c7;
+  border: 1px solid #d97706;
 }
 :root:not([data-theme="dark"]) .ul-stat-progress-fill.icon-amber {
-  background: linear-gradient(90deg, #f59e0b, #fbbf24);
-}
-
-/* 🌙 DARK MODE THEMED STYLES ── */
-[data-theme="dark"] .icon-blue-card {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-}
-[data-theme="dark"] .icon-blue-card .ul-stat-icon-wrapper {
-  background: rgba(59, 130, 246, 0.18);
-  color: #60a5fa;
-  box-shadow: 0 0 14px rgba(59, 130, 246, 0.45);
-}
-[data-theme="dark"] .badge-blue {
-  background: rgba(59, 130, 246, 0.2);
-  color: #93c5fd;
-  border: 1px solid rgba(59, 130, 246, 0.4);
-}
-[data-theme="dark"] .ul-stat-progress-fill.icon-blue {
-  background: linear-gradient(90deg, #3b82f6, #60a5fa);
-}
-
-[data-theme="dark"] .icon-green-card {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-}
-[data-theme="dark"] .icon-green-card .ul-stat-icon-wrapper {
-  background: rgba(16, 185, 129, 0.18);
-  color: #34d399;
-  box-shadow: 0 0 14px rgba(16, 185, 129, 0.45);
-}
-[data-theme="dark"] .badge-green {
-  background: rgba(16, 185, 129, 0.2);
-  color: #6ee7b7;
-  border: 1px solid rgba(16, 185, 129, 0.4);
-}
-[data-theme="dark"] .ul-stat-progress-fill.icon-green {
-  background: linear-gradient(90deg, #10b981, #34d399);
-}
-
-[data-theme="dark"] .icon-purple-card {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-}
-[data-theme="dark"] .icon-purple-card .ul-stat-icon-wrapper {
-  background: rgba(139, 92, 246, 0.18);
-  color: #c4b5fd;
-  box-shadow: 0 0 14px rgba(139, 92, 246, 0.45);
-}
-[data-theme="dark"] .badge-purple {
-  background: rgba(139, 92, 246, 0.2);
-  color: #c4b5fd;
-  border: 1px solid rgba(139, 92, 246, 0.4);
-}
-[data-theme="dark"] .ul-stat-progress-fill.icon-purple {
-  background: linear-gradient(90deg, #8b5cf6, #c4b5fd);
+  background: #f59e0b;
 }
 
 [data-theme="dark"] .icon-amber-card {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 20, 5, 0.95) 100%);
+  border: 1px solid #d97706;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), 0 0 14px rgba(217, 119, 6, 0.22);
 }
 [data-theme="dark"] .icon-amber-card .ul-stat-icon-wrapper {
-  background: rgba(245, 158, 11, 0.18);
-  color: #fcd34d;
-  box-shadow: 0 0 14px rgba(245, 158, 11, 0.45);
+  background: rgba(217, 119, 6, 0.2);
+  color: #fbbf24;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.4);
 }
 [data-theme="dark"] .badge-amber {
-  background: rgba(245, 158, 11, 0.2);
-  color: #fcd34d;
-  border: 1px solid rgba(245, 158, 11, 0.4);
+  background: rgba(146, 64, 14, 0.45);
+  color: #fde68a;
+  border: 1px solid #d97706;
 }
 [data-theme="dark"] .ul-stat-progress-fill.icon-amber {
-  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  background: #f59e0b;
 }
 
 .skeleton-ul-stat {
@@ -450,6 +472,28 @@
   color: var(--accent, #818cf8);
   font-weight: 600;
 }
+
+.custom-dropdown-item.item-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.custom-dropdown-item.item-disabled:hover {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.item-disabled-hint {
+  font-size: 0.68rem;
+  font-weight: 400;
+  opacity: 0.8;
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-left: auto;
+  padding-left: 8px;
+}
+
 
 .ul-reset-btn {
   padding: 6px 14px;
@@ -938,10 +982,57 @@
   background: var(--bg-card);
 }
 .table-wrap {
+  position: relative;
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   border-radius: 6px;
+}
+
+/* ── 3G Table Slow Network Loading Overlay (Debounced: 0% flicker on fast networks) ── */
+.table-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  animation: fadeIn 0.15s ease-out;
+  border-radius: 6px;
+}
+
+:root:not([data-theme="dark"]) .table-loading-overlay {
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.table-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2.5px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: notifSpin 0.75s linear infinite;
+}
+
+/* ── Button Spinner (Delete & Action Loading States) ── */
+.btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+  animation: notifSpin 0.65s linear infinite;
 }
 .table-wrap::-webkit-scrollbar {
   height: 6px;
@@ -1061,8 +1152,8 @@
 }
 
 .status-dot.amber-dot {
-  background: #f59e0b;
-  box-shadow: 0 0 6px rgba(245, 158, 11, 0.8);
+  background: #f43f5e;
+  box-shadow: 0 0 6px rgba(244, 63, 94, 0.85);
 }
 
 .user-name {
@@ -1078,7 +1169,7 @@
   font-weight: 500;
 }
 
-/* Badges Uniform Standard (Exact Same Height, Width, Font, Padding) */
+/* Badges Uniform Standard (Vibrant, High-Contrast Modern SaaS Badges) */
 .badge-gender,
 .admin-badge,
 .user-badge,
@@ -1087,94 +1178,117 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  min-width: 66px;
-  height: 22px;
-  padding: 0 9px;
+  gap: 6px;
+  min-width: 68px;
+  height: 24px;
+  padding: 0 10px;
   border-radius: 9999px;
-  font-size: 0.7rem;
+  font-size: 0.73rem;
   font-weight: 600;
   line-height: 1;
   text-align: center;
   box-sizing: border-box;
   text-transform: capitalize;
+  letter-spacing: 0.015em;
   transition: all var(--transition);
 }
 
+/* ── DISTINCT 3-COLUMN BADGE PALETTE ── */
+
+/* 1. GENDER BADGES (Electric Cyan / Rose / Fuchsia) */
 .badge-gender {
-  background: rgba(148, 163, 184, 0.14);
-  color: #cbd5e1;
+  background: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
   border: 1px solid rgba(148, 163, 184, 0.25);
 }
 
 .badge-gender.male {
-  background: rgba(59, 130, 246, 0.16);
-  color: #60a5fa;
-  border: 1px solid rgba(96, 165, 250, 0.35);
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.15);
+  background: rgba(6, 182, 212, 0.18);
+  color: #22d3ee;
+  border: 1px solid rgba(34, 211, 238, 0.45);
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
 }
 
 .badge-gender.female {
-  background: rgba(236, 72, 153, 0.16);
-  color: #f472b6;
-  border: 1px solid rgba(244, 114, 182, 0.35);
-  box-shadow: 0 0 8px rgba(236, 72, 153, 0.15);
+  background: rgba(217, 70, 239, 0.18);
+  color: #f0abfc;
+  border: 1px solid rgba(232, 121, 249, 0.5);
+  box-shadow: 0 0 10px rgba(217, 70, 239, 0.22);
 }
 
 .badge-gender.other {
-  background: rgba(168, 85, 247, 0.16);
-  color: #c084fc;
-  border: 1px solid rgba(192, 132, 252, 0.35);
-  box-shadow: 0 0 8px rgba(168, 85, 247, 0.15);
+  background: rgba(129, 140, 248, 0.18);
+  color: #a5b4fc;
+  border: 1px solid rgba(129, 140, 248, 0.45);
+  box-shadow: 0 0 10px rgba(129, 140, 248, 0.2);
 }
 
+/* 2. ROLE BADGES (Royal Violet / Steel Gray) */
 .admin-badge {
-  background: rgba(129, 140, 248, 0.16);
-  border: 1px solid rgba(129, 140, 248, 0.35);
-  color: #a5b4fc;
-  box-shadow: 0 0 8px rgba(129, 140, 248, 0.15);
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.3) 0%, rgba(126, 34, 206, 0.3) 100%);
+  border: 1px solid rgba(192, 132, 252, 0.55);
+  color: #d8b4fe;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.35);
+  font-weight: 700;
 }
 
 .user-badge {
-  background: rgba(148, 163, 184, 0.16);
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  color: #94a3b8;
+  background: rgba(51, 65, 85, 0.6);
+  border: 1px solid rgba(100, 116, 139, 0.45);
+  color: #cbd5e1;
+  font-weight: 600;
 }
 
+/* 3. VERIFICATION BADGES (Emerald Green / Tangerine Orange) */
 .verified-badge {
-  background: rgba(16, 185, 129, 0.14);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(52, 211, 153, 0.5);
   color: #34d399;
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.12);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+  font-weight: 700;
 }
 
 .unverified-badge {
-  background: rgba(245, 158, 11, 0.12);
-  border: 1px solid rgba(245, 158, 11, 0.28);
-  color: #fbbf24;
-  box-shadow: 0 0 6px rgba(245, 158, 11, 0.1);
+  background: rgba(225, 29, 72, 0.22);
+  border: 1px solid rgba(244, 63, 94, 0.55);
+  color: #fda4af;
+  box-shadow: 0 0 10px rgba(225, 29, 72, 0.25);
+  font-weight: 700;
 }
 
-/* Light Mode Overrides for Table Badges */
-:root:not([data-theme="dark"]) .verified-badge {
-  background: #d1fae5;
-  color: #047857;
-  border: 1px solid #6ee7b7;
-  box-shadow: none;
+/* ☀️ LIGHT MODE OVERRIDES (Distinct Pastel Tints) */
+:root:not([data-theme="dark"]) .badge-gender {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
 }
 
-:root:not([data-theme="dark"]) .unverified-badge {
-  background: #fef3c7;
-  color: #b45309;
-  border: 1px solid #fcd34d;
-  box-shadow: none;
+:root:not([data-theme="dark"]) .badge-gender.male {
+  background: #cffaff;
+  color: #0891b2;
+  border: 1px solid #67e8f9;
+  box-shadow: 0 1px 3px rgba(8, 145, 178, 0.12);
+}
+
+:root:not([data-theme="dark"]) .badge-gender.female {
+  background: #fae8ff;
+  color: #a21caf;
+  border: 1px solid #f0abfc;
+  box-shadow: 0 1px 3px rgba(162, 28, 175, 0.12);
+}
+
+:root:not([data-theme="dark"]) .badge-gender.other {
+  background: #e0e7ff;
+  color: #3730a3;
+  border: 1px solid #c7d2fe;
+  box-shadow: 0 1px 3px rgba(55, 48, 163, 0.12);
 }
 
 :root:not([data-theme="dark"]) .admin-badge {
-  background: #ede9fe;
-  color: #5b21b6;
-  border: 1px solid #c4b5fd;
-  box-shadow: none;
+  background: #f3e8ff;
+  color: #7e22ce;
+  border: 1px solid #c084fc;
+  box-shadow: 0 1px 4px rgba(126, 34, 206, 0.15);
 }
 
 :root:not([data-theme="dark"]) .user-badge {
@@ -1184,18 +1298,18 @@
   box-shadow: none;
 }
 
-:root:not([data-theme="dark"]) .badge-gender.male {
-  background: #dbeafe;
-  color: #1d4ed8;
-  border: 1px solid #93c5fd;
-  box-shadow: none;
+:root:not([data-theme="dark"]) .verified-badge {
+  background: #d1fae5;
+  color: #047857;
+  border: 1px solid #6ee7b7;
+  box-shadow: 0 1px 3px rgba(4, 120, 87, 0.12);
 }
 
-:root:not([data-theme="dark"]) .badge-gender.female {
-  background: #fce7f3;
-  color: #be185d;
-  border: 1px solid #fbcfe8;
-  box-shadow: none;
+:root:not([data-theme="dark"]) .unverified-badge {
+  background: #ffe4e6;
+  color: #9f1239;
+  border: 1px solid #fca5a5;
+  box-shadow: 0 1px 3px rgba(159, 18, 57, 0.12);
 }
 
 .action-buttons {
@@ -1815,9 +1929,12 @@
   }
 
   .ul-reset-btn {
-    width: 100%;
-    margin-left: 0;
-    text-align: center;
+    width: auto;
+    margin-left: auto;
+    padding: 6px 12px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .badge-gender,
@@ -1934,8 +2051,8 @@
   }
 
   .ul-stat-icon-wrapper {
-    width: 30px;
-    height: 30px;
+    width: 34px;
+    height: 34px;
   }
 
   .ul-stat-bottom {

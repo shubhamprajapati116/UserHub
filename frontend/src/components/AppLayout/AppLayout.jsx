@@ -7,6 +7,8 @@ import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/StoreContext";
 import apirequest from "../../api/apirequest";
 import Breadcrumb from "../Breadcrumb/Breadcrumb";
+import NotificationDropdown from "./NotificationDropdown";
+
 const NavIcon = ({ name }) => {
   const icons = {
     users: (
@@ -147,7 +149,7 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
     setSidebarOpen(false);
 
     try {
-      // Backend se session delete karo MongoDB me se (is device ka session remove hoga)
+      // Backend se session delete karo MongoDB me se
       await apirequest("/logout", {
         method: "DELETE",
         headers: {
@@ -211,13 +213,14 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
       </aside>
 
       <div className="app-content">
+        {/* Top Navbar Header - Clean & Focused */}
         <header className="top-header">
           <div className="top-header-left">
             <button
               type="button"
               className="menu-toggle btn-icon"
-              onClick={() => setSidebarOpen(true)}
-              aria-label="Open menu"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label="Toggle menu"
             >
               <svg
                 width="20"
@@ -235,16 +238,15 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
             </button>
             <div className="top-header-page-info">
               {title && <h1 className="top-header-title">{title}</h1>}
-              {breadcrumbs && breadcrumbs.length > 0 ? (
-                <Breadcrumb items={breadcrumbs} />
-              ) : (
-                subtitle && <p className="top-header-subtitle">{subtitle}</p>
-              )}
+              {subtitle && <p className="top-header-subtitle">{subtitle}</p>}
             </div>
           </div>
 
           <div className="top-header-right">
             {role && <span className="top-header-role-badge">{role}</span>}
+
+            {/* Notification Bell Dropdown */}
+            <NotificationDropdown />
 
             <div className="user-menu-wrap" ref={userMenuRef}>
               <button
@@ -406,7 +408,15 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
           </div>
         </header>
 
-        <main className="app-main">{children}</main>
+        {/* Main Content Area with Dedicated Breadcrumbs on Top */}
+        <main className="app-main">
+          {breadcrumbs && breadcrumbs.length > 0 && (
+            <div className="app-main-breadcrumb-bar">
+              <Breadcrumb items={breadcrumbs} />
+            </div>
+          )}
+          {children}
+        </main>
       </div>
     </div>
   );

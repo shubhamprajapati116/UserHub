@@ -3,6 +3,15 @@ import PasswordInput from "../PasswordInput/passwordinput";
 import AppDatePicker from "../AppDatePicker/AppDatePicker";
 import CustomSelect from "../CustomSelect/CustomSelect";
 
+function Spinner() {
+  return (
+    <svg className="btn-spinner" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
+      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function UserFormFields({
   formData,
   errors,
@@ -175,7 +184,7 @@ function UserFormFields({
           )}
 
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? loadingtext : buttontext}
+            {loading ? <><Spinner /> {loadingtext}</> : buttontext}
           </button>
         </div>
 

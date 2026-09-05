@@ -1,12 +1,21 @@
 /* eslint-disable react-refresh/only-export-components */
 import AppLayout from "../AppLayout/AppLayout";
 import "./ChangePassword.css";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import PasswordInput from "../PasswordInput/passwordinput";
 import { useStore } from "../../stores/StoreContext";
 import { observer } from "mobx-react-lite";
+
+function Spinner() {
+  return (
+    <svg className="btn-spinner" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
+      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
 
 function ChangePassword() {
   const { userStore } = useStore();
@@ -18,6 +27,37 @@ function ChangePassword() {
     confirmPassword: "",
   });
   const [error, seterror] = useState({});
+
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
+  const [isForgotOpen, setIsForgotOpen] = useState(false);
+
+  const userEmail = userStore.currentUser?.email || "";
+
+  useEffect(() => {
+    if (!resetSent || resendTimer === 0) return;
+    const interval = setInterval(() => {
+      setResendTimer((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [resetSent, resendTimer]);
+
+  const handleSendResetEmail = async () => {
+    if (!userEmail || resetLoading) return;
+    setResetLoading(true);
+    try {
+      const data = await userStore.forgotPassword(userEmail);
+      toast.success(data?.message || "Password reset link sent to your email!");
+      setResetSent(true);
+      setResendTimer(60);
+      setIsForgotOpen(true);
+    } catch (err) {
+      toast.error(err?.message || "Failed to send reset link");
+    } finally {
+      setResetLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -64,6 +104,7 @@ function ChangePassword() {
   return (
     <AppLayout
       title="Change Password"
+      subtitle="Update your account password and security settings"
       breadcrumbs={[
         { label: "Settings", path: "/settings" },
         { label: "Change Password" },
@@ -157,10 +198,140 @@ function ChangePassword() {
                     className="btn btn-primary"
                     disabled={loading}
                   >
-                    {loading ? "Changing..." : "Change Password"}
+                    {loading ? <><Spinner /> Changing...</> : "Change Password"}
                   </button>
                 </div>
               </form>
+
+              {/* ── In-App Collapsible Forgot Password Dropdown Box ── */}
+              <div className={`forgot-password-prompt-box ${isForgotOpen ? "is-open" : ""}`}>
+                <div
+                  className="prompt-toggle-header"
+                  onClick={() => setIsForgotOpen(!isForgotOpen)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setIsForgotOpen(!isForgotOpen);
+                    }
+                  }}
+                  title={isForgotOpen ? "Click to collapse" : "Click to expand forgot password options"}
+                >
+                  <div className="prompt-header-left">
+                    <div className="prompt-icon">
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                    </div>
+                    <span className="prompt-header-title">
+                      Forgot your current password?
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="prompt-chevron-btn"
+                    aria-label={isForgotOpen ? "Collapse" : "Expand"}
+                    tabIndex={-1}
+                  >
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={`prompt-chevron-icon ${isForgotOpen ? "rotate" : ""}`}
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                </div>
+
+                {isForgotOpen && (
+                  <div className="prompt-collapsible-content">
+                    <p className="prompt-desc">
+                      Send a secure password reset link to your registered email{" "}
+                      {userEmail ? <b>({userEmail})</b> : ""} without leaving this page.
+                    </p>
+
+                    {resetSent ? (
+                      <div className="reset-sent-badge">
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span>
+                          Reset link sent! Check your inbox.{" "}
+                          {resendTimer > 0 ? `(${resendTimer}s)` : ""}
+                        </span>
+                        {resendTimer === 0 && (
+                          <button
+                            type="button"
+                            className="btn-resend-link"
+                            onClick={handleSendResetEmail}
+                            disabled={resetLoading}
+                          >
+                            Resend Link
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        className="btn-send-reset-link"
+                        onClick={handleSendResetEmail}
+                        disabled={resetLoading || !userEmail}
+                      >
+                        {resetLoading ? (
+                          <>
+                            <Spinner /> Sending reset link...
+                          </>
+                        ) : (
+                          <>
+                            <svg
+                              width="13"
+                              height="13"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                              <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                            Send Reset Link to Email
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

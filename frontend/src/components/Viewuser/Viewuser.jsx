@@ -1,6 +1,5 @@
-/* eslint-disable react-refresh/only-export-components */
 import "./ViewUser.css";
-import { Link, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/StoreContext";
@@ -22,9 +21,36 @@ import {
   FaEdit,
 } from "react-icons/fa";
 
+function getJoinedDate(user) {
+  if (!user) return null;
+  if (user.createdAt) {
+    const d = new Date(user.createdAt);
+    if (!isNaN(d.getTime())) return d;
+  }
+  if (user._id && typeof user._id === "string" && user._id.length >= 8) {
+    try {
+      const timestamp = parseInt(user._id.substring(0, 8), 16) * 1000;
+      const d = new Date(timestamp);
+      if (!isNaN(d.getTime())) return d;
+    } catch {
+      // ignore
+    }
+  }
+  return null;
+}
+
+function getLastLogin(user) {
+  if (!user) return null;
+  const loginVal =
+    user.lastLogin || user.lastDeviceInfo?.lastLoginAt || user.lastLoginAt;
+  if (!loginVal) return null;
+  const d = new Date(loginVal);
+  return isNaN(d.getTime()) ? null : d;
+}
+
 function ViewUser() {
   const { id } = useParams();
-
+  const navigate = useNavigate();
   const { userStore } = useStore();
 
   const [isExpOpen, setIsExpOpen] = useState(false);
@@ -36,25 +62,44 @@ function ViewUser() {
   const user = userStore.editUser || {};
   const loading = userStore.loading.fetchUserById || false;
 
+  const joinedDate = getJoinedDate(user);
+  const lastLoginDate = getLastLogin(user);
+
   const safeFormatDate = (dateVal, options = {}) => {
     if (!dateVal) return "N/A";
     try {
       const d = new Date(dateVal);
       if (isNaN(d.getTime())) return "N/A";
-      return d.toLocaleDateString("en-IN", options);
+      return d.toLocaleDateString(
+        "en-IN",
+        Object.keys(options).length
+          ? options
+          : {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            },
+      );
     } catch {
       return "N/A";
     }
   };
 
-  const safeFormatDateTime = (dateVal, options = {}) => {
-    if (!dateVal) return "Never";
+  const safeFormatDateTime = (dateVal) => {
+    if (!dateVal) return null;
     try {
       const d = new Date(dateVal);
-      if (isNaN(d.getTime())) return "Never";
-      return d.toLocaleString("en-IN", options);
+      if (isNaN(d.getTime())) return null;
+      return d.toLocaleString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
     } catch {
-      return "Never";
+      return null;
     }
   };
 
@@ -75,6 +120,7 @@ function ViewUser() {
   return (
     <AppLayout
       title={loading ? "User Details" : user.name || "User Details"}
+      subtitle="View comprehensive user profile & account activity"
       breadcrumbs={[
         { label: "Admin Panel", path: "/admin/users" },
         { label: user.name || "User Details" },
@@ -124,17 +170,17 @@ function ViewUser() {
                     </span>
                   )}
 
-                  {user.createdAt ? (
+                  {joinedDate && (
                     <span className="badge joined-badge">
                       <FaCalendarAlt />
                       Joined{" "}
-                      {safeFormatDate(user.createdAt, {
+                      {safeFormatDate(joinedDate, {
                         day: "numeric",
                         month: "short",
                         year: "numeric",
                       })}
                     </span>
-                  ) : null}
+                  )}
                 </>
               )}
             </div>
@@ -463,18 +509,17 @@ function ViewUser() {
                                     <span className="apple-company-loc">({exp.location})</span>
                                   )}
                                 </div>
+                                <div className="apple-blue-pill">
+                                  {formatDateStr(exp.startDate).toUpperCase()} —{" "}
+                                  {exp.isCurrent
+                                    ? "PRESENT"
+                                    : formatDateStr(exp.endDate).toUpperCase()}{" "}
+                                  {exp.employmentType
+                                    ? `• ${exp.employmentType.toUpperCase()}`
+                                    : ""}
+                                </div>
                               </div>
                             </div>
-                          </div>
-
-                          <div className="apple-blue-pill">
-                            {formatDateStr(exp.startDate).toUpperCase()} —{" "}
-                            {exp.isCurrent
-                              ? "PRESENT"
-                              : formatDateStr(exp.endDate).toUpperCase()}{" "}
-                            {exp.employmentType
-                              ? `• ${exp.employmentType.toUpperCase()}`
-                              : ""}
                           </div>
                         </div>
 
@@ -521,12 +566,14 @@ function ViewUser() {
                     <strong>
                       {loading ? (
                         <div className="skeleton skeleton-value"></div>
-                      ) : (
-                        safeFormatDate(user.createdAt, {
+                      ) : joinedDate ? (
+                        safeFormatDate(joinedDate, {
                           day: "numeric",
                           month: "long",
                           year: "numeric",
                         })
+                      ) : (
+                        "N/A"
                       )}
                     </strong>
                   </div>
@@ -539,14 +586,12 @@ function ViewUser() {
                     <strong>
                       {loading ? (
                         <div className="skeleton skeleton-value"></div>
+                      ) : lastLoginDate && safeFormatDateTime(lastLoginDate) ? (
+                        safeFormatDateTime(lastLoginDate)
                       ) : (
-                        safeFormatDateTime(user.lastLogin, {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
+                        <span className="last-login-pending">
+                          First Login Pending
+                        </span>
                       )}
                     </strong>
                   </div>
@@ -564,17 +609,22 @@ function ViewUser() {
               </>
             ) : (
               <>
-                <Link to="/admin/users" className="userview-back-btn">
+                <button
+                  type="button"
+                  className="userview-back-btn"
+                  onClick={() => navigate("/admin/users")}
+                >
                   Back
-                </Link>
+                </button>
 
-                <Link
-                  to={`/admin/users/${user._id}/edit`}
+                <button
+                  type="button"
                   className="userview-edit-btn"
+                  onClick={() => navigate(`/admin/users/${user._id}/edit`)}
                 >
                   <FaEdit />
                   Edit User
-                </Link>
+                </button>
               </>
             )}
           </div>

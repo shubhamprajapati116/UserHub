@@ -7,7 +7,10 @@ const jwt = require("jsonwebtoken");
 
 const { v4: uuidv4 } = require("uuid");
 const Session = require("../models/session");
+const Notification = require("../models/notification");
 const getDeviceInfo = require("../utils/getDeviceInfo");
+const createNotification = require("../utils/createNotification");
+const emailTemplates = require("../utils/emailTemplates");
 
 const registeruser = async (req, res) => {
   try {
@@ -57,67 +60,11 @@ const registeruser = async (req, res) => {
 
     await sendEmail(
       user.email,
-      "Verify Your Email",
-      `
-    <div style="
-      max-width:600px;
-      margin:auto;
-      padding:30px;
-      font-family:Arial,sans-serif;
-      border:1px solid #1e1a1a;
-      border-radius:10px;
-    ">
-      <h1 style="color:#2563eb;">
-        UserHub
-      </h1>
-
-      <h2>Welcome to UserHub 🎉</h2>
-
-      <p>
-        Thank you for creating your account.
-      </p>
-
-      <p>
-        Please verify your email address by clicking the button below.
-      </p>
-
-      <a
-        href="${verificationLink}"
-        style="
-          display:inline-block;
-          background:#2563eb;
-          color:white;
-          text-decoration:none;
-          padding:12px 24px;
-          border-radius:6px;
-          margin-top:10px;
-        "
-      >
-        Verify Email
-      </a>
-
-      <p style="margin-top:20px;">
-        If the button doesn't work, copy and paste this link into your browser:
-      </p>
-
-      <p style="
-        word-break:break-all;
-        color:#2563eb;
-      ">
-        ${verificationLink}
-      </p>
-
-      <p style="margin-top:20px;">
-        If you did not create this account, you can safely ignore this email.
-      </p>
-
-      <hr />
-
-      <small>
-        © 2026 UserHub. All rights reserved.
-      </small>
-    </div>
-  `,
+      "Verify Your Email Address - UserHub",
+      emailTemplates.registerVerificationEmail({
+        name: user.name,
+        verifyUrl: verificationLink,
+      })
     );
     return res.status(201).json({
       message:
@@ -223,32 +170,44 @@ const loginuser = async (req, res) => {
   if (!isKnownDevice) {
     // 6-digit random OTP generate karo
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashotp = crypto.createHash("sha256").update(otp).digest("hex");
     console.log(`🔐 [LOGIN OTP for ${user.email}]: ${otp}`);
     const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes expiry
 
-    user.loginOtp = otp;
+    user.loginOtp = hashotp;
     user.loginOtpExpire = otpExpiry;
     await user.save();
 
-    // Send OTP email
-    try {
-      await sendEmail(
-        user.email,
-        "Your Login Verification OTP - UserHub",
-        `
-        <div style="max-width:550px; margin:auto; padding:25px; font-family:Arial,sans-serif; border:1px solid #e2e8f0; border-radius:10px; background:#ffffff;">
-          <h2 style="color:#2563eb; margin-bottom:5px;">UserHub Security Verification</h2>
-          <p style="color:#475569; font-size:15px;">A login attempt was made from a new or unrecognized device.</p>
-          <div style="background:#f1f5f9; padding:20px; text-align:center; border-radius:8px; margin:20px 0;">
-            <span style="font-size:32px; font-weight:bold; letter-spacing:6px; color:#1e293b;">${otp}</span>
-          </div>
-          <p style="color:#64748b; font-size:14px;">This code is valid for <strong>5 minutes</strong>. If you did not attempt this login, please change your password immediately.</p>
-        </div>
-        `,
-      );
-    } catch (err) {
+    const { browser, os, device } = getDeviceInfo(req.headers["user-agent"]);
+    const deviceDesc = browser && os ? `${browser} on ${os}` : browser || os || "Unknown Device";
+
+    // Send OTP email in background
+    sendEmail(
+      user.email,
+      "Your Login Verification Code - UserHub",
+      emailTemplates.loginOtpEmail({
+        name: user.name,
+        otp,
+        deviceDesc,
+      })
+    ).catch((err) => {
       console.error("Error sending OTP email:", err.message);
-    }
+    });
+
+    // 🔔 In-App Notification: Instant Alert to Real User about Unrecognized Login Attempt
+    await createNotification({
+      userId: user._id,
+      type: "security_login",
+      title: "Security Alert: Login Attempt",
+      message: `A login attempt was made from an unrecognized device (${deviceDesc}) and a 6-digit OTP was sent to your email.`,
+      metadata: {
+        browser,
+        os,
+        device,
+        ipAddress: currentIp,
+        sourceDeviceId: deviceId,
+      },
+    });
 
     return res.status(200).json({
       requireOtp: true,
@@ -288,7 +247,7 @@ const loginuser = async (req, res) => {
       sessionId,
     },
     process.env.JWT_SECRET,
-    { expiresIn: "1d" },
+    { expiresIn: "7d" },
   );
 
   const userData = user.toObject();
@@ -319,8 +278,13 @@ const verifyLoginOtp = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    const hashedOtp = crypto
+      .createHash("sha256")
+      .update(otp.trim())
+      .digest("hex");
+
     // OTP match aur expiry check
-    if (!user.loginOtp || user.loginOtp !== otp.trim()) {
+    if (!user.loginOtp || user.loginOtp !== hashedOtp) {
       return res
         .status(400)
         .json({ message: "Invalid OTP. Please check and try again." });
@@ -372,6 +336,8 @@ const verifyLoginOtp = async (req, res) => {
       ipAddress: currentIp,
     });
 
+    const isFirstEverLogin = !user.lastLogin;
+
     user.lastLogin = new Date();
     user.lastDeviceInfo = {
       userAgent: currentUA,
@@ -379,6 +345,92 @@ const verifyLoginOtp = async (req, res) => {
       lastLoginAt: new Date(),
     };
     await user.save();
+
+    const deviceDesc = browser && os ? `${browser} on ${os}` : browser || os || "Unknown Device";
+
+    if (isFirstEverLogin) {
+      // 🎉 First-time Login: Friendly Welcome Notification
+      await createNotification({
+        userId: user._id,
+        type: "welcome",
+        title: "Welcome to UserHub! 🎉",
+        message: "Your account is successfully set up. Explore your dashboard and complete your profile.",
+        metadata: { browser, os, device, ipAddress: currentIp },
+      });
+    } else {
+      // 🛡️ Stamp sourceSessionId on any previous attempt notifications from this device
+      if (deviceId) {
+        await Notification.updateMany(
+          {
+            userId: user._id,
+            type: "security_login",
+            "metadata.sourceDeviceId": deviceId,
+          },
+          {
+            $set: { "metadata.sourceSessionId": sessionId },
+          }
+        );
+      }
+
+      // 🛡️ Subsequent Login from New Device: Targeted Security Alert (Hidden from hacker session/device, visible on real user devices)
+      await createNotification({
+        userId: user._id,
+        type: "security_login",
+        title: "Security Alert: New Device Login",
+        message: `Your account was logged in from a new device (${deviceDesc}).`,
+        metadata: {
+          sourceSessionId: sessionId,
+          sourceDeviceId: deviceId,
+          browser,
+          os,
+          device,
+          ipAddress: currentIp,
+        },
+      });
+
+      // 📧 Out-of-Band Security Email Alert to Real User's Personal Inbox
+      const loginTime = new Date().toLocaleString("en-IN", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      });
+      const securityUrl = `${process.env.FRONTEND_URL}/settings`;
+
+      sendEmail(
+        user.email,
+        `[Security Alert] New sign-in to your account from ${deviceDesc}`,
+        `
+        <div style="max-width:560px; margin:auto; padding:28px; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; border:1px solid #e2e8f0; border-radius:12px; background:#ffffff; color:#1e293b;">
+          <div style="margin-bottom:16px;">
+            <span style="font-size:26px;">🛡️</span>
+            <h2 style="color:#0f172a; margin:8px 0 4px; font-size:20px; font-weight:700;">Security Alert: New Sign-in</h2>
+          </div>
+          <p style="color:#475569; font-size:15px; line-height:1.5; margin:0 0 16px;">
+            Hello <strong>${user.name || "User"}</strong>, we detected a new login to your UserHub account from an unrecognized device:
+          </p>
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px; margin:16px 0; font-size:14px; line-height:1.8;">
+            <div><strong>💻 Device:</strong> ${deviceDesc}</div>
+            <div><strong>🌐 IP Address:</strong> ${currentIp}</div>
+            <div><strong>🕒 Time:</strong> ${loginTime}</div>
+          </div>
+          <p style="color:#475569; font-size:14px; line-height:1.5; margin:12px 0 6px;">
+            If this was you, you can safely ignore this email.
+          </p>
+          <p style="color:#dc2626; font-size:14px; font-weight:600; line-height:1.5; margin:0 0 18px;">
+            ⚠️ If you did NOT recognize this activity, someone else may have access to your account.
+          </p>
+          <div style="text-align:center; margin:22px 0 16px;">
+            <a href="${securityUrl}" style="background:#dc2626; color:#ffffff; padding:12px 24px; text-decoration:none; border-radius:6px; font-weight:600; font-size:14px; display:inline-block;">
+              Review & Revoke Sessions
+            </a>
+          </div>
+          <hr style="border:none; border-top:1px solid #e2e8f0; margin:22px 0 12px;" />
+          <small style="color:#94a3b8; font-size:12px;">© 2026 UserHub Security Team. All rights reserved.</small>
+        </div>
+        `
+      ).catch((err) => {
+        console.error("Failed to send security alert email:", err.message);
+      });
+    }
 
     // JWT sign
     const token = jwt.sign(
@@ -389,7 +441,7 @@ const verifyLoginOtp = async (req, res) => {
         sessionId,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" },
+      { expiresIn: "7d" },
     );
 
     const userData = user.toObject();
@@ -409,9 +461,6 @@ const verifyLoginOtp = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
-
-
-
 
 const resendLoginOtp = async (req, res) => {
   try {
@@ -436,25 +485,23 @@ const resendLoginOtp = async (req, res) => {
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    user.loginOtp = otp;
+    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+    user.loginOtp = hashedOtp;
     user.loginOtpExpire = new Date(Date.now() + 5 * 60 * 1000);
     user.lastOtpSentAt = new Date(); // ✅ Cooldown timestamp update
     await user.save();
 
-    await sendEmail(
+    sendEmail(
       user.email,
-      "Your New Login Verification OTP - UserHub",
-      `
-      <div style="max-width:550px; margin:auto; padding:25px; font-family:Arial,sans-serif; border:1px solid #e2e8f0; border-radius:10px; background:#ffffff;">
-        <h2 style="color:#2563eb;">UserHub Security Verification</h2>
-        <p style="color:#475569;">Here is your new OTP code for login:</p>
-        <div style="background:#f1f5f9; padding:20px; text-align:center; border-radius:8px; margin:20px 0;">
-          <span style="font-size:32px; font-weight:bold; letter-spacing:6px; color:#1e293b;">${otp}</span>
-        </div>
-        <p style="color:#64748b; font-size:14px;">Valid for 5 minutes.</p>
-      </div>
-      `,
-    );
+      "Your New Login Verification Code - UserHub",
+      emailTemplates.loginOtpEmail({
+        name: user.name,
+        otp,
+        deviceDesc: "your device",
+      })
+    ).catch((err) => {
+      console.error("Error sending resend OTP email:", err.message);
+    });
 
     return res
       .status(200)
@@ -481,58 +528,11 @@ const forgotpassword = async (req, res) => {
     await user.save();
     await sendEmail(
       user.email,
-      "Reset Password",
-      `<div style="
-      max-width:600px;
-      margin:auto;
-      padding:30px;
-      font-family:Arial,sans-serif;
-      border:1px solid #ddd;
-      border-radius:10px;
-    ">
-      <h1 style="color:#2563eb;">
-        UserHub
-      </h1>
-
-      <h2>Password Reset Request</h2>
-
-      <p>
-        We received a request to reset your password.
-      </p>
-
-      <p>
-        Click the button below to create a new password.
-      </p>
-      
-      <a
-        href="${resetlink}"
-        style="
-          display:inline-block;
-          background:#2563eb;
-          color:white;
-          text-decoration:none;
-          padding:12px 24px;
-          border-radius:6px;
-          margin-top:10px;
-        "
-      >
-        Reset Password
-      </a>
-      <p style="margin-top:20px;">
-        This link will expire in 15 minutes.
-      </p>
-
-      <p>
-        If you did not request this password reset,
-        please ignore this email.
-      </p>
-      <hr />
-
-      <small>
-        © 2026 UserHub. All rights reserved.
-      </small>
-    </div>
-  `,
+      "Reset Your Password - UserHub",
+      emailTemplates.passwordResetEmail({
+        name: user.name,
+        resetUrl: resetlink,
+      })
     );
 
     return res.status(200).json({
@@ -696,6 +696,14 @@ const resetPassword = async (req, res) => {
 
     await user.save();
 
+    // 🔔 In-App Notification: Password Change (via Reset)
+    await createNotification({
+      userId: user._id,
+      type: "password_change",
+      title: "Security Update",
+      message: "Your password has been changed successfully.",
+    });
+
     return res.status(200).json({
       message: "Password reset successfully",
     });
@@ -706,11 +714,42 @@ const resetPassword = async (req, res) => {
     });
   }
 };
+const verifyResetToken = async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpire: {
+        $gt: Date.now(),
+      },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        valid: false,
+        message: "Invalid or expired password reset link",
+      });
+    }
+
+    return res.status(200).json({
+      valid: true,
+      message: "Token is valid",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      valid: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   registeruser,
   loginuser,
   forgotpassword,
   resetPassword,
+  verifyResetToken,
   logoutCurrentDevice,
   logoutOtherSessions,
   getSessions,
@@ -718,3 +757,4 @@ module.exports = {
   resendLoginOtp,
   verifyLoginOtp,
 };
+

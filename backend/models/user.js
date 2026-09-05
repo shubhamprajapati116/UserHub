@@ -98,7 +98,22 @@ const UserSchema = new mongoose.Schema(
       type: Date, // OTP Expiry (e.g. 5 minutes)
       default: null,
     },
-   lastOtpSentAt: {
+    lastOtpSentAt: {
+      type: Date,
+      default: null,
+    },
+    // ── Email Change Verification OTP Fields ──
+    pendingEmail: {
+      type: String,
+      lowercase: true,
+      trim: true,
+      default: null,
+    },
+    emailChangeOtp: {
+      type: String,
+      default: null,
+    },
+    emailChangeOtpExpire: {
       type: Date,
       default: null,
     },

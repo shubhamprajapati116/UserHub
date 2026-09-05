@@ -4,6 +4,12 @@ const upload = require("../middleware/upload");
 const verifyToken = require("../middleware/verifytoken");
 const verifyAdmin = require("../middleware/VerifyAdmin");
 const {
+  authLimiter,
+  emailLimiter,
+  registerLimiter,
+  userApiLimiter,
+} = require("../middleware/rateLimiter");
+const {
   getUsers,
   deleteuser,
   updateuser,
@@ -11,14 +17,17 @@ const {
   getUserById,
   addUser,
   verifyEmail,
+  cancelPendingEmailChange,
   bulkDeleteUsers,
   bulkUpdateRole,
+  getUserGrowthAnalytics,
 } = require("../controllers/usercontroller");
 const {
   registeruser,
   loginuser,
   forgotpassword,
   resetPassword,
+  verifyResetToken,
   logoutCurrentDevice,
   logoutOtherSessions,
   getSessions,
@@ -29,6 +38,8 @@ const {
 const {
   getProfile,
   updateProfile,
+  verifyEmailChangeOtp,
+  resendEmailChangeOtp,
   deleteProfile,
   changepassword,
   addExperience,
@@ -37,17 +48,23 @@ const {
   updateNotificationPreferences,
 } = require("../controllers/profileController");
 
-router.get("/profile", verifyToken, getProfile);
+router.get("/profile", verifyToken, userApiLimiter, getProfile);
 router.put(
   "/notification-preferences",
   verifyToken,
+  userApiLimiter,
   updateNotificationPreferences,
 );
-router.post("/profile/experience", verifyToken, addExperience);
-router.put("/profile/experience/:expId", verifyToken, updateExperienceItem);
-router.delete("/profile/experience/:expId", verifyToken, deleteExperienceItem);
+router.post("/profile/experience", verifyToken, userApiLimiter, addExperience);
+router.put("/profile/experience/:expId", verifyToken, userApiLimiter, updateExperienceItem);
+router.delete("/profile/experience/:expId", verifyToken, userApiLimiter, deleteExperienceItem);
 
-router.post("/register", upload.single("profilephoto"), registeruser);
+router.post(
+  "/register",
+  registerLimiter,
+  upload.single("profilephoto"),
+  registeruser,
+);
 // Legacy Admin Routes
 router.get("/Users", verifyToken, verifyAdmin, getUsers);
 router.get("/Users/:id", verifyToken, verifyAdmin, getUserById);
@@ -67,7 +84,6 @@ router.post(
   addUser,
 );
 router.put("/Users/:id/make-admin", verifyToken, verifyAdmin, makeAdmin);
-
 router.get("/api/admin/users", verifyToken, verifyAdmin, getUsers);
 router.post(
   "/api/admin/users",
@@ -76,7 +92,6 @@ router.post(
   upload.single("profilephoto"),
   addUser,
 );
-
 router.post(
   "/api/admin/users/bulk-delete",
   verifyToken,
@@ -89,11 +104,16 @@ router.put(
   verifyAdmin,
   bulkUpdateRole,
 );
-
 router.delete("/logout", verifyToken, logoutCurrentDevice);
-router.delete("/sessions/logout-others", verifyToken, logoutOtherSessions);
-router.get("/sessions", verifyToken, getSessions);
-router.delete("/sessions/:sessionId", verifyToken, logoutSession);
+router.delete("/sessions/logout-others", verifyToken, userApiLimiter, logoutOtherSessions);
+router.get("/sessions", verifyToken, userApiLimiter, getSessions);
+router.delete("/sessions/:sessionId", verifyToken, userApiLimiter, logoutSession);
+router.get(
+  "/api/admin/analytics/user-growth",
+  verifyToken,
+  verifyAdmin,
+  getUserGrowthAnalytics,
+);
 router.get("/api/admin/users/:id", verifyToken, verifyAdmin, getUserById);
 router.put(
   "/api/admin/users/:id",
@@ -103,20 +123,35 @@ router.put(
   updateuser,
 );
 router.delete("/api/admin/users/:id", verifyToken, verifyAdmin, deleteuser);
+router.delete("/api/admin/users/:id/pending-email", verifyToken, verifyAdmin, cancelPendingEmailChange);
 router.put("/api/admin/users/:id/role", verifyToken, verifyAdmin, makeAdmin);
 
 router.put(
   "/profile",
   verifyToken,
+  userApiLimiter,
   upload.single("profilephoto"),
   updateProfile,
 );
-router.delete("/account-delete", verifyToken, deleteProfile);
-router.post("/verify-login-otp", verifyLoginOtp);
-router.post("/resend-login-otp", resendLoginOtp); 
-router.post("/login", loginuser);
-router.post("/forgot-password", forgotpassword);
-router.post("/reset-password/:token", resetPassword);
+router.post(
+  "/profile/verify-email-otp",
+  verifyToken,
+  authLimiter,
+  verifyEmailChangeOtp,
+);
+router.post(
+  "/profile/resend-email-otp",
+  verifyToken,
+  emailLimiter,
+  resendEmailChangeOtp,
+);
+router.delete("/account-delete", verifyToken, userApiLimiter, deleteProfile);
+router.post("/verify-login-otp", authLimiter, verifyLoginOtp);
+router.post("/resend-login-otp", emailLimiter, resendLoginOtp);
+router.post("/login", authLimiter, loginuser);
+router.post("/forgot-password", emailLimiter, forgotpassword);
+router.get("/verify-reset-token/:token", verifyResetToken);
+router.post("/reset-password/:token", authLimiter, resetPassword);
 router.get("/verify-email/:token", verifyEmail);
-router.put("/change-password", verifyToken, changepassword);
+router.put("/change-password", verifyToken, authLimiter, changepassword);
 module.exports = router;

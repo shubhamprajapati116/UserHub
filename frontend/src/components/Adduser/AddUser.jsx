@@ -63,6 +63,7 @@ function AddUser() {
   return (
     <AppLayout
       title="Add User"
+      subtitle="Create and configure a new user account"
       breadcrumbs={[
         { label: "Admin Panel", path: "/admin/users" },
         { label: "Add User" },
