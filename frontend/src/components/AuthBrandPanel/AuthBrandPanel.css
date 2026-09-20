@@ -1,8 +1,19 @@
-/* ─── AuthBrandPanel Clean Modern SaaS Hero Banner (Comfortable Balanced Size) ─── */
+/* ─── AuthBrandPanel Clean Modern SaaS Hero Banner (Bright & Natural Real-World Photography) ─── */
 
 .auth-split-brand {
   position: relative;
-  background: linear-gradient(135deg, #070a13 0%, #0f172a 50%, #1e1b4b 100%);
+  /* Balanced Soft Gradient: Balanced at 40% vertical anchor so heads have headroom and laptop/table is fully visible */
+  background:
+    linear-gradient(
+      135deg,
+      rgba(10, 15, 26, 0.75) 0%,
+      rgba(10, 15, 26, 0.45) 50%,
+      rgba(10, 15, 26, 0.18) 100%
+    ),
+    url("/auth-brand-bg.jpg") center 40% / cover no-repeat;
+  background-position: center 40%;
+  background-size: cover;
+  background-repeat: no-repeat;
   color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -12,27 +23,14 @@
   box-sizing: border-box;
 }
 
-/* Ambient Glow Layer */
+/* Subtle Vignette Accent */
 .auth-brand-ambient-glow {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 10% 15%, rgba(99, 102, 241, 0.3), transparent 45%),
-    radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.2), transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1), transparent 60%);
-  pointer-events: none;
-  z-index: 1;
+  display: none;
 }
 
-/* Subtle Tech Grid Pattern Overlay */
+/* Subtle Tech Grid Pattern Overlay (Disabled for clean natural photography) */
 .auth-brand-grid-pattern {
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
-  background-size: 24px 24px;
-  pointer-events: none;
-  opacity: 0.45;
-  z-index: 1;
+  display: none;
 }
 
 /* Top Section */
@@ -93,61 +91,73 @@
   letter-spacing: -0.03em;
   margin: 0 0 0.5rem;
   color: #ffffff;
-  background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75);
   max-width: 380px;
 }
 
 .auth-brand-desc {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   line-height: 1.45;
-  color: #94a3b8;
+  color: #e2e8f0;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
   margin: 0 0 1rem;
   max-width: 380px;
 }
 
 .auth-brand-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.15);
   margin: 0.85rem 0 1.15rem;
   max-width: 380px;
 }
 
-/* Feature List Rows */
+/* Feature List Rows with Sleek Glassmorphic Floating Pills */
 .auth-brand-features {
   position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-width: 380px;
+  gap: 10px;
+  max-width: 390px;
 }
 
 .auth-brand-feature-item {
   display: flex;
   align-items: flex-start;
   gap: 12px;
+  padding: 10px 14px;
+  background: rgba(10, 15, 26, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.auth-brand-feature-item:hover {
+  background: rgba(10, 15, 26, 0.6);
+  transform: translateX(4px);
 }
 
 .auth-brand-feature-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  background: rgba(99, 102, 241, 0.15);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: #818cf8;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(99, 102, 241, 0.25);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  color: #a5b4fc;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-top: 1px;
-  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.2);
+  margin-top: 2px;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 }
 
 .auth-brand-feature-icon svg {
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
 }
 
 .auth-brand-feature-content {
@@ -159,8 +169,8 @@
 
 .auth-feature-title {
   margin: 0;
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.84rem;
+  font-weight: 700;
   color: #ffffff;
   letter-spacing: -0.01em;
   line-height: 1.25;
@@ -168,7 +178,7 @@
 
 .auth-feature-desc {
   margin: 0;
-  font-size: 0.72rem;
-  color: #94a3b8;
+  font-size: 0.74rem;
+  color: #cbd5e1;
   line-height: 1.35;
 }

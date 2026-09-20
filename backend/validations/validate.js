@@ -32,6 +32,7 @@ const updateUserSchema = joi.object({
   city: joi.string().trim().max(100).allow("").optional(),
   role: joi.string().valid("admin", "user").optional(),
   profilephoto: joi.any().optional(),
+  profileBanner: joi.string().trim().allow("").optional(),
 });
 
 const changePasswordValidation = (data) => {

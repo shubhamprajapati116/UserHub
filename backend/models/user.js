@@ -5,7 +5,7 @@ const UserSchema = new mongoose.Schema(
     name: {
       type: String,
       trim: true,
-    },
+    },  
 
     email: {
       type: String,
@@ -16,6 +16,10 @@ const UserSchema = new mongoose.Schema(
     gender: String,
     dob: Date,
     profilephoto: String,
+    profileBanner: {
+      type: String,
+      default: "banner_5",
+    },
     // New Fields
     phone: {
       type: String,
@@ -41,15 +45,26 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-
     role: {
       type: String,
       enum: ["user", "admin"],
       default: "user",
     },
+    status: {
+      type: String,
+      enum: ["active", "suspended", "banned"],
+      default: "active",
+    },
+    statusReason: {
+      type: String,
+      default: "",
+    },
+    statusUpdatedAt: {
+      type: Date,
+      default: null,
+    },
 
-    // System Fields
-    lastLogin: {
+      lastLogin: {
       type: Date,
       default: null,
     },
@@ -73,9 +88,7 @@ const UserSchema = new mongoose.Schema(
       },
     },
     resetPasswordToken: String,
-
     resetPasswordExpire: Date,
-    // ── Device-Based 2FA & OTP Fields ──
     trustedDevices: [
       {
         deviceId: {
@@ -91,18 +104,18 @@ const UserSchema = new mongoose.Schema(
       },
     ],
     loginOtp: {
-      type: String, // 6-digit OTP
+      type: String, 
       default: null,
     },
     loginOtpExpire: {
-      type: Date, // OTP Expiry (e.g. 5 minutes)
+      type: Date, 
       default: null,
     },
     lastOtpSentAt: {
       type: Date,
       default: null,
     },
-    // ── Email Change Verification OTP Fields ──
+    
     pendingEmail: {
       type: String,
       lowercase: true,
@@ -117,12 +130,14 @@ const UserSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
-    // ── Account Verification & Security Fields ──
+    
     isVerified: {
       type: Boolean,
       default: false,
     },
     verificationToken: String,
+    verificationTokenExpire: Date, 
+    lastVerificationSentAt: Date, 
 
     loginAttempts: {
       type: Number,
@@ -146,7 +161,7 @@ const UserSchema = new mongoose.Schema(
     ],
   },
   {
-    timestamps: true, 
+    timestamps: true,
   },
 );
 

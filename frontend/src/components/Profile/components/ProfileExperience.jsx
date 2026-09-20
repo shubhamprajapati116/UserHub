@@ -241,7 +241,8 @@ function ProfileExperience({
           </>
         ) : (
           <div className="experience-empty">
-            <p>No work experience added yet.</p>
+            <h4>No Work Experience Added Yet</h4>
+            <p>Highlight your professional journey, career milestones, and skills by adding work history.</p>
             <button
               type="button"
               className="add-exp-btn"

@@ -11,6 +11,23 @@ import NotificationDropdown from "./NotificationDropdown";
 
 const NavIcon = ({ name }) => {
   const icons = {
+    dashboard: (
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="3" width="7" height="9" />
+        <rect x="14" y="3" width="7" height="5" />
+        <rect x="14" y="12" width="7" height="9" />
+        <rect x="3" y="16" width="7" height="5" />
+      </svg>
+    ),
     users: (
       <svg
         width="16"
@@ -98,15 +115,40 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [photoError, setPhotoError] = useState(false);
   const userMenuRef = useRef(null);
+
+  const isPlaceholderPhoto = (photo) => {
+    if (!photo) return true;
+    const p = String(photo).trim().toLowerCase();
+    return (
+      p === "" ||
+      p === "null" ||
+      p === "undefined" ||
+      p === "false" ||
+      p === "default.png" ||
+      p === "placeholder.png"
+    );
+  };
 
   const navItems = [
     ...(role === "admin"
-      ? [{ label: "Admin Panel", path: "/admin/users", icon: "users" }]
+      ? [
+          { label: "Dashboard", path: "/admin/dashboard", icon: "dashboard" },
+          { label: "User Management", path: "/admin/users", icon: "users" },
+        ]
       : []),
     { label: "My Profile", path: "/profile", icon: "profile" },
     { label: "Settings", path: "/settings", icon: "settings" },
   ];
+
+  const isNavActive = (itemPath) => {
+    if (location.pathname === itemPath) return true;
+    if (itemPath === "/admin/users" && location.pathname.startsWith("/admin/users")) return true;
+    if (itemPath === "/settings" && location.pathname.startsWith("/settings")) return true;
+    if (itemPath === "/profile" && location.pathname.startsWith("/profile")) return true;
+    return false;
+  };
 
   useEffect(() => {
     if (!userMenuOpen) return;
@@ -184,10 +226,16 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
           aria-hidden="true"
         />
       )}
-
       <aside className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="sidebar-brand">
-          <div className="sidebar-logo">U</div>
+          <div className="sidebar-logo">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="rgba(255, 255, 255, 0.2)" />
+              <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <circle cx="12" cy="10" r="3" stroke="#ffffff" strokeWidth="2" />
+              <path d="M7 18c.8-2.3 2.8-3.5 5-3.5s4.2 1.2 5 3.5" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </div>
           <div className="sidebar-brand-text">
             <span className="sidebar-brand-name">UserHub</span>
             <span className="sidebar-brand-tag">Management</span>
@@ -195,20 +243,55 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
         </div>
 
         <nav className="sidebar-nav">
-          <span className="sidebar-nav-label">Menu</span>
-          {navItems.map((item) => (
+          {role === "admin" && (
+            <div className="sidebar-section">
+              <span className="sidebar-nav-label">Admin Panel</span>
+              <button
+                type="button"
+                className={`sidebar-link ${location.pathname === "/admin/dashboard" ? "active" : ""}`}
+                onClick={() => handleNav("/admin/dashboard")}
+              >
+                <span className="sidebar-link-icon">
+                  <NavIcon name="dashboard" />
+                </span>
+                <span className="sidebar-link-text">Dashboard</span>
+              </button>
+              <button
+                type="button"
+                className={`sidebar-link ${location.pathname.startsWith("/admin/users") ? "active" : ""}`}
+                onClick={() => handleNav("/admin/users")}
+              >
+                <span className="sidebar-link-icon">
+                  <NavIcon name="users" />
+                </span>
+                <span className="sidebar-link-text">User Management</span>
+              </button>
+            </div>
+          )}
+
+          <div className="sidebar-section">
+            <span className="sidebar-nav-label">{role === "admin" ? "General" : "Menu"}</span>
             <button
-              key={item.path}
               type="button"
-              className={`sidebar-link ${location.pathname === item.path ? "active" : ""}`}
-              onClick={() => handleNav(item.path)}
+              className={`sidebar-link ${location.pathname.startsWith("/profile") ? "active" : ""}`}
+              onClick={() => handleNav("/profile")}
             >
               <span className="sidebar-link-icon">
-                <NavIcon name={item.icon} />
+                <NavIcon name="profile" />
               </span>
-              {item.label}
+              <span className="sidebar-link-text">My Profile</span>
             </button>
-          ))}
+            <button
+              type="button"
+              className={`sidebar-link ${location.pathname.startsWith("/settings") ? "active" : ""}`}
+              onClick={() => handleNav("/settings")}
+            >
+              <span className="sidebar-link-icon">
+                <NavIcon name="settings" />
+              </span>
+              <span className="sidebar-link-text">Settings</span>
+            </button>
+          </div>
         </nav>
       </aside>
 
@@ -256,11 +339,16 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
                 aria-expanded={userMenuOpen}
                 aria-haspopup="true"
               >
-                {userPhoto ? (
+                {userPhoto && !isPlaceholderPhoto(userPhoto) && !photoError ? (
                   <img
                     className="user-menu-avatar"
-                    src={`${import.meta.env.VITE_API_URL}/uploads/${userPhoto}`}
+                    src={
+                      userPhoto.startsWith("http") || userPhoto.startsWith("data:")
+                        ? userPhoto
+                        : `${import.meta.env.VITE_API_URL}/uploads/${userPhoto}`
+                    }
                     alt={userName}
+                    onError={() => setPhotoError(true)}
                   />
                 ) : (
                   <span className="user-menu-initials">{initials}</span>

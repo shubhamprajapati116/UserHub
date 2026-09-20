@@ -98,14 +98,14 @@ function Forgotpassword() {
           {!isSubmitted ? (
             // ── 🔹 STATE 1: Email Form ──
             <>
-              <h2>Forgot password?</h2>
+              <h2>Forgot Password?</h2>
               <p className="auth-subtitle">
-                No worries! Enter your email and we&apos;ll send you a reset link.
+                Enter your email address and we&apos;ll send you a password reset link.
               </p>
 
               <form noValidate onSubmit={handlesubmit}>
                 <label className="form-label" htmlFor="email">
-                  Email
+                  Email Address
                 </label>
                 <input
                   className="form-input"
@@ -124,11 +124,11 @@ function Forgotpassword() {
                   type="submit"
                   disabled={loading}
                 >
-                  {loading ? <><Spinner /> Sending...</> : "Send reset link"}
+                  {loading ? <><Spinner /> Sending...</> : "Send Reset Link"}
                 </button>
 
                 <div className="auth-footer">
-                  <Link to="/login">← Back to sign in</Link>
+                  <Link to="/login">← Back to Sign In</Link>
                 </div>
               </form>
             </>
@@ -142,7 +142,7 @@ function Forgotpassword() {
                 </svg>
               </div>
 
-              <h2 className="auth-state-title">Check your email</h2>
+              <h2 className="auth-state-title">Check Your Email</h2>
               <p className="auth-state-desc">
                 We sent a password reset link to<br />
                 <span className="auth-email-pill">{email}</span>
@@ -154,7 +154,7 @@ function Forgotpassword() {
                   <line x1="12" y1="16" x2="12" y2="12" />
                   <line x1="12" y1="8" x2="12.01" y2="8" />
                 </svg>
-                <span>Didn&apos;t receive it? Check your spam folder or resend.</span>
+                <span>Didn&apos;t receive the email? Check your spam folder or request a new link.</span>
               </div>
 
               {/* Resend Button with Countdown */}
@@ -169,7 +169,7 @@ function Forgotpassword() {
                 ) : timer > 0 ? (
                   `Resend link in ${timer}s`
                 ) : (
-                  "Resend reset link"
+                  "Resend Reset Link"
                 )}
               </button>
 
@@ -182,11 +182,11 @@ function Forgotpassword() {
                   setTimer(60);
                 }}
               >
-                Use another email address
+                Use a different email address
               </button>
 
               <div className="auth-footer" style={{ marginTop: "18px" }}>
-                <Link to="/login">← Back to sign in</Link>
+                <Link to="/login">← Back to Sign In</Link>
               </div>
             </div>
           )}

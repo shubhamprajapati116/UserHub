@@ -221,7 +221,7 @@ function ResetPassword() {
               </svg>
             </div>
 
-            <h2 className="auth-state-title">Link expired or invalid</h2>
+            <h2 className="auth-state-title">Link Expired or Invalid</h2>
             <p className="auth-state-desc">
               {invalidReason ||
                 "This password reset link is invalid, has expired, or has already been used."}
@@ -256,7 +256,7 @@ function ResetPassword() {
             </button>
 
             <div className="auth-footer" style={{ marginTop: "18px" }}>
-              <Link to="/login">← Back to sign in</Link>
+              <Link to="/login">← Back to Sign In</Link>
             </div>
           </div>
         )}
@@ -279,7 +279,7 @@ function ResetPassword() {
               </svg>
             </div>
 
-            <h2 className="auth-state-title">Password reset successful!</h2>
+            <h2 className="auth-state-title">Password Reset Successful!</h2>
             <p className="auth-state-desc">
               Your password has been updated. You can now sign in with your new credentials.
             </p>
@@ -289,7 +289,7 @@ function ResetPassword() {
               className="btn btn-primary btn-full"
               onClick={() => navigate("/login")}
             >
-              Proceed to Login
+              Proceed to Sign In
             </button>
 
             <p className="redirect-countdown">
@@ -297,7 +297,7 @@ function ResetPassword() {
             </p>
 
             <div className="auth-footer" style={{ marginTop: "14px" }}>
-              <Link to="/login">← Back to sign in</Link>
+              <Link to="/login">← Back to Sign In</Link>
             </div>
           </div>
         )}
@@ -306,9 +306,9 @@ function ResetPassword() {
         {tokenStatus === "valid" && !isSuccess && (
           <>
             <h2 style={{ fontSize: "1.25rem", fontWeight: "700", marginBottom: "4px" }}>
-              Set new password
+              Set New Password
             </h2>
-            <p className="auth-subtitle">Enter your new password below.</p>
+            <p className="auth-subtitle">Choose a strong password to protect your account.</p>
 
             <form noValidate onSubmit={handleSubmit}>
               <label className="form-label" htmlFor="password">
@@ -352,7 +352,7 @@ function ResetPassword() {
               </button>
 
               <div className="auth-footer">
-                <Link to="/login">← Back to sign in</Link>
+                <Link to="/login">← Back to Sign In</Link>
               </div>
             </form>
           </>

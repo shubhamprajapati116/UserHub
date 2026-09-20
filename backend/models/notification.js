@@ -10,7 +10,13 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["security_login", "role_update", "password_change", "welcome"],
+      enum: [
+        "security_login",
+        "role_update",
+        "password_change",
+        "welcome",
+        "security_alert",
+      ],
       required: true,
     },
     title: {

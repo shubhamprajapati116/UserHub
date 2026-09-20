@@ -29,7 +29,7 @@ function UserFormFields({
       <div className="form-layout">
         <div className="form-field">
           <label className="form-label" htmlFor="name">
-            Full name
+            Full Name
           </label>
 
           <input
@@ -49,7 +49,7 @@ function UserFormFields({
 
         <div className="form-field">
           <label className="form-label" htmlFor="email">
-            Email address
+            Email Address
           </label>
 
           <input
@@ -110,7 +110,7 @@ function UserFormFields({
 
           <div className="form-field">
             <label className="form-label" htmlFor="dob">
-              Date of birth
+              Date of Birth
             </label>
 
             <AppDatePicker
@@ -130,7 +130,7 @@ function UserFormFields({
 
         <div className="form-field">
           <label className="form-label" htmlFor="profilephoto">
-            Profile photo
+            Profile Photo
           </label>
 
           <div className="custom-file-upload">

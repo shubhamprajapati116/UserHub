@@ -129,8 +129,8 @@ function ChangePassword() {
                   </svg>
                 </div>
                 <div>
-                  <h3>Update your password</h3>
-                  <p>Ensure your new password is at least 8 characters long.</p>
+                  <h3>Update Your Password</h3>
+                  <p>Choose a strong password with at least 8 characters to keep your account safe.</p>
                 </div>
               </div>
 
@@ -198,7 +198,7 @@ function ChangePassword() {
                     className="btn btn-primary"
                     disabled={loading}
                   >
-                    {loading ? <><Spinner /> Changing...</> : "Change Password"}
+                    {loading ? <><Spinner /> Updating Password...</> : "Update Password"}
                   </button>
                 </div>
               </form>

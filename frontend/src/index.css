@@ -8,7 +8,7 @@
   --bg-elevated: #ffffff;
   --bg-card: #ffffff;
   --bg-input: #f1f5f9;
-  --bg-hover: rgba(99, 102, 241, 0.05);
+  --bg-hover: rgba(15, 23, 42, 0.04);
 
   --sidebar-bg: #0f172a;
   --sidebar-text: #94a3b8;
@@ -37,7 +37,7 @@
   --warning: #f59e0b;
 
   --header-height: 62px;
-  --sidebar-width: 180px;
+  --sidebar-width: 210px;
 
   --radius-sm: 4px;
   --radius-md: 6px;
@@ -63,7 +63,7 @@
   --bg-elevated: #111726;
   --bg-card: #111726;
   --bg-input: #192237;
-  --bg-hover: rgba(99, 102, 241, 0.12);
+  --bg-hover: rgba(255, 255, 255, 0.05);
 
   --sidebar-bg: #050811;
   --sidebar-text: #64748b;
@@ -555,7 +555,6 @@ input[type="file"].form-input::file-selector-button:hover {
 }
 
 .auth-split-brand {
-  background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
   color: white;
   display: flex;
   flex-direction: column;
@@ -563,20 +562,6 @@ input[type="file"].form-input::file-selector-button:hover {
   padding: 48px;
   position: relative;
   overflow: hidden;
-}
-
-.auth-split-brand::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(
-      circle at 20% 80%,
-      rgba(99, 102, 241, 0.3),
-      transparent 50%
-    ),
-    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.2), transparent 45%);
-  pointer-events: none;
 }
 
 .auth-brand-content {
@@ -867,7 +852,7 @@ input[type="file"].form-input::file-selector-button:hover {
 
 
 
-/* 📱 Tablet & Mobile (< 992px): High-End Blue/Indigo Ambient Mesh BG with Glassmorphic Auth Card */
+/* 📱 Tablet & Mobile (< 992px): Modern Clean Enterprise Background */
 @media (max-width: 991px) {
   .auth-split {
     display: flex !important;
@@ -876,45 +861,21 @@ input[type="file"].form-input::file-selector-button:hover {
     min-height: 100vh !important;
     width: 100% !important;
     padding: 2rem 1rem !important;
-    background: linear-gradient(
-      135deg,
-      #070a13 0%,
-      #0f172a 50%,
-      #1e1b4b 100%
-    ) !important;
+    /* Clean Dark Charcoal with subtle office photo atmosphere */
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(8, 12, 20, 0.92) 0%,
+        rgba(11, 15, 25, 0.94) 100%
+      ),
+      url("/auth-brand-bg.jpg") center center / cover no-repeat !important;
     position: relative !important;
     overflow-x: hidden !important;
     box-sizing: border-box !important;
   }
 
   .auth-split::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(
-        circle at 15% 20%,
-        rgba(99, 102, 241, 0.35),
-        transparent 50%
-      ),
-      radial-gradient(
-        circle at 85% 80%,
-        rgba(139, 92, 246, 0.25),
-        transparent 50%
-      ),
-      radial-gradient(
-        circle at 50% 50%,
-        rgba(59, 130, 246, 0.12),
-        transparent 60%
-      ),
-      radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-    background-size:
-      100% 100%,
-      100% 100%,
-      100% 100%,
-      24px 24px;
-    pointer-events: none;
-    z-index: 1;
+    display: none !important;
   }
 
   .auth-split-brand {

@@ -1,11 +1,14 @@
-﻿/**
+/**
  * ════════════════════════════════════════════════════════════════
  * ✉️ UserHub Enterprise Email Template System
  * Responsive, Modern, Clean HTML Email Templates matching
- * industry standards (Stripe, GitHub, Google Workspace).
+ * industry standards (Stripe, GitHub, Google Workspace, AWS).
  * ════════════════════════════════════════════════════════════════
  */
 
+/**
+ * Common Responsive Base Layout for all emails
+ */
 function baseLayout({ title, badge, badgeColor = "#2563eb", contentHtml }) {
   return `
 <!DOCTYPE html>
@@ -73,7 +76,24 @@ function baseLayout({ title, badge, badgeColor = "#2563eb", contentHtml }) {
   `.trim();
 }
 
-// ── 1. Registration Account Verification Email ──
+/**
+ * ════════════════════════════════════════════════════════════════
+ * 📌 TEMPLATE 1: Registration Account Verification Email
+ * ────────────────────────────────────────────────────────────────
+ * • Kiske Liye Hai (Purpose):
+ *   Naye register hone wale user ke email address ko verify aur account ko
+ *   activate karne ke liye.
+ * • Trigger Point:
+ *   - Authcontroller.js -> register()
+ *   - Authcontroller.js -> resendVerificationEmail()
+ * • Recipient:
+ *   Naye user ka registered email address.
+ * • Functionality:
+ *   Isme ek secure time-limited verification link button hota hai. Jab user
+ *   is link par click karta hai, to uska account 'isVerified: true' mark
+ *   ho jaata hai.
+ * ════════════════════════════════════════════════════════════════
+ */
 function registerVerificationEmail({ name, verifyUrl }) {
   const contentHtml = `
     <h1 style="margin:0 0 12px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
@@ -111,7 +131,23 @@ function registerVerificationEmail({ name, verifyUrl }) {
   });
 }
 
-// ── 2. Login Security 6-Digit OTP Email (Unknown Device / 2FA) ──
+/**
+ * ════════════════════════════════════════════════════════════════
+ * 📌 TEMPLATE 2: Login Security 6-Digit OTP Email (2FA / New Device)
+ * ────────────────────────────────────────────────────────────────
+ * • Kiske Liye Hai (Purpose):
+ *   Jab user kisi naye device, unrecognized browser ya IP se login karta
+ *   hai to identity verify karne ke liye 6-digit OTP code bheja jaata hai.
+ * • Trigger Point:
+ *   - Authcontroller.js -> login()
+ *   - Authcontroller.js -> resendLoginOtp()
+ * • Recipient:
+ *   User ka registered email address.
+ * • Functionality:
+ *   Large font 6-digit OTP box jo 10 minutes me expire hota hai.
+ *   Saath me security warning ki ye code kisi ke saath share na karein.
+ * ════════════════════════════════════════════════════════════════
+ */
 function loginOtpEmail({ name, otp, deviceDesc, timeStr }) {
   const contentHtml = `
     <h1 style="margin:0 0 10px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
@@ -156,8 +192,24 @@ function loginOtpEmail({ name, otp, deviceDesc, timeStr }) {
   });
 }
 
-// ── 3. Password Reset Email ──
-function passwordResetEmail({ name, resetUrl }) {
+/**
+ * ════════════════════════════════════════════════════════════════
+ * 📌 TEMPLATE 3: Password Reset Link Email
+ * ────────────────────────────────────────────────────────────────
+ * • Kiske Liye Hai (Purpose):
+ *   Jab user apna password bhool jaata hai aur "Forgot Password" form se
+ *   reset link request karta hai.
+ * • Trigger Point:
+ *   - Authcontroller.js -> forgotpassword()
+ * • Recipient:
+ *   User ka registered email address.
+ * • Functionality:
+ *   15 minutes valid cryptographic reset token link. Is par click karke
+ *   user seedhe "Reset Password" page par pahunch kar naya password set karta hai.
+ * ════════════════════════════════════════════════════════════════
+ */
+function passwordResetEmail({ name, resetUrl, verifyUrl }) {
+  const url = resetUrl || verifyUrl;
   const contentHtml = `
     <h1 style="margin:0 0 12px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
       Reset Your Password
@@ -169,7 +221,7 @@ function passwordResetEmail({ name, resetUrl }) {
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:26px 0 24px;">
       <tr>
         <td align="center">
-          <a href="${resetUrl}" style="display:inline-block; padding:13px 32px; background:linear-gradient(135deg, #d97706 0%, #b45309 100%); color:#ffffff; text-decoration:none; border-radius:8px; font-weight:600; font-size:15px; box-shadow:0 4px 12px rgba(217, 119, 6, 0.35);">
+          <a href="${url}" style="display:inline-block; padding:13px 32px; background:linear-gradient(135deg, #d97706 0%, #b45309 100%); color:#ffffff; text-decoration:none; border-radius:8px; font-weight:600; font-size:15px; box-shadow:0 4px 12px rgba(217, 119, 6, 0.35);">
             Reset Password →
           </a>
         </td>
@@ -178,7 +230,7 @@ function passwordResetEmail({ name, resetUrl }) {
 
     <div style="background-color:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 14px; margin-top:24px;">
       <p style="margin:0 0 6px; font-size:12px; color:#64748b; font-weight:600;">Button not working? Copy and paste this link:</p>
-      <p style="margin:0; font-size:12px; color:#d97706; word-break:break-all; font-family:monospace;">${resetUrl}</p>
+      <p style="margin:0; font-size:12px; color:#d97706; word-break:break-all; font-family:monospace;">${url}</p>
     </div>
 
     <p style="margin:20px 0 0; font-size:12.5px; color:#94a3b8; line-height:1.5;">
@@ -194,7 +246,24 @@ function passwordResetEmail({ name, resetUrl }) {
   });
 }
 
-// ── 4. Self Profile Email Change 6-Digit OTP Email (Sent to NEW Email) ──
+/**
+ * ════════════════════════════════════════════════════════════════
+ * 📌 TEMPLATE 4: Self Profile Email Change - 6-Digit OTP Email
+ * ────────────────────────────────────────────────────────────────
+ * • Kiske Liye Hai (Purpose):
+ *   Jab user khud apni profile ya Security settings me jaakar apna
+ *   email address change karne ki request daalta hai.
+ * • Trigger Point:
+ *   - profileController.js -> requestEmailChange()
+ *   - profileController.js -> resendEmailChangeOtp()
+ *   - profileController.js -> changeEmail()
+ * • Recipient:
+ *   User ka NAYA (NEW) requested email address (inbox ownership confirm karne ke liye).
+ * • Functionality:
+ *   6-digit verification code jo 10 minutes tak valid rehta hai. User is
+ *   code ko Edit Profile modal me submit karke email change finalize karta hai.
+ * ════════════════════════════════════════════════════════════════
+ */
 function selfEmailChangeOtpEmail({ name, newEmail, otp }) {
   const contentHtml = `
     <h1 style="margin:0 0 10px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
@@ -233,8 +302,31 @@ function selfEmailChangeOtpEmail({ name, newEmail, otp }) {
   });
 }
 
-// ── 5. Admin Edit User: Pending Email Change Verification Link (Sent to NEW Email) ──
-function adminEmailChangePendingVerificationEmail({ name, oldEmail, newEmail, verifyUrl }) {
+/**
+ * ════════════════════════════════════════════════════════════════
+ * 📌 TEMPLATE 5: Admin-Initiated Email Change Pending Verification Link
+ * ────────────────────────────────────────────────────────────────
+ * • Kiske Liye Hai (Purpose):
+ *   Jab Administrator Admin Panel se kisi user ka email change karta hai,
+ *   to bina verification ke user ka purana access band nahi hota. Naye email
+ *   par verification link bheja jaata hai.
+ * • Trigger Point:
+ *   - usercontroller.js -> updateUser()
+ *   - usercontroller.js -> resendPendingEmailVerification()
+ *   - Authcontroller.js -> resendVerificationEmail() (agar pendingEmail exist karta ho)
+ * • Recipient:
+ *   User ka NAYA (NEW / Requested) email address.
+ * • Functionality:
+ *   Naye email par click-to-confirm link provide karta hai. Jab tak user is
+ *   link ko click karke confirm nahi karta, uska purana email active rehta hai.
+ * ════════════════════════════════════════════════════════════════
+ */
+function adminEmailChangePendingVerificationEmail({
+  name,
+  oldEmail,
+  newEmail,
+  verifyUrl,
+}) {
   const contentHtml = `
     <h1 style="margin:0 0 12px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
       Confirm Your New Email Address
@@ -276,8 +368,35 @@ function adminEmailChangePendingVerificationEmail({ name, oldEmail, newEmail, ve
   });
 }
 
-// ── 6. Security Alert Notice to OLD Email (ZERO OTP in message) ──
-function oldEmailChangeNoticeTemplate({ name, oldEmail, newEmail, changedBy = "you" }) {
+/**
+ * ════════════════════════════════════════════════════════════════
+ * 📌 TEMPLATE 6: Security Notice to OLD Email Address (ZERO OTP in message)
+ * ────────────────────────────────────────────────────────────────
+ * • Kiske Liye Hai (Purpose):
+ *   Jab bhi account ka email address change karne ki request create hoti hai ya
+ *   complete hoti hai, to purane email inbox par instant security alert bheja jaata hai.
+ * • Trigger Point:
+ *   - profileController.js -> requestEmailChange()
+ *   - profileController.js -> verifyEmailChangeOtp()
+ *   - profileController.js -> changeEmail()
+ *   - usercontroller.js -> updateUser()
+ *   - usercontroller.js -> completePendingEmailVerification()
+ *   - Authcontroller.js -> resendVerificationEmail()
+ * • Recipient:
+ *   User ka PURANA / CURRENT ACTIVE email address.
+ * • Security Rule:
+ *   Is email me KABHI BHI OTP ya confirmation link NAHI hota. Agar purana
+ *   inbox hack bhi hua ho, to attacker verification code intercept nahi kar
+ *   sakta. Isme user ko password change karne aur support se contact karne ki
+ *   warning hoti hai.
+ * ════════════════════════════════════════════════════════════════
+ */
+function oldEmailChangeNoticeTemplate({
+  name,
+  oldEmail,
+  newEmail,
+  changedBy = "you",
+}) {
   const contentHtml = `
     <h1 style="margin:0 0 12px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
       Security Notice: Email Change Requested
@@ -311,7 +430,23 @@ function oldEmailChangeNoticeTemplate({ name, oldEmail, newEmail, changedBy = "y
   });
 }
 
-// ── 7. Email Change Completed Success Email (Sent to NEW Email) ──
+/**
+ * ════════════════════════════════════════════════════════════════
+ * 📌 TEMPLATE 7: Email Change Completed Success Notice
+ * ────────────────────────────────────────────────────────────────
+ * • Kiske Liye Hai (Purpose):
+ *   Naye email address ki verification successfully complete hone ke baad
+ *   user ko final success confirmation bhejne ke liye.
+ * • Trigger Point:
+ *   - profileController.js -> verifyEmailChangeOtp()
+ *   - usercontroller.js -> completePendingEmailVerification()
+ * • Recipient:
+ *   NAYA (Successfully Updated Primary) email address.
+ * • Functionality:
+ *   User ko confirm karta hai ki ab unka naya email officially account ka
+ *   primary login aur communication email ban chuka hai.
+ * ════════════════════════════════════════════════════════════════
+ */
 function emailChangeSuccessTemplate({ name, newEmail }) {
   const contentHtml = `
     <h1 style="margin:0 0 12px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
@@ -342,7 +477,165 @@ function emailChangeSuccessTemplate({ name, newEmail }) {
   });
 }
 
+/**
+ * ════════════════════════════════════════════════════════════════
+ * 📌 TEMPLATE 8: Admin Global Session Revocation Security Alert Email
+ * ────────────────────────────────────────────────────────────────
+ * • Kiske Liye Hai (Purpose):
+ *   Jab administrator kisi user ke sabhi active device sessions ko ek sath
+ *   terminate (force logout) kar deta hai (e.g. security breach suspicion).
+ * • Trigger Point:
+ *   - usercontroller.js -> revokeAllUserSessions()
+ * • Recipient:
+ *   User ka registered email address.
+ * • Security Rule:
+ *   Is email me ZERO expiring login tokens ya password bypass links hote hain.
+ *   User ko kewal standard login page ka link milta hai taaki wo secure tarike
+ *   se login credentials enter karke dubara authenticate kare.
+ * ════════════════════════════════════════════════════════════════
+ */
+function sessionRevocationAlertEmail({ name, loginUrl, sessionCount = 0 }) {
+  const contentHtml = `
+    <h1 style="margin:0 0 12px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
+      Security Alert: Active Sessions Revoked 🔒
+    </h1>
+    <p style="margin:0 0 16px; font-size:14.5px; color:#475569; line-height:1.6;">
+      Hello ${name || "User"}, an administrator has revoked all active sessions for your UserHub account. As a security precaution, you have been <strong>logged out of all connected browsers and devices</strong>.
+    </p>
+
+    <div style="background-color:#fff1f2; border:1px solid #fecdd3; border-radius:10px; padding:16px 18px; margin:20px 0;">
+      <div style="display:flex; align-items:flex-start;">
+        <span style="font-size:18px; margin-right:10px; line-height:1;">⚠️</span>
+        <div>
+          <strong style="font-size:13.5px; color:#9f1239; display:block; margin-bottom:4px;">All Active Devices Terminated</strong>
+          <p style="margin:0; font-size:13px; color:#be123c; line-height:1.5;">
+            ${sessionCount > 0 ? `${sessionCount} active session(s) were closed.` : "Your active device sessions have been closed."} Any access tokens stored in your browser are no longer valid.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background-color:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px 18px; margin:20px 0;">
+      <h3 style="margin:0 0 8px; font-size:14px; font-weight:700; color:#0f172a;">How to Access Your Account:</h3>
+      <ol style="margin:0; padding-left:18px; font-size:13.5px; color:#475569; line-height:1.6;">
+        <li style="margin-bottom:6px;">Visit the UserHub login page using the button below.</li>
+        <li style="margin-bottom:6px;">Enter your registered email and password.</li>
+        <li>Complete identity verification (such as email OTP or account verification) directly during your login process.</li>
+      </ol>
+    </div>
+
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:26px 0 24px;">
+      <tr>
+        <td align="center">
+          <a href="${loginUrl}" style="display:inline-block; padding:13px 32px; background:linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color:#ffffff; text-decoration:none; border-radius:8px; font-weight:600; font-size:15px; box-shadow:0 4px 12px rgba(37, 99, 235, 0.35);">
+            Go to Login Page →
+          </a>
+        </td>
+      </tr>
+    </table>
+
+    <div style="background-color:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 14px; margin-top:22px;">
+      <p style="margin:0 0 6px; font-size:12px; color:#64748b; font-weight:600;">Button not working? Copy and paste this link:</p>
+      <p style="margin:0; font-size:12px; color:#2563eb; word-break:break-all; font-family:monospace;">${loginUrl}</p>
+    </div>
+
+    <p style="margin:22px 0 0; font-size:12.5px; color:#94a3b8; line-height:1.5;">
+      If you did not expect this or believe your account has been compromised, please contact your administrator or support team immediately.
+    </p>
+  `;
+
+  return baseLayout({
+    title: "Security Alert: Active Sessions Revoked - UserHub",
+    badge: "Security Alert",
+    badgeColor: "#e11d48",
+    contentHtml,
+  });
+}
+
+/**
+ * ════════════════════════════════════════════════════════════════
+ * 📌 TEMPLATE 9: Unrecognized / New Device Login Security Alert (Out-of-Band)
+ * ────────────────────────────────────────────────────────────────
+ * • Kiske Liye Hai (Purpose):
+ *   Jab user kisi naye device, unrecognized browser ya IP se OTP verify karke
+ *   successfully sign-in karta hai, to real user ke inbox me instant out-of-band
+ *   security notification alert bheja jaata hai.
+ * • Trigger Point:
+ *   - Authcontroller.js -> verifyLoginOtp()
+ * • Recipient:
+ *   User ka registered email address (Personal Inbox).
+ * • Functionality:
+ *   Device name, IP address aur timestamp clearly display karta hai, aur
+ *   sath me "Review & Revoke Sessions" button provide karta hai jo user ko
+ *   seedhe Settings/Sessions page par le jaata hai taaki unknown session ko
+ *   turant revoke kiya ja sake.
+ * ════════════════════════════════════════════════════════════════
+ */
+function newDeviceLoginAlertEmail({
+  name,
+  deviceDesc,
+  currentIp,
+  loginTime,
+  securityUrl,
+}) {
+  const contentHtml = `
+    <h1 style="margin:0 0 12px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
+      Security Alert: New Sign-in Detected 🛡️
+    </h1>
+    <p style="margin:0 0 18px; font-size:14.5px; color:#475569; line-height:1.6;">
+      Hello ${name || "User"}, we detected a successful sign-in to your UserHub account from an unrecognized device or browser.
+    </p>
+
+    <!-- Sign-in Details Box -->
+    <div style="background-color:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:18px 20px; margin:20px 0; font-size:14px; line-height:1.8;">
+      <div style="margin-bottom:8px;">
+        <span style="color:#64748b; font-weight:600; display:inline-block; width:90px;">💻 Device:</span>
+        <strong style="color:#0f172a;">${deviceDesc || "Unrecognized Device"}</strong>
+      </div>
+      <div style="margin-bottom:8px;">
+        <span style="color:#64748b; font-weight:600; display:inline-block; width:90px;">🌐 IP Address:</span>
+        <code style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-family:monospace; color:#0f172a;">${currentIp || "Unknown IP"}</code>
+      </div>
+      <div>
+        <span style="color:#64748b; font-weight:600; display:inline-block; width:90px;">🕒 Time:</span>
+        <span style="color:#0f172a;">${loginTime || new Date().toLocaleString("en-IN")}</span>
+      </div>
+    </div>
+
+    <!-- Warning Box -->
+    <div style="background-color:#fff1f2; border:1px solid #fecdd3; border-radius:8px; padding:14px 16px; margin:20px 0;">
+      <p style="margin:0; font-size:13px; color:#9f1239; line-height:1.5;">
+        ⚠️ <strong>Don't recognize this activity?</strong><br/>
+        If this wasn't you, your account credentials might be compromised. Click the button below immediately to review and revoke all active sessions.
+      </p>
+    </div>
+
+    <!-- Action Button -->
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:26px 0 20px;">
+      <tr>
+        <td align="center">
+          <a href="${securityUrl}" style="display:inline-block; padding:13px 32px; background:linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color:#ffffff; text-decoration:none; border-radius:8px; font-weight:600; font-size:15px; box-shadow:0 4px 12px rgba(220, 38, 38, 0.35);">
+            Review & Revoke Sessions →
+          </a>
+        </td>
+      </tr>
+    </table>
+
+    <p style="margin:16px 0 0; font-size:12.5px; color:#94a3b8; line-height:1.5;">
+      If this was you signing in from this device, you can safely disregard this email.
+    </p>
+  `;
+
+  return baseLayout({
+    title: "Security Alert: New Sign-in to Your Account",
+    badge: "Security Alert",
+    badgeColor: "#dc2626",
+    contentHtml,
+  });
+}
+
 module.exports = {
+  baseLayout,
   registerVerificationEmail,
   loginOtpEmail,
   passwordResetEmail,
@@ -350,4 +643,6 @@ module.exports = {
   adminEmailChangePendingVerificationEmail,
   oldEmailChangeNoticeTemplate,
   emailChangeSuccessTemplate,
+  sessionRevocationAlertEmail,
+  newDeviceLoginAlertEmail,
 };

@@ -1,0 +1,777 @@
+/* ==========================================================================
+   Demographics & Ratio Breakdown Widget — Executive Enterprise SaaS Style
+   ========================================================================== */
+
+.demographics-widget-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+/* ── Unified Modern SaaS Section Header Pattern (System Composition) ── */
+.dashboard-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 2px 0 6px 0;
+  margin-bottom: 6px;
+  background: transparent;
+  border: none;
+  position: relative;
+}
+
+.section-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.section-header-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #818cf8;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+[data-theme="light"] .section-header-icon-box {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #4f46e5;
+}
+
+.section-header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.section-header-title {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.section-header-sub {
+  font-size: 0.8125rem;
+  color: var(--text-muted, #94a3b8);
+  margin: 0;
+  line-height: 1.35;
+  font-weight: 400;
+}
+
+.section-header-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.section-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+[data-theme="light"] .section-header-badge {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+.section-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+}
+
+/* ── 3-Column Grid ── */
+.demographics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Card Base ── */
+.demographics-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  background: var(--bg-card, #0e1626);
+  border: 1px solid var(--border, rgba(148, 163, 184, 0.15));
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.demographics-card:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="light"] .demographics-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .demographics-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Card Header ── */
+.demo-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.demo-card-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.demo-card-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary, #f8fafc);
+  white-space: nowrap;
+}
+
+.demo-card-sub {
+  font-size: 0.6875rem;
+  color: var(--text-muted, #94a3b8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Chips ── */
+.demo-chip {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.demo-chip.chip-purple {
+  background: rgba(168, 85, 247, 0.14);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.demo-chip.chip-high {
+  background: rgba(16, 185, 129, 0.14);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.demo-chip.chip-mid {
+  background: rgba(59, 130, 246, 0.14);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.demo-chip.chip-low {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.demo-chip.chip-indigo {
+  background: rgba(99, 102, 241, 0.14);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+/* ══════════════════════════════════════════════════════════
+   1. ROLE RATIO CARD
+   ══════════════════════════════════════════════════════════ */
+.demo-metric-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  margin-top: 2px;
+}
+
+.demo-big-ratio {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.ratio-primary.text-purple {
+  color: #c084fc;
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.ratio-primary.text-emerald {
+  color: #34d399;
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.ratio-secondary.text-blue {
+  color: #60a5fa;
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.ratio-secondary.text-amber {
+  color: #fbbf24;
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.ratio-sep {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted, #94a3b8);
+  text-transform: lowercase;
+}
+
+.ratio-divider {
+  color: var(--border, rgba(148, 163, 184, 0.3));
+  font-weight: 300;
+  font-size: 1.1rem;
+  margin: 0 2px;
+}
+
+/* Dual Segment Progress Bar */
+.demo-progress-wrap {
+  display: flex;
+  width: 100%;
+  height: 8px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  gap: 2px;
+}
+
+[data-theme="light"] .demo-progress-wrap {
+  background: #e2e8f0;
+}
+
+.demo-progress-bar {
+  height: 100%;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 9999px;
+}
+
+.demo-progress-bar.bar-emerald {
+  background: linear-gradient(90deg, #059669, #34d399);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+.demo-progress-bar.bar-amber {
+  background: linear-gradient(90deg, #d97706, #fbbf24);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
+}
+
+.demo-progress-bar.bar-purple {
+  background: linear-gradient(90deg, #9333ea, #c084fc);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+}
+
+.demo-progress-bar.bar-blue {
+  background: linear-gradient(90deg, #2563eb, #60a5fa);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.35);
+}
+
+.demo-progress-bar.bar-indigo {
+  background: linear-gradient(90deg, #4f46e5, #818cf8);
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.35);
+}
+
+.demo-progress-bar.bar-rose {
+  background: linear-gradient(90deg, #db2777, #f472b6);
+  box-shadow: 0 0 8px rgba(236, 72, 153, 0.35);
+}
+
+.demo-progress-bar.bar-teal {
+  background: linear-gradient(90deg, #0d9488, #2dd4bf);
+  box-shadow: 0 0 8px rgba(20, 184, 166, 0.35);
+}
+
+/* Legend Row */
+.demo-legend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border, rgba(148, 163, 184, 0.1));
+}
+
+.demo-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.legend-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-dot.dot-purple {
+  background: #c084fc;
+  box-shadow: 0 0 6px #c084fc;
+}
+
+.legend-dot.dot-blue {
+  background: #60a5fa;
+  box-shadow: 0 0 6px #60a5fa;
+}
+
+.legend-dot.dot-emerald {
+  background: #34d399;
+  box-shadow: 0 0 6px #34d399;
+}
+
+.legend-dot.dot-amber {
+  background: #fbbf24;
+  box-shadow: 0 0 6px #fbbf24;
+}
+
+.legend-name {
+  color: var(--text-muted, #94a3b8);
+}
+
+.legend-val {
+  font-weight: 700;
+  color: var(--text-primary, #f8fafc);
+}
+
+/* ══════════════════════════════════════════════════════════
+   2. VERIFICATION HEALTH (DONUT CHART)
+   ══════════════════════════════════════════════════════════ */
+.demo-donut-layout {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 2px;
+}
+
+.donut-wrapper {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  flex-shrink: 0;
+}
+
+.donut-ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.4s ease;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.15);
+}
+
+.donut-cutout {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--bg-card, #0e1626);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="light"] .donut-cutout {
+  background: #ffffff;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.donut-percent {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #34d399;
+  line-height: 1;
+}
+
+.donut-label {
+  font-size: 0.52rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 1px;
+}
+
+.donut-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.donut-stat-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border, rgba(148, 163, 184, 0.1));
+}
+
+[data-theme="light"] .donut-stat-box {
+  background: #f8fafc;
+}
+
+.donut-stat-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-box-title {
+  font-size: 0.72rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.stat-box-number {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary, #f8fafc);
+}
+
+.stat-box-sub {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+}
+
+/* ══════════════════════════════════════════════════════════
+   3. GENDER DIVERSITY
+   ══════════════════════════════════════════════════════════ */
+.gender-progress-wrap {
+  margin-top: 4px;
+}
+
+.gender-pill-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+}
+
+.gender-stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border, rgba(148, 163, 184, 0.1));
+  box-sizing: border-box;
+}
+
+[data-theme="light"] .gender-stat-pill {
+  background: #f8fafc;
+}
+
+.gender-pill-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.gender-pill-icon.male {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+}
+
+.gender-pill-icon.female {
+  background: rgba(236, 72, 153, 0.15);
+  color: #f472b6;
+}
+
+.gender-pill-icon.other {
+  background: rgba(20, 184, 166, 0.15);
+  color: #2dd4bf;
+}
+
+.gender-pill-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 1px;
+}
+
+.gender-pill-label {
+  font-size: 0.62rem;
+  color: var(--text-muted, #94a3b8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gender-pill-val {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-primary, #f8fafc);
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Skeletons
+   ══════════════════════════════════════════════════════════ */
+.skeleton-demo-card {
+  height: 140px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   📱 Responsive Breakpoints — Tablet & Mobile Optimization
+   ══════════════════════════════════════════════════════════ */
+/* Tablet & Medium Screens (641px to 1024px):
+   Do NOT make cards full width! Keep all 3 state cards in a sleek single row.
+*/
+/* ══════════════════════════════════════════════════════════
+   📱 Responsive Breakpoints — Executive 2+1 Bento Layout
+   ══════════════════════════════════════════════════════════ */
+/* Tablet & Medium Screens (641px to 1150px):
+   Top Row: 2 equal cards (Role Composition & Verification Health).
+   Bottom Row: Gender Diversity spans full width (2 columns).
+   Zero cut-off, zero awkward text wrapping, generous breathing room!
+*/
+@media (max-width: 1150px) {
+  .demographics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  /* Gender Card spans the full width of row 2 on tablets */
+  .demographics-card.gender-card {
+    grid-column: 1 / -1;
+  }
+
+  .demographics-card {
+    padding: 16px 18px;
+    gap: 12px;
+  }
+
+  .demo-card-label {
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .demo-card-sub {
+    font-size: 0.7rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .demo-chip {
+    font-size: 0.65rem;
+    padding: 2.5px 7px;
+  }
+
+  .ratio-primary,
+  .ratio-secondary {
+    font-size: 1.25rem;
+  }
+
+  .ratio-sep {
+    font-size: 0.72rem;
+  }
+
+  /* Donut styling on tablet */
+  .donut-wrapper {
+    width: 72px;
+    height: 72px;
+  }
+
+  .donut-cutout {
+    width: 50px;
+    height: 50px;
+  }
+
+  .donut-percent {
+    font-size: 0.9rem;
+  }
+
+  .donut-label {
+    font-size: 0.5rem;
+  }
+
+  .demo-donut-layout {
+    gap: 14px;
+  }
+
+  .donut-stat-box {
+    padding: 4px 8px;
+    white-space: nowrap;
+  }
+
+  .stat-box-title {
+    font-size: 0.68rem;
+  }
+
+  .stat-box-number {
+    font-size: 0.82rem;
+  }
+
+  .stat-box-sub {
+    font-size: 0.65rem;
+  }
+
+  /* Generous Gender Pills on Tablet */
+  .gender-pill-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .gender-stat-pill {
+    padding: 6px 10px;
+  }
+
+  .gender-pill-label {
+    font-size: 0.65rem;
+  }
+
+  .gender-pill-val {
+    font-size: 0.75rem;
+  }
+}
+
+/* Mobile Devices (<= 640px) */
+@media (max-width: 640px) {
+  .dashboard-section-header,
+  .demographics-top-bar {
+    padding: 0 0 2px 0;
+    margin-bottom: 2px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .section-header-title {
+    font-size: 0.95rem;
+  }
+
+  .section-header-icon-box {
+    width: 28px;
+    height: 28px;
+  }
+
+  .section-header-badge,
+  .demographics-meta-pill {
+    font-size: 0.68rem;
+    padding: 1px 8px;
+    height: 22px;
+    align-self: flex-start;
+  }
+
+  .section-header-sub {
+    font-size: 0.72rem;
+  }
+
+  .demographics-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .demographics-card.gender-card {
+    grid-column: 1 / -1;
+  }
+
+  .demographics-card {
+    padding: 14px 16px;
+    border-radius: 12px;
+  }
+
+  .gender-pill-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+}
+
+/* Small Mobile Phones (<= 480px) */
+@media (max-width: 480px) {
+  .gender-pill-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .gender-stat-pill {
+    padding: 5px 4px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 2px;
+  }
+
+  .gender-pill-meta {
+    align-items: center;
+  }
+
+  .gender-pill-label {
+    font-size: 0.55rem;
+  }
+
+  .gender-pill-val {
+    font-size: 0.62rem;
+  }
+}
+

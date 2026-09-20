@@ -10,6 +10,7 @@ import { observer } from "mobx-react-lite";
 import { validateUserForm } from "../../utils/validateUserForm";
 import useUserForm from "../../hooks/userUserform";
 
+// eslint-disable-next-line react-refresh/only-export-components
 function EditProfile() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -144,11 +145,17 @@ function EditProfile() {
     }
   };
 
-  const handleCancelEmailOtp = () => {
+  const handleCancelEmailOtp = async () => {
     setShowEmailOtpModal(false);
     setOtpModalError("");
     if (currentuser) {
       setFormData((prev) => ({ ...prev, email: currentuser.email }));
+    }
+    try {
+      await userStore.cancelEmailChange();
+      toast.info("Email change cancelled. Your email remains unchanged.");
+    } catch {
+      // Non-blocking catch
     }
   };
 

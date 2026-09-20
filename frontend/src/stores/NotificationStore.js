@@ -43,7 +43,7 @@ class NotificationStore {
         this.isLoading = false;
       });
     } catch {
-      runInAction(() => {
+      runInAction(() => { 
         this.isLoading = false;
       });
     }

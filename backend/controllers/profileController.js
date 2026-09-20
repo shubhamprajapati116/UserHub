@@ -26,7 +26,42 @@ const getProfile = async (req, res) => {
     });
   }
 };
+const updateProfilePhoto = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        field: "profilephoto",
+        message: "Please select an image file to upload",
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { profilephoto: req.file.filename },
+      { new: true }
+    ).select("-password -resetPasswordToken -resetPasswordExpire");
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile photo updated successfully",
+      profilephoto: updatedUser.profilephoto,
+      user: updatedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 const updateProfile = async (req, res) => {
+  // If request contains only a photo upload (no name or email submitted)
+  if (req.file && !req.body.name && !req.body.email) {
+    return updateProfilePhoto(req, res);
+  }
+
   const { error } = updateUserSchema.validate(req.body);
 
   if (error) {
@@ -85,6 +120,10 @@ const updateProfile = async (req, res) => {
       state: req.body.state,
       city: req.body.city,
     };
+
+    if (req.body.profileBanner !== undefined) {
+      updateData.profileBanner = req.body.profileBanner;
+    }
 
     if (req.file) {
       updateData.profilephoto = req.file.filename;
@@ -297,6 +336,36 @@ const resendEmailChangeOtp = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+const cancelEmailChange = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Clear all pending email fields
+    user.pendingEmail = null;
+    user.emailChangeOtp = null;
+    user.emailChangeOtpExpire = null;
+    user.verificationToken = undefined;
+    user.verificationTokenExpire = undefined;
+    await user.save();
+
+    const sanitizedUser = await User.findById(user._id).select(
+      "-password -resetPasswordToken -resetPasswordExpire"
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Email change request cancelled successfully.",
+      user: sanitizedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 const deleteProfile = async (req, res) => {
   await User.findByIdAndDelete(req.user.id);
 
@@ -490,11 +559,149 @@ const updateNotificationPreferences = async (req, res) => {
   }
 };
 
+const updateBanner = async (req, res) => {
+  try {
+    const { profileBanner } = req.body;
+    if (!profileBanner) {
+      return res.status(400).json({ message: "Banner identifier is required" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { profileBanner },
+      { new: true }
+    ).select("-password -resetPasswordToken -resetPasswordExpire");
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Banner updated successfully",
+      profileBanner: updatedUser.profileBanner,
+      user: updatedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const requestEmailChange = async (req, res) => {
+  try {
+    const { newEmail, password } = req.body;
+
+    if (!newEmail || typeof newEmail !== "string" || !newEmail.trim()) {
+      return res.status(400).json({
+        field: "newEmail",
+        message: "Please enter a valid new email address.",
+      });
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const normalizedNewEmail = newEmail.trim().toLowerCase();
+
+    if (!emailPattern.test(normalizedNewEmail)) {
+      return res.status(400).json({
+        field: "newEmail",
+        message: "Please enter a valid email format.",
+      });
+    }
+
+    if (!password) {
+      return res.status(400).json({
+        field: "password",
+        message: "Current password is required to change email.",
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if new email is identical to current email
+    if (normalizedNewEmail === user.email.toLowerCase()) {
+      return res.status(400).json({
+        field: "newEmail",
+        message: "New email address must be different from your current email.",
+      });
+    }
+
+    // Verify current password for re-authentication
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        field: "password",
+        message: "Incorrect current password. Please try again.",
+      });
+    }
+
+    // Check if new email is already registered to another user
+    const existingUser = await User.findOne({
+      email: normalizedNewEmail,
+      _id: { $ne: user._id },
+    });
+
+    if (existingUser) {
+      return res.status(409).json({
+        field: "newEmail",
+        message: "This email address is already in use by another account.",
+      });
+    }
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashotp = crypto.createHash("sha256").update(otp).digest("hex");
+    console.log(`🔐 [EMAIL CHANGE OTP for ${normalizedNewEmail}]: ${otp}`);
+
+    user.pendingEmail = normalizedNewEmail;
+    user.emailChangeOtp = hashotp;
+    user.emailChangeOtpExpire = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    await user.save();
+
+    // Send OTP to NEW email address
+    sendEmail(
+      normalizedNewEmail,
+      "Verify Your New Email Address - UserHub",
+      emailTemplates.selfEmailChangeOtpEmail({
+        name: user.name,
+        newEmail: normalizedNewEmail,
+        otp,
+      })
+    ).catch((err) => console.error("Error sending email change OTP:", err.message));
+
+    // Send Security Notice to OLD email address
+    sendEmail(
+      user.email,
+      "[Security Notice] Email change requested for your UserHub account",
+      emailTemplates.oldEmailChangeNoticeTemplate({
+        name: user.name,
+        oldEmail: user.email,
+        newEmail: normalizedNewEmail,
+        changedBy: "you via Security Settings",
+      })
+    ).catch((err) => console.error("Error sending old email security notice:", err.message));
+
+    return res.status(200).json({
+      success: true,
+      pendingEmail: normalizedNewEmail,
+      message: `A 6-digit verification code has been sent to ${normalizedNewEmail}.`,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
+  updateProfilePhoto,
+  updateBanner,
+  requestEmailChange,
   verifyEmailChangeOtp,
   resendEmailChangeOtp,
+  cancelEmailChange,
   deleteProfile,
   changepassword,
   addExperience,

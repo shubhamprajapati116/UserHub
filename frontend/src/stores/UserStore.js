@@ -34,8 +34,17 @@ class UserStore {
     experience: false,
     notificationPreferences: false,
     fetchAnalytics: false,
+    fetchTodayUsers: false,
+    requestEmailChange: false,
     verifyEmailChangeOtp: false,
     resendEmailChangeOtp: false,
+    cancelEmailChange: false,
+    resendPendingVerification: false,
+    updateBanner: false,
+    revokeSession: false,
+    resendVerification: false,
+    updateUserStatus: false,
+    revokeSessions: false,
   };
   // Device ID generator & getter
   getDeviceId() {
@@ -53,9 +62,15 @@ class UserStore {
   }
   error = null;
   users = [];
+  todayUsers = [];
   totalUsers = 0;
+  systemTotalUsers = 0;
+  totalInList = 0;
   stats = null;
+  currentFetchUsersId = 0;
   userGrowthAnalytics = null;
+  userGrowthCache = {};
+  currentFetchAnalyticsId = 0;
   editUser = null;
   authLoading = true;
 
@@ -107,6 +122,24 @@ class UserStore {
       runInAction(() => {
         this.loading.fetchProfile = false;
         this.authLoading = false;
+      });
+    }
+  }
+
+  async resendPendingVerification() {
+    this.loading.resendPendingVerification = true;
+    try {
+      const response = await apirequest(
+        "/profile/resend-pending-verification",
+        {
+          method: "POST",
+          headers: getAuthHeaders(),
+        },
+      );
+      return response;
+    } finally {
+      runInAction(() => {
+        this.loading.resendPendingVerification = false;
       });
     }
   }
@@ -218,23 +251,57 @@ class UserStore {
       });
     }
   }
+  async fetchStats() {
+    this.loading.fetchAnalytics = true;
+    try {
+      let response;
+      try {
+        response = await apirequest("/api/admin/stats", {
+          headers: getAuthHeaders(),
+        });
+      } catch {
+        // Fallback for backward compatibility
+        response = await apirequest("/api/admin/users?page=1&limit=1", {
+          headers: getAuthHeaders(),
+        });
+      }
+
+      runInAction(() => {
+        this.totalUsers = response.totalUsers;
+        this.systemTotalUsers = response.totalUsers;
+        this.totalInList = response.totalUsers;
+        this.stats = response.stats || null;
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Failed to fetch admin stats:", error);
+    } finally {
+      runInAction(() => {
+        this.loading.fetchAnalytics = false;
+      });
+    }
+  }
+
   async fetchUsers({
     page = 1,
     limit = 5,
     search = "",
     role = "",
     gender = "",
+    status = "",
+    verification = "",
     country = "",
+    timeframe = "",
     sortBy = "createdAt",
     sortOrder = "desc",
   } = {}) {
-    if (this.loading.fetchUsers) return;
-
+    const fetchId = ++this.currentFetchUsersId;
     this.loading.fetchUsers = true;
     this.error = null;
 
     try {
-      const queryParams = new URLSearchParams({
+      const params = {
         page,
         limit,
         search,
@@ -243,34 +310,64 @@ class UserStore {
         country,
         sortBy,
         sortOrder,
-      }).toString();
+      };
+      if (status) {
+        params.status = status;
+      }
+      if (verification) {
+        params.verification = verification;
+      }
+      if (timeframe) {
+        params.timeframe = timeframe;
+      }
+      const queryParams = new URLSearchParams(params).toString();
       console.log(queryParams);
 
       const response = await apirequest(`/api/admin/users?${queryParams}`, {
         headers: getAuthHeaders(),
       });
 
-      runInAction(() => {
-        this.users = response.users;
-        this.totalUsers = response.totalUsers;
-        this.stats = response.stats || null;
-      });
+      // Strict race condition guard: only update if this is the latest in-flight request
+      if (fetchId === this.currentFetchUsersId) {
+        runInAction(() => {
+          this.users = response.users || [];
+          this.totalUsers =
+            response.systemTotalUsers ?? response.totalUsers ?? 0;
+          this.systemTotalUsers =
+            response.systemTotalUsers ?? response.totalUsers ?? 0;
+          this.totalInList =
+            response.totalInList ?? response.users?.length ?? 0;
+          this.stats = response.stats || null;
+        });
+      }
 
       return response;
     } catch (error) {
-      runInAction(() => {
-        this.error = error;
-      });
+      if (fetchId === this.currentFetchUsersId) {
+        runInAction(() => {
+          this.error = error;
+        });
+      }
 
       throw error;
     } finally {
-      runInAction(() => {
-        this.loading.fetchUsers = false;
-      });
+      if (fetchId === this.currentFetchUsersId) {
+        runInAction(() => {
+          this.loading.fetchUsers = false;
+        });
+      }
     }
   }
 
-  async fetchUserGrowthAnalytics(timeframe = "30d") {
+  async fetchUserGrowthAnalytics(timeframe = "7d") {
+    // 1. Instant Cache: If timeframe was already fetched, display immediately with 0 latency
+    if (this.userGrowthCache[timeframe]) {
+      runInAction(() => {
+        this.userGrowthAnalytics = this.userGrowthCache[timeframe];
+      });
+    }
+
+    const fetchId = ++this.currentFetchAnalyticsId;
     this.loading.fetchAnalytics = true;
     this.error = null;
 
@@ -282,21 +379,54 @@ class UserStore {
         },
       );
 
-      runInAction(() => {
-        this.userGrowthAnalytics = response;
-      });
+      // 2. Race Condition Guard: Only update active view if this request is still the latest requested
+      if (fetchId === this.currentFetchAnalyticsId) {
+        runInAction(() => {
+          this.userGrowthCache[timeframe] = response;
+          this.userGrowthAnalytics = response;
+        });
+      } else {
+        // Silently preserve in cache for future instant navigation
+        this.userGrowthCache[timeframe] = response;
+      }
 
       return response;
     } catch (error) {
       runInAction(() => {
         this.error = error;
-        // Keep existing analytics data if fetch fails — don't clear the chart
       });
-      // Do NOT re-throw: let chart handle empty/stale state gracefully
       return null;
     } finally {
+      if (fetchId === this.currentFetchAnalyticsId) {
+        runInAction(() => {
+          this.loading.fetchAnalytics = false;
+        });
+      }
+    }
+  }
+
+  async fetchTodayUsers() {
+    this.loading.fetchTodayUsers = true;
+    try {
+      const response = await apirequest(
+        `/api/admin/users?timeframe=today&limit=50&sortBy=createdAt&sortOrder=desc`,
+        {
+          headers: getAuthHeaders(),
+        },
+      );
       runInAction(() => {
-        this.loading.fetchAnalytics = false;
+        this.todayUsers = response.users || [];
+      });
+      return response.users || [];
+    } catch (error) {
+      console.error("Failed to fetch today users:", error);
+      runInAction(() => {
+        this.todayUsers = [];
+      });
+      return [];
+    } finally {
+      runInAction(() => {
+        this.loading.fetchTodayUsers = false;
       });
     }
   }
@@ -361,6 +491,78 @@ class UserStore {
     }
   }
 
+  async updateBanner(bannerId) {
+    if (this.loading.updateBanner) return;
+    this.loading.updateBanner = true;
+    this.error = null;
+
+    try {
+      // Immediate local cache & MobX reactive state update
+      if (this.currentUser) {
+        runInAction(() => {
+          this.currentUser = { ...this.currentUser, profileBanner: bannerId };
+          localStorage.setItem("user", JSON.stringify(this.currentUser));
+        });
+      }
+      localStorage.setItem(
+        "user_profile_banner_" + (this.currentUser?._id || "default"),
+        bannerId,
+      );
+
+      const response = await apirequest("/profile/banner", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ profileBanner: bannerId }),
+      });
+
+      runInAction(() => {
+        if (response.user) {
+          this.currentUser = response.user;
+          localStorage.setItem("user", JSON.stringify(response.user));
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.warn("Banner API sync warning (local banner kept):", error);
+      return { success: true, localOnly: true, profileBanner: bannerId };
+    } finally {
+      runInAction(() => {
+        this.loading.updateBanner = false;
+      });
+    }
+  }
+
+  async requestEmailChange({ newEmail, password }) {
+    if (this.loading.requestEmailChange) return;
+    this.loading.requestEmailChange = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest("/profile/request-email-change", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ newEmail, password }),
+      });
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.requestEmailChange = false;
+      });
+    }
+  }
+
   async verifyEmailChangeOtp(otp) {
     if (this.loading.verifyEmailChangeOtp) return;
     this.loading.verifyEmailChangeOtp = true;
@@ -416,6 +618,100 @@ class UserStore {
     } finally {
       runInAction(() => {
         this.loading.resendEmailChangeOtp = false;
+      });
+    }
+  }
+
+  async cancelEmailChange() {
+    if (this.loading.cancelEmailChange) return;
+    this.loading.cancelEmailChange = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest("/profile/cancel-email-change", {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+
+      runInAction(() => {
+        if (response.user) {
+          this.currentUser = response.user;
+          localStorage.setItem("user", JSON.stringify(response.user));
+        }
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.cancelEmailChange = false;
+      });
+    }
+  }
+
+  async cancelAdminPendingEmailChange(id) {
+    if (this.loading.cancelEmailChange) return;
+    this.loading.cancelEmailChange = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest(
+        `/api/admin/users/${id}/pending-email`,
+        {
+          method: "DELETE",
+          headers: getAuthHeaders(),
+        },
+      );
+
+      runInAction(() => {
+        const user = this.users.find((u) => u._id === id);
+        if (user) {
+          user.pendingEmail = null;
+        }
+        if (this.editUser && this.editUser._id === id) {
+          this.editUser.pendingEmail = null;
+        }
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.cancelEmailChange = false;
+      });
+    }
+  }
+
+  async resendPendingEmailVerification(id) {
+    if (this.loading.resendPendingVerification) return;
+    this.loading.resendPendingVerification = true;
+    this.error = null;
+
+    try {
+      const url = id
+        ? `/api/admin/users/${id}/resend-pending-email`
+        : "/profile/resend-pending-verification";
+      const response = await apirequest(url, {
+        method: "POST",
+        headers: getAuthHeaders(),
+      });
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.resendPendingVerification = false;
       });
     }
   }
@@ -539,6 +835,95 @@ class UserStore {
     }
   }
 
+  async revokeUserSessions(id) {
+    if (this.loading.revokeSession) return;
+
+    this.loading.revokeSession = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest(
+        `/api/admin/users/${id}/revoke-session`,
+        {
+          method: "POST",
+          headers: getAuthHeaders(),
+        },
+      );
+
+      runInAction(() => {
+        this.error = null;
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.revokeSession = false;
+      });
+    }
+  }
+
+  // ── Public Resend Account Verification (For Unverified / Revoked Users) ──
+  async resendVerificationEmail(email) {
+    if (this.loading.resendVerification) return;
+    this.loading.resendVerification = true;
+    this.error = null;
+    try {
+      const response = await apirequest("/resend-verification", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.resendVerification = false;
+      });
+    }
+  }
+
+
+  // ── Admin: Update User Account Status (active | suspended | banned) ──
+  async adminUpdateUserStatus(userId, status, reason = "") {
+    if (this.loading.updateUserStatus) return;
+    this.loading.updateUserStatus = true;
+    try {
+      const response = await apirequest(`/api/admin/users/${userId}/status`, {
+        method: "PATCH",
+        headers: {
+          ...getAuthHeaders(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status, reason }),
+      });
+      runInAction(() => {
+        const user = this.users.find((u) => u._id === userId);
+        if (user) {
+          user.status = response.user?.status || status;
+          if (reason) user.statusReason = reason;
+        }
+      });
+      // Trigger background fetch to keep dashboard KPI metrics synchronized
+      this.fetchStats().catch(() => {});
+      return response;
+    } finally {
+      runInAction(() => {
+        this.loading.updateUserStatus = false;
+      });
+    }
+  }
+
   async addUser(formData) {
     if (this.loading.addUser) return;
 
@@ -606,15 +991,31 @@ class UserStore {
     this.error = null;
 
     try {
-      const response = await apirequest("/profile", {
-        method: "PUT",
-        headers: getAuthHeaders(),
-        body: formData,
-      });
+      let response;
+      try {
+        response = await apirequest("/profile/photo", {
+          method: "PUT",
+          headers: getAuthHeaders(),
+          body: formData,
+        });
+      } catch (err) {
+        if (err?.status === 404) {
+          response = await apirequest("/profile", {
+            method: "PUT",
+            headers: getAuthHeaders(),
+            body: formData,
+          });
+        } else {
+          throw err;
+        }
+      }
 
       runInAction(() => {
         this.error = null;
-        this.currentUser = response.user;
+        if (response?.user) {
+          this.currentUser = response.user;
+          localStorage.setItem("user", JSON.stringify(response.user));
+        }
       });
 
       return response;
@@ -658,6 +1059,7 @@ class UserStore {
       });
     }
   }
+
   async changePassword(formData) {
     if (this.loading.changePassword) return;
 
@@ -981,6 +1383,57 @@ class UserStore {
       runInAction(() => {
         this.loading.notificationPreferences = false;
       });
+    }
+  }
+
+  async cancelEmailChange() {
+    try {
+      const response = await apirequest("/profile/cancel-email-change", {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+
+      runInAction(() => {
+        if (response.user) {
+          this.currentUser = response.user;
+          localStorage.setItem("user", JSON.stringify(response.user));
+        } else if (this.currentUser) {
+          this.currentUser.pendingEmail = null;
+          localStorage.setItem("user", JSON.stringify(this.currentUser));
+        }
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    }
+  }
+
+  async verifyEmail(token) {
+    try {
+      return await apirequest(`/verify-email/${token}`, {
+        method: "GET",
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async resendVerificationEmail(payload) {
+    try {
+      const body = typeof payload === "string" ? { email: payload } : payload;
+      return await apirequest("/resend-verification", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+    } catch (error) {
+      throw error;
     }
   }
 }

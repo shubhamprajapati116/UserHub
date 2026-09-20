@@ -46,10 +46,30 @@ function Loginform() {
   const loading = userStore.loading.login;
   const resendotp = userStore.loading.resendLoginOtp;
   const [timer, setTimer] = useState(60);
+
+  // ── Unverified Account States ──
+  const [isUnverified, setIsUnverified] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState("");
+  const [verificationResent, setVerificationResent] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [isResending, setIsResending] = useState(false);
+
+  // Cooldown timer for resending verification link
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [resendCooldown]);
+
   const handlechange = (e) => {
     const { name, value } = e.target;
     setformdata({ ...formdata, [name]: value });
     seterror({ ...error, [name]: "" });
+    if (name === "email" && isUnverified) {
+      setIsUnverified(false);
+    }
   };
 
   // Step 1: Email + Password Submit
@@ -81,15 +101,59 @@ function Loginform() {
         } else {
           // Known Device -> Direct Success
           toast.success(data.message || "Logged in successfully!");
-          navigate("/profile");
+          const userRole =
+            data?.user?.role || data?.role || userStore.currentUser?.role;
+          if (userRole === "admin") {
+            navigate("/admin/dashboard");
+          } else {
+            navigate("/profile");
+          }
         }
       }
-    } catch (error) {
-      if (error?.field) {
-        seterror({ [error.field]: error.message });
-      } else if (!error?.isNetworkError) {
-        toast.error(error?.message || "Something went wrong");
+    } catch (err) {
+      if (
+        err?.isUnverified ||
+        err?.message?.toLowerCase().includes("verify your email")
+      ) {
+        setIsUnverified(true);
+        setUnverifiedEmail(err.email || formdata.email);
+        seterror({
+          email:
+            err.message ||
+            "Please verify your email address before logging in.",
+        });
+      } else if (err?.field) {
+        seterror({ [err.field]: err.message });
+        setIsUnverified(false);
+      } else if (!err?.isNetworkError) {
+        toast.error(err?.message || "Something went wrong");
+        setIsUnverified(false);
       }
+    }
+  };
+
+  // ── Public Resend Verification Link Handler ──
+  const handleResendVerification = async () => {
+    const targetEmail = unverifiedEmail || formdata.email;
+    if (!targetEmail || !targetEmail.trim()) {
+      seterror({ email: "Enter your email above to receive a verification link" });
+      return;
+    }
+    if (resendCooldown > 0 || isResending) return;
+
+    setIsResending(true);
+    try {
+      const res = await userStore.resendVerificationEmail(targetEmail.trim());
+      setVerificationResent(true);
+      setResendCooldown(60);
+      setIsUnverified(true);
+      toast.success(
+        res?.message || "A fresh verification link has been sent to your email!",
+      );
+    } catch (err) {
+      toast.error(err?.message || "Failed to resend verification link");
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -150,7 +214,13 @@ function Loginform() {
     try {
       const data = await userStore.verifyLoginOtp(formdata.email, otp);
       toast.success(data.message || "Device verified successfully!");
-      navigate("/profile");
+      const userRole =
+        data?.user?.role || data?.role || userStore.currentUser?.role;
+      if (userRole === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/profile");
+      }
     } catch (err) {
       seterror({ otp: err?.message || "Invalid or expired OTP" });
       toast.error(err?.message || "OTP verification failed");
@@ -189,13 +259,13 @@ function Loginform() {
           {!showOtpScreen ? (
             // ── Normal Email/Password Form ──
             <>
-              <h2>Sign in</h2>
+              <h2>Sign In</h2>
               <p className="auth-subtitle">
-                Welcome back! Please enter your details.
+                Welcome back! Enter your credentials to access your account.
               </p>
               <form onSubmit={handlesubmit} noValidate>
                 <label className="form-label" htmlFor="email">
-                  Email
+                  Email Address
                 </label>
                 <input
                   className="form-input"
@@ -229,6 +299,54 @@ function Loginform() {
                   <Link to="/forgotpassword">Forgot password?</Link>
                 </div>
 
+                {isUnverified && (
+                  <div className="login-unverified-callout">
+                    <div className="luc-header">
+                      <div className="luc-icon-box">
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="12" y1="8" x2="12" y2="12" />
+                          <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                      </div>
+                      <div className="luc-text">
+                        <h4 className="luc-title">Account Not Verified</h4>
+                        <p className="luc-desc">
+                          Your email address hasn&apos;t been verified yet. Check your inbox or click below to receive a new link.
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="btn-luc-resend"
+                      onClick={handleResendVerification}
+                      disabled={isResending || resendCooldown > 0}
+                    >
+                      {isResending ? (
+                        <>
+                          <Spinner /> Sending link...
+                        </>
+                      ) : resendCooldown > 0 ? (
+                        `Resend available in ${resendCooldown}s`
+                      ) : verificationResent ? (
+                        "Resend Verification Link Again"
+                      ) : (
+                        "Resend Verification Link"
+                      )}
+                    </button>
+                  </div>
+                )}
+
                 <button
                   className="btn btn-primary btn-full login-submit"
                   type="submit"
@@ -239,13 +357,13 @@ function Loginform() {
                       <Spinner /> Signing in...
                     </>
                   ) : (
-                    "Sign in"
+                    "Sign In"
                   )}
                 </button>
 
                 <div className="auth-footer">
                   Don&apos;t have an account?
-                  <Link to="/register">Sign up</Link>
+                  <Link to="/register">Sign Up</Link>
                 </div>
               </form>
             </>
@@ -254,12 +372,12 @@ function Loginform() {
             <>
               <h2>Device Verification</h2>
               <p className="auth-subtitle">
-                New device detected. Enter the 6-digit code sent to{" "}
+                A new device or sign-in attempt was detected. Enter the 6-digit verification code sent to{" "}
                 <strong>{formdata.email}</strong>.
               </p>
 
               <form onSubmit={handleOtpSubmit} noValidate>
-                <label className="form-label">6-Digit OTP Code</label>
+                <label className="form-label">Verification Code</label>
 
                 <div className="otp-boxes">
                   {otpDigits.map((digit, i) => (
@@ -293,7 +411,7 @@ function Loginform() {
                       <Spinner /> Verifying...
                     </>
                   ) : (
-                    "Verify & Trust Device"
+                    "Verify & Continue"
                   )}
                 </button>
 

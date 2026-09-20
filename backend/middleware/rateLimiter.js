@@ -1,5 +1,4 @@
 const setRateLimit = require("express-rate-limit");
-
 /**
  * Helper to get clean client IP address
  */
@@ -17,12 +16,14 @@ const getClientIp = (req) => {
 // Ensures that one employee's failed login in an office Wi-Fi does NOT block other employees.
 const authLimiter = setRateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // Increased threshold for legitimate user logins & 2FA OTP verifications
+  max: 5, // Increased threshold for legitimate user logins & 2FA OTP verifications
   skipSuccessfulRequests: true, // Only failed requests count against rate limit!
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => {
-    const email = (req.body?.email || req.query?.email || "").toLowerCase().trim();
+    const email = (req.body?.email || req.query?.email || "")
+      .toLowerCase()
+      .trim();
     const ip = getClientIp(req);
     return email ? `${ip}_${email}` : ip;
   },
@@ -38,11 +39,13 @@ const authLimiter = setRateLimit({
 // Prevents email quota exhaustion and inbox spamming.
 const emailLimiter = setRateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3,
+  max: 5,
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => {
-    const email = (req.body?.email || req.query?.email || "").toLowerCase().trim();
+    const email = (req.body?.email || req.query?.email || "")
+      .toLowerCase()
+      .trim();
     const ip = getClientIp(req);
     return email ? `${ip}_${email}` : ip;
   },
@@ -100,7 +103,8 @@ const globalLimiter = setRateLimit({
   keyGenerator: (req) => getClientIp(req),
   message: {
     success: false,
-    message: "Too many requests to the server from this network. Please slow down.",
+    message:
+      "Too many requests to the server from this network. Please slow down.",
   },
 });
 

@@ -1,0 +1,494 @@
+/* ══════════════════════════════════════════════════════════════
+   Security Email Modal — Sleek, Responsive, Enterprise Grade
+   ══════════════════════════════════════════════════════════════ */
+
+.sem-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 12, 22, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 16px;
+  animation: semFadeIn 0.2s ease-out;
+}
+
+@keyframes semFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.sem-modal {
+  background: var(--bg-card, #111726);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+  border-radius: 14px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  animation: semSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes semSlideUp {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ── Header ── */
+.sem-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  background: var(--bg-surface-secondary, rgba(255, 255, 255, 0.02));
+}
+
+.sem-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sem-icon-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.14);
+  border: 1px solid rgba(99, 102, 241, 0.28);
+  color: var(--accent, #6366f1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sem-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary, #f8fafc);
+  letter-spacing: -0.01em;
+}
+
+.sem-subtitle {
+  margin: 3px 0 0;
+  font-size: 0.77rem;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.4;
+}
+
+.sem-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.sem-close-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary, #f8fafc);
+}
+
+/* ── Body ── */
+.sem-body {
+  padding: 20px;
+}
+
+/* Current Email Box */
+.sem-current-email-box {
+  background: var(--bg-surface-secondary, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-radius: 9px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+
+.sem-current-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.sem-box-label {
+  font-size: 0.70rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #64748b);
+}
+
+.sem-verified-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 1px 7px;
+  border-radius: 12px;
+}
+
+.sem-current-value {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-primary, #f8fafc);
+  word-break: break-all;
+}
+
+/* Field Groups */
+.sem-field-group {
+  margin-bottom: 14px;
+}
+
+.sem-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-primary, #f8fafc);
+  margin-bottom: 6px;
+}
+
+.sem-required {
+  color: #ef4444;
+}
+
+.sem-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--bg-input, #192237);
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.12));
+  border-radius: 8px;
+  height: 38px;
+  padding: 0 10px 0 34px;
+  transition: all 0.18s ease;
+}
+
+.sem-input-wrap:focus-within {
+  border-color: var(--accent, #6366f1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+  background: var(--bg-card, #111726);
+}
+
+.sem-input-wrap.has-error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.sem-input-icon {
+  position: absolute;
+  left: 10px;
+  color: var(--text-muted, #64748b);
+  display: flex;
+  align-items: center;
+}
+
+.sem-input {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.84rem;
+  color: var(--text-primary, #f8fafc);
+  font-family: inherit;
+}
+
+.sem-input::placeholder {
+  color: var(--text-muted, #64748b);
+}
+
+.sem-eye-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s ease;
+}
+
+.sem-eye-btn:hover {
+  color: var(--text-primary, #f8fafc);
+}
+
+.sem-error-text {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: #ef4444;
+  margin-top: 4px;
+}
+
+/* Security Notice Box */
+.sem-security-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 14px;
+  margin-bottom: 20px;
+}
+
+.sem-sec-icon {
+  color: var(--accent, #6366f1);
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.sem-sec-text {
+  font-size: 0.74rem;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.45;
+}
+
+.sem-sec-text strong {
+  color: var(--text-primary, #f8fafc);
+}
+
+/* ── Step 2: OTP Verification ── */
+.sem-otp-instruction {
+  font-size: 0.82rem;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.5;
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.sem-highlight {
+  color: var(--accent, #818cf8);
+  font-weight: 600;
+}
+
+.sem-otp-boxes-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.sem-otp-box {
+  width: 44px;
+  height: 50px;
+  border-radius: 9px;
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.14));
+  background: var(--bg-input, #192237);
+  color: var(--text-primary, #f8fafc);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition: all 0.18s ease;
+}
+
+.sem-otp-box:focus {
+  border-color: var(--accent, #6366f1);
+  background: var(--bg-card, #111726);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22);
+  transform: translateY(-1px);
+}
+
+.sem-otp-box.filled {
+  border-color: rgba(99, 102, 241, 0.5);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.sem-otp-box.has-error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.sem-otp-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  color: #ef4444;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.sem-resend-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.76rem;
+  margin-bottom: 22px;
+}
+
+.sem-resend-prompt {
+  color: var(--text-muted, #64748b);
+}
+
+.sem-resend-btn {
+  background: none;
+  border: none;
+  color: var(--accent, #818cf8);
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  font-size: inherit;
+  transition: color 0.15s ease;
+}
+
+.sem-resend-btn:hover {
+  color: #a5b4fc;
+  text-decoration: underline;
+}
+
+.sem-timer-text {
+  color: var(--text-secondary, #94a3b8);
+}
+
+.sem-timer-text strong {
+  color: var(--text-primary, #f8fafc);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Actions Footer ── */
+.sem-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+}
+
+.sem-btn-cancel {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.12));
+  background: transparent;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.80rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sem-btn-cancel:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary, #f8fafc);
+}
+
+.sem-btn-primary {
+  height: 36px;
+  padding: 0 18px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent, #6366f1);
+  color: #ffffff;
+  font-size: 0.80rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+  transition: all 0.18s ease;
+}
+
+.sem-btn-primary:hover:not(:disabled) {
+  background: #4f46e5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.45);
+}
+
+.sem-btn-primary:disabled,
+.sem-btn-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Light Theme Overrides */
+[data-theme="light"] .sem-overlay,
+body.light-mode .sem-overlay {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+[data-theme="light"] .sem-modal,
+body.light-mode .sem-modal {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15), 0 0 0 1px #e2e8f0;
+}
+
+[data-theme="light"] .sem-header,
+body.light-mode .sem-header {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .sem-current-email-box,
+body.light-mode .sem-current-email-box {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .sem-input-wrap,
+body.light-mode .sem-input-wrap {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .sem-input-wrap:focus-within,
+body.light-mode .sem-input-wrap:focus-within {
+  background: #ffffff;
+  border-color: #6366f1;
+}
+
+[data-theme="light"] .sem-otp-box,
+body.light-mode .sem-otp-box {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+[data-theme="light"] .sem-otp-box:focus,
+body.light-mode .sem-otp-box:focus {
+  background: #ffffff;
+  border-color: #6366f1;
+}
+
+[data-theme="light"] .sem-actions,
+body.light-mode .sem-actions {
+  border-color: #e2e8f0;
+}

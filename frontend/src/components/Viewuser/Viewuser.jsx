@@ -6,6 +6,7 @@ import { useStore } from "../../stores/StoreContext";
 import AppLayout from "../../components/AppLayout/AppLayout";
 import "../Experience/experience.css";
 
+import { toast } from "react-toastify";
 import {
   FaUser,
   FaEnvelope,
@@ -19,7 +20,9 @@ import {
   FaCalendarAlt,
   FaClock,
   FaEdit,
+  FaFingerprint,
 } from "react-icons/fa";
+import { FiCopy, FiCheck } from "react-icons/fi";
 
 function getJoinedDate(user) {
   if (!user) return null;
@@ -54,6 +57,17 @@ function ViewUser() {
   const { userStore } = useStore();
 
   const [isExpOpen, setIsExpOpen] = useState(false);
+  const [copiedKey, setCopiedKey] = useState(null);
+
+  const handleCopy = (text, key, label) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    toast.info(`Copied ${label} to clipboard!`, { autoClose: 1500 });
+    setTimeout(() => {
+      setCopiedKey((prev) => (prev === key ? null : prev));
+    }, 2000);
+  };
 
   useEffect(() => {
     userStore.fetchUserById(id);
@@ -120,9 +134,9 @@ function ViewUser() {
   return (
     <AppLayout
       title={loading ? "User Details" : user.name || "User Details"}
-      subtitle="View comprehensive user profile & account activity"
+      subtitle="Comprehensive user profile, account details, and activity"
       breadcrumbs={[
-        { label: "Admin Panel", path: "/admin/users" },
+        { label: "User Management", path: "/admin/users" },
         { label: user.name || "User Details" },
       ]}
     >
@@ -192,6 +206,32 @@ function ViewUser() {
               <h3>Account Information</h3>
 
               <div className="userview-grid">
+                {/* User ID */}
+                <div className="userview-item">
+                  <FaFingerprint />
+                  <div>
+                    <span>User ID</span>
+                    <strong className="font-mono" title={user._id}>
+                      {loading ? (
+                        <div className="skeleton skeleton-value"></div>
+                      ) : (
+                        user._id || "N/A"
+                      )}
+                    </strong>
+                  </div>
+                  {!loading && user._id && (
+                    <button
+                      type="button"
+                      className={`userview-copy-icon-btn ${copiedKey === "id" ? "copied" : ""}`}
+                      onClick={() => handleCopy(user._id, "id", "User ID")}
+                      title={copiedKey === "id" ? "Copied!" : "Copy User ID"}
+                      aria-label="Copy User ID"
+                    >
+                      {copiedKey === "id" ? <FiCheck /> : <FiCopy />}
+                    </button>
+                  )}
+                </div>
+
                 {/* Name */}
                 <div className="userview-item">
                   <FaUser />
@@ -211,15 +251,31 @@ function ViewUser() {
                 <div className="userview-item">
                   <FaEnvelope />
                   <div>
-                    <span>Email</span>
-                    <strong>
+                    <span>Email Address</span>
+                    <strong className="font-mono" title={user.email}>
                       {loading ? (
                         <div className="skeleton skeleton-value skeleton-email"></div>
                       ) : (
-                        user.email
+                        user.email || "N/A"
                       )}
                     </strong>
+                    {user.pendingEmail && (
+                      <div className="userview-pending-email-badge">
+                        <span>⏳ Pending Change: <strong>{user.pendingEmail}</strong></span>
+                      </div>
+                    )}
                   </div>
+                  {!loading && user.email && (
+                    <button
+                      type="button"
+                      className={`userview-copy-icon-btn ${copiedKey === "email" ? "copied" : ""}`}
+                      onClick={() => handleCopy(user.email, "email", "Email")}
+                      title={copiedKey === "email" ? "Copied!" : "Copy Email Address"}
+                      aria-label="Copy Email Address"
+                    >
+                      {copiedKey === "email" ? <FiCheck /> : <FiCopy />}
+                    </button>
+                  )}
                 </div>
 
                 {/* Phone */}
@@ -254,18 +310,18 @@ function ViewUser() {
                   </div>
                 </div>
 
-                {/* Status */}
+                {/* Account Status */}
                 <div className="userview-item">
                   <FaCheckCircle />
                   <div>
-                    <span>Status</span>
+                    <span>Account Status</span>
                     <strong>
                       {loading ? (
                         <div className="skeleton skeleton-small"></div>
-                      ) : user.isVerified ? (
-                        "Verified"
                       ) : (
-                        "Not Verified"
+                        user.status
+                          ? user.status.charAt(0).toUpperCase() + user.status.slice(1)
+                          : "Active"
                       )}
                     </strong>
                   </div>
@@ -278,6 +334,23 @@ function ViewUser() {
               <h3>Personal Information</h3>
 
               <div className="userview-grid">
+                {/* Email Verification */}
+                <div className="userview-item">
+                  <FaCheckCircle />
+                  <div>
+                    <span>Email Verification</span>
+                    <strong>
+                      {loading ? (
+                        <div className="skeleton skeleton-small"></div>
+                      ) : user.isVerified ? (
+                        <span className="verified">Verified</span>
+                      ) : (
+                        <span className="unverified">Unverified</span>
+                      )}
+                    </strong>
+                  </div>
+                </div>
+
                 {/* Gender */}
                 <div className="userview-item">
                   <FaVenusMars />
@@ -359,7 +432,7 @@ function ViewUser() {
           </div>
 
           <div className="userview-card">
-            <h3>About Me</h3>
+            <h3>Biography</h3>
 
             <div className="userview-about">
               {loading ? (
@@ -373,7 +446,7 @@ function ViewUser() {
               ) : user.bio ? (
                 <p className="userview-bio">{user.bio}</p>
               ) : (
-                <p className="empty-bio">This user hasn't added a bio yet.</p>
+                <p className="empty-bio">No biography provided yet.</p>
               )}
             </div>
           </div>

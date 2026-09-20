@@ -14,6 +14,8 @@ import DeleteConfirmModal from "../Experience/DeleteConfirmModal";
 
 // Modular Subcomponents
 import ProfileBanner from "./components/ProfileBanner";
+import ProfileBannerModal from "./components/ProfileBannerModal";
+import { DEFAULT_BANNER_ID } from "./components/bannerData";
 import ProfileHeader from "./components/ProfileHeader";
 import ProfileCompletion from "./components/ProfileCompletion";
 import ProfileBio from "./components/ProfileBio";
@@ -62,6 +64,51 @@ function Profile() {
   const handleShowCompletion = () => {
     setShowCompletion(true);
     localStorage.removeItem("hide_profile_completion");
+  };
+
+  const [showBannerModal, setShowBannerModal] = useState(false);
+  const [isUpdatingBanner, setIsUpdatingBanner] = useState(false);
+  const [bannerId, setBannerId] = useState(() => {
+    const saved = localStorage.getItem(
+      "user_profile_banner_" + (user?._id || "default"),
+    );
+    return saved || user?.profileBanner || DEFAULT_BANNER_ID;
+  });
+
+  useEffect(() => {
+    const saved = localStorage.getItem(
+      "user_profile_banner_" + (user?._id || "default"),
+    );
+    if (saved) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setBannerId(saved);
+    } else if (user?.profileBanner) {
+      setBannerId(user.profileBanner);
+    }
+  }, [user?._id, user?.profileBanner]);
+
+  const handleBannerSelect = async (newBannerId) => {
+    setShowBannerModal(false);
+    if (newBannerId === bannerId) return;
+
+    setBannerId(newBannerId);
+    setIsUpdatingBanner(true);
+    localStorage.setItem(
+      "user_profile_banner_" + (user?._id || "default"),
+      newBannerId,
+    );
+
+    try {
+      if (userStore.updateBanner) {
+        await userStore.updateBanner(newBannerId);
+      }
+      toast.success("Profile banner updated!");
+    } catch (err) {
+      console.warn("Banner save note:", err);
+      toast.info("Banner updated on this device");
+    } finally {
+      setIsUpdatingBanner(false);
+    }
   };
 
   useEffect(() => {
@@ -386,15 +433,120 @@ function Profile() {
     navigate("/profile/edit");
   };
 
+  const handleResendPendingVerification = async () => {
+    try {
+      const res = await userStore.resendPendingVerification();
+      toast.success(
+        res?.message || "Verification link sent! Check your new email inbox.",
+      );
+    } catch (error) {
+      toast.error(
+        error?.message || "Failed to send verification link. Please try again.",
+      );
+    }
+  };
+
+  const handleCancelPendingEmail = async () => {
+    try {
+      await userStore.cancelEmailChange();
+      toast.info(
+        "Pending email change request cancelled. Your current email remains active.",
+      );
+    } catch (error) {
+      toast.error(error?.message || "Failed to cancel email change request.");
+    }
+  };
+
   const avatarSrc =
     preview || `${import.meta.env.VITE_API_URL}/uploads/${user?.profilephoto}`;
 
+  // Compute expiry display for pending email
+  const pendingEmailExpiry = user?.verificationTokenExpire
+    ? new Date(user.verificationTokenExpire)
+    : null;
+  const pendingEmailExpired =
+    pendingEmailExpiry && pendingEmailExpiry < new Date();
+  const pendingEmailExpiryStr = pendingEmailExpiry
+    ? pendingEmailExpiry.toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : null;
+
   return (
-    <AppLayout title="My Profile" subtitle="Manage your account settings">
+    <AppLayout
+      title="My Profile"
+      subtitle="Personal information, work experience, and account details"
+    >
       <div className="page-container-centered">
         <div className="profile-layout card">
-          {/* Top Aurora Banner */}
-          <ProfileBanner />
+          {/* ── Pending Email Change Banner ── */}
+          {user?.pendingEmail && (
+            <div className="pending-email-banner">
+              <div className="pending-email-banner-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+              </div>
+              <div className="pending-email-banner-body">
+                <p className="pending-email-banner-title">
+                  Email Change Pending Verification
+                </p>
+                <p className="pending-email-banner-desc">
+                  A request was made to change your email to{" "}
+                  <strong>{user.pendingEmail}</strong>.{" "}
+                  {pendingEmailExpired
+                    ? "The verification link has expired."
+                    : pendingEmailExpiryStr
+                      ? `Link expires on ${pendingEmailExpiryStr}.`
+                      : "Please verify it using the link sent to that email."}{" "}
+                  Your current email <strong>{user.email}</strong> remains
+                  active until verified.
+                </p>
+              </div>
+              <div className="pending-email-actions">
+                <button
+                  type="button"
+                  className="pending-email-resend-btn"
+                  onClick={handleResendPendingVerification}
+                  disabled={userStore.loading.resendPendingVerification}
+                >
+                  {userStore.loading.resendPendingVerification
+                    ? "Sending…"
+                    : pendingEmailExpired
+                      ? "Send New Link"
+                      : "Resend Link"}
+                </button>
+                <button
+                  type="button"
+                  className="pending-email-cancel-btn"
+                  onClick={handleCancelPendingEmail}
+                  title="Cancel this email change request"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+          <ProfileBanner
+            bannerId={bannerId}
+            onOpenEditModal={() => setShowBannerModal(true)}
+            isUpdating={isUpdatingBanner}
+          />
 
           <div className="profile-body">
             {/* Header / Avatar / Identity / Actions */}
@@ -493,6 +645,16 @@ function Profile() {
           onConfirm={handleConfirmDelete}
           onCancel={() => setDeletingExp(null)}
           loading={expLoading}
+        />
+      )}
+
+      {showBannerModal && (
+        <ProfileBannerModal
+          isOpen={showBannerModal}
+          onClose={() => setShowBannerModal(false)}
+          currentBannerId={bannerId}
+          onSelectBanner={handleBannerSelect}
+          isSaving={isUpdatingBanner || userStore.loading.updateBanner}
         />
       )}
     </AppLayout>

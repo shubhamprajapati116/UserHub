@@ -1,4 +1,4 @@
-import React from "react";
+import "react";
 import "./AdminEmailConfirmModal.css";
 
 function Spinner() {
@@ -98,19 +98,19 @@ export default function AdminEmailConfirmModal({
           <div className="admin-email-notice-item">
             <span className="admin-email-notice-bullet">✉️</span>
             <span>
-              A confirmation link will be dispatched to <strong>{newEmail}</strong>.
+              A verification link will be sent to <strong>{newEmail}</strong>.
             </span>
           </div>
           <div className="admin-email-notice-item">
             <span className="admin-email-notice-bullet">🔒</span>
             <span>
-              <strong>Zero Lockout Risk:</strong> Current email (<strong>{oldEmail}</strong>) remains fully active and working until the user confirms the new address.
+              <strong>Zero Lockout:</strong> The current email (<strong>{oldEmail}</strong>) remains fully active until the new address is verified.
             </span>
           </div>
           <div className="admin-email-notice-item">
             <span className="admin-email-notice-bullet">🛡️</span>
             <span>
-              Once the user confirms the link in their new inbox, the account email will automatically be swapped and activated.
+              Once verified via the link, the account email will automatically be updated.
             </span>
           </div>
         </div>

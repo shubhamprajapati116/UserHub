@@ -69,6 +69,7 @@ function EditUser() {
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
+    // eslint-disable-next-line no-useless-assignment
     let relativeStr = "";
     if (diffMins < 2) relativeStr = "Just now";
     else if (diffMins < 60) relativeStr = `${diffMins} minutes ago`;
@@ -154,9 +155,9 @@ function EditUser() {
   return (
     <AppLayout
       title="Edit User"
-      subtitle="Update user details, permissions & account profile"
+      subtitle="Update user account details and profile information"
       breadcrumbs={[
-        { label: "Admin Panel", path: "/admin/users" },
+        { label: "User Management", path: "/admin/users" },
         { label: editUser?.name ? `Edit ${editUser.name}` : "Edit User" },
       ]}
     >

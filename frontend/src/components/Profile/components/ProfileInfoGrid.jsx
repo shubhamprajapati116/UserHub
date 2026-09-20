@@ -50,8 +50,8 @@ function ProfileInfoGrid({ loading, profileInfo, onAddField }) {
                           </span>
                         ) : (
                           <span
-                            className="email-status-badge unverified"
-                            title="Email not verified"
+                            className="email-status-badge pending unverified"
+                            title="Email verification pending"
                           >
                             <svg
                               width="10"

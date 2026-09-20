@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/StoreContext";
 import "./UserGrowthChart.css";
@@ -46,7 +46,7 @@ function getMonotoneSplinePath(points, baseY) {
     let cp2y = p2.y - (tangents[i + 1] * dX) / 3;
 
     // Strict clamp: never dip below baseline (higher Y coordinate in SVG)
-    if (p1.data.count === 0 && p2.data.count === 0) {
+    if (p1.data.displayCount === 0 && p2.data.displayCount === 0) {
       cp1y = baseY;
       cp2y = baseY;
     } else {
@@ -59,16 +59,31 @@ function getMonotoneSplinePath(points, baseY) {
   return path;
 }
 
+// Helper to determine clean rounded Y-axis max
+const getNiceMax = (val) => {
+  if (val <= 0) return 4;
+  if (val <= 4) return 4;
+  if (val <= 8) return 8;
+  if (val <= 12) return 12;
+  if (val <= 20) return 20;
+  if (val <= 40) return 40;
+  if (val <= 100) return 100;
+  if (val <= 200) return Math.ceil(val / 20) * 20;
+  if (val <= 500) return Math.ceil(val / 50) * 50;
+  return Math.ceil(val / 100) * 100;
+};
+
 // eslint-disable-next-line react-refresh/only-export-components
 function UserGrowthChart() {
   const { userStore } = useStore();
-  const [timeframe, setTimeframe] = useState("30d");
+  const [timeframe, setTimeframe] = useState("7d");
+  const [growthMode, setGrowthMode] = useState("daily"); // "daily" | "cumulative"
+  const [chartType, setChartType] = useState("line"); // "line" | "bar"
   const [hoveredPoint, setHoveredPoint] = useState(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
 
-  const dropdownRef = useRef(null);
   const chartBodyRef = useRef(null);
+  const svgRef = useRef(null);
 
   const analytics = userStore.userGrowthAnalytics;
   const loading = userStore.loading.fetchAnalytics;
@@ -99,53 +114,83 @@ function UserGrowthChart() {
     userStore.fetchUserGrowthAnalytics(timeframe);
   }, [timeframe, userStore]);
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
+  // ── Timeframe Options (Week, Month, 6 Months, 1 Year) ──
   const timeframeOptions = [
-    { label: "Last 7 Days", value: "7d" },
-    { label: "This Month", value: "30d" },
-    { label: "Last 6 Months", value: "6m" },
-    { label: "This Year", value: "1y" },
+    { label: "Week", shortLabel: "7D", value: "7d" },
+    { label: "Month", shortLabel: "30D", value: "30d" },
+    { label: "6 Months", shortLabel: "6M", value: "6m" },
+    { label: "1 Year", shortLabel: "1Y", value: "1y" },
   ];
 
-  const currentOption =
-    timeframeOptions.find((opt) => opt.value === timeframe) ||
-    timeframeOptions[1];
-
   const rawData = analytics?.timeline || [];
+  const totalUsers = analytics?.totalUsers || 0;
+  const totalInWindow =
+    analytics?.totalInWindow !== undefined
+      ? analytics.totalInWindow
+      : rawData.reduce((acc, curr) => acc + (curr.count || 0), 0);
 
-  // ── KPI Summary Calculations (Peak, Average, Total) ──
+  // Baseline for cumulative calculation (users registered before this timeframe window)
+  const baseline =
+    analytics?.previousUsersCount !== undefined
+      ? analytics.previousUsersCount
+      : Math.max(0, totalUsers - totalInWindow);
+
+  // ── Data Transformation: Calculate Daily and Cumulative Series ──
+  const processedData = useMemo(() => {
+    if (!rawData || rawData.length === 0) return [];
+
+    let runningCumulative = baseline;
+    return rawData.map((item, index) => {
+      const dailyCount = item.count || 0;
+      runningCumulative += dailyCount;
+      const cumulativeCount = runningCumulative;
+      const displayCount =
+        growthMode === "cumulative" ? cumulativeCount : dailyCount;
+
+      return {
+        ...item,
+        dailyCount,
+        cumulativeCount,
+        displayCount,
+        index,
+      };
+    });
+  }, [rawData, baseline, growthMode]);
+
+  // ── KPI Summary Calculations ──
   const kpiStats = useMemo(() => {
-    if (!rawData || rawData.length === 0) {
-      return { total: 0, peak: 0, peakDate: "", avgDaily: "0.0" };
+    if (!processedData || processedData.length === 0) {
+      return { totalPeriod: 0, peakDaily: 0, peakDate: "", avgDaily: "0.0", totalCumulative: 0 };
     }
-    const total = rawData.reduce((acc, curr) => acc + (curr.count || 0), 0);
-    let peak = 0;
+    const totalPeriod = processedData.reduce((acc, curr) => acc + curr.dailyCount, 0);
+    let peakDaily = 0;
     let peakDate = "";
-    rawData.forEach((d) => {
-      if (d.count >= peak) {
-        peak = d.count;
+    processedData.forEach((d) => {
+      if (d.dailyCount >= peakDaily) {
+        peakDaily = d.dailyCount;
         peakDate = d.label;
       }
     });
-    const avg = rawData.length > 0 ? (total / rawData.length).toFixed(1) : "0.0";
-    return { total, peak, peakDate, avgDaily: avg };
-  }, [rawData]);
+    const avgDaily =
+      processedData.length > 0
+        ? (totalPeriod / processedData.length).toFixed(1)
+        : "0.0";
+    const totalCumulative =
+      processedData.length > 0
+        ? processedData[processedData.length - 1].cumulativeCount
+        : totalUsers;
+
+    return { totalPeriod, peakDaily, peakDate, avgDaily, totalCumulative };
+  }, [processedData, totalUsers]);
 
   // ── Responsive Dimensions ──
   const width = containerWidth || 800;
-  const height = width < 480 ? 175 : width < 768 ? 210 : 230;
+  const isMobile = width < 520;
+  const isTablet = width >= 520 && width < 768;
 
-  const paddingLeft = width < 480 ? 28 : 36;
-  const paddingRight = width < 480 ? 14 : 22;
+  const height = isMobile ? 185 : isTablet ? 210 : 235;
+  const paddingLeft = isMobile ? 32 : 40;
+  const paddingRight = isMobile ? 14 : 22;
   const paddingTop = 26;
   const paddingBottom = 30;
 
@@ -153,20 +198,9 @@ function UserGrowthChart() {
   const chartHeight = Math.max(10, height - paddingTop - paddingBottom);
   const baseY = paddingTop + chartHeight;
 
-  // ── Dynamic Y-axis based on actual data max ──
-  const maxCount = Math.max(...rawData.map((d) => d.count), 0);
-
-  const getNiceMax = (val) => {
-    if (val <= 0) return 4;
-    if (val <= 4) return 4;
-    if (val <= 8) return 8;
-    if (val <= 12) return 12;
-    if (val <= 20) return 20;
-    if (val <= 40) return 40;
-    if (val <= 100) return 100;
-    return Math.ceil(val / 20) * 20;
-  };
-  const yMax = getNiceMax(maxCount);
+  // ── Dynamic Y-axis based on active display counts ──
+  const maxDisplayVal = Math.max(...processedData.map((d) => d.displayCount), 0);
+  const yMax = getNiceMax(maxDisplayVal);
 
   // 5 clean, evenly-spaced integer gridlines from 0 → yMax
   const yLevels = [];
@@ -179,38 +213,66 @@ function UserGrowthChart() {
     });
   }
 
-  const getYPos = (count) => {
-    const ratio = Math.min(Math.max(count, 0) / yMax, 1);
-    return baseY - ratio * chartHeight;
-  };
+  const getYPos = useCallback(
+    (count) => {
+      const ratio = Math.min(Math.max(count, 0) / yMax, 1);
+      return baseY - ratio * chartHeight;
+    },
+    [baseY, chartHeight, yMax],
+  );
 
-  const points = rawData.map((d, index) => ({
-    x:
-      rawData.length > 1
-        ? paddingLeft + (index / (rawData.length - 1)) * chartWidth
-        : paddingLeft + chartWidth / 2,
-    y: getYPos(d.count),
-    data: d,
-    isLast: index === rawData.length - 1,
-  }));
+  // ── Coordinates Mapping (Adapted for Line Spline vs Bar Columns) ──
+  const nPoints = processedData.length;
+  const slotWidth = nPoints > 0 ? chartWidth / nPoints : chartWidth;
+  const barWidth = Math.max(4, Math.min(Math.floor(slotWidth * 0.54), 32));
 
-  const linePath = getMonotoneSplinePath(points, baseY);
+  const points = processedData.map((d, index) => {
+    // For line chart: points stretch across width; for bar chart: points are centered in each column slot
+    const lineX =
+      nPoints > 1
+        ? paddingLeft + (index / (nPoints - 1)) * chartWidth
+        : paddingLeft + chartWidth / 2;
+    const barXCenter = paddingLeft + (index + 0.5) * slotWidth;
+
+    const x = chartType === "bar" ? barXCenter : lineX;
+    const y = getYPos(d.displayCount);
+
+    return {
+      x,
+      y,
+      lineX,
+      barXCenter,
+      barX: barXCenter - barWidth / 2,
+      barWidth,
+      slotWidth,
+      data: d,
+      index,
+      isLast: index === nPoints - 1,
+    };
+  });
+
+  const latestPoint = points.length > 0 ? points[points.length - 1] : null;
+
+  // Compute Spline Paths
+  const linePoints = points.map((p) => ({ ...p, x: p.lineX }));
+  const linePath = getMonotoneSplinePath(linePoints, baseY);
   const areaPath =
-    points.length > 0
-      ? `${linePath} L ${points[points.length - 1].x} ${baseY} L ${points[0].x} ${baseY} Z`
+    linePoints.length > 0
+      ? `${linePath} L ${linePoints[linePoints.length - 1].x} ${baseY} L ${linePoints[0].x} ${baseY} Z`
       : "";
 
   // ── X-Axis Ticks Generation (Zero Overlap Guarantee) ──
-  const activeTf = timeframe === "this_month" ? "30d" : timeframe;
   let numTicks;
-  if (activeTf === "7d" || activeTf === "6m") {
+  if (timeframe === "7d") {
     numTicks = points.length;
-  } else if (activeTf === "1y") {
-    numTicks = width >= 480 ? points.length : Math.min(points.length, 6);
-  } else if (activeTf === "30d") {
-    numTicks = width >= 560 ? Math.min(points.length, 7) : Math.min(points.length, 4);
+  } else if (timeframe === "6m") {
+    numTicks = points.length;
+  } else if (timeframe === "1y") {
+    numTicks = width >= 560 ? points.length : Math.min(points.length, 6);
+  } else if (timeframe === "30d") {
+    numTicks = width >= 640 ? Math.min(points.length, 8) : width >= 440 ? 5 : 4;
   } else {
-    numTicks = Math.min(points.length, 7);
+    numTicks = Math.min(points.length, 6);
   }
 
   const tickIndices = new Set();
@@ -223,20 +285,39 @@ function UserGrowthChart() {
     }
   }
 
-  const useShortLabel = activeTf === "1y" || activeTf === "6m";
+  const useShortLabel = timeframe === "1y" || timeframe === "6m";
   const formatXLabel = (rawLabel) => {
     if (!rawLabel) return "";
     if (useShortLabel && rawLabel.includes(" ")) return rawLabel.split(" ")[0];
     return rawLabel;
   };
 
+  // ── Mobile Touch Support ──
+  const handleTouchMove = (e) => {
+    if (!svgRef.current || points.length === 0) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const touch = e.touches[0];
+    if (!touch) return;
+    const touchX = touch.clientX - rect.left;
+
+    let closest = points[0];
+    let minDiff = Math.abs(points[0].x - touchX);
+    for (let i = 1; i < points.length; i++) {
+      const diff = Math.abs(points[i].x - touchX);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closest = points[i];
+      }
+    }
+    setHoveredPoint(closest);
+  };
+
   // ── Smart Tooltip Placement ──
   let tooltipStyle = {};
-  let isNearTop = false;
   if (hoveredPoint) {
-    isNearTop = hoveredPoint.y < height * 0.38;
-    const isNearRight = hoveredPoint.x > width - 85;
-    const isNearLeft = hoveredPoint.x < 85;
+    const isNearTop = hoveredPoint.y < height * 0.38;
+    const isNearRight = hoveredPoint.x > width - 110;
+    const isNearLeft = hoveredPoint.x < 110;
 
     const translateX = isNearRight ? "-92%" : isNearLeft ? "-8%" : "-50%";
     const translateY = isNearTop ? "12px" : "-100%";
@@ -249,80 +330,77 @@ function UserGrowthChart() {
     };
   }
 
-  const [windowWidth, setWindowWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : 800
-  );
-
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const isMobileScreen = windowWidth < 520;
-  const latestPoint = points.length > 0 ? points[points.length - 1] : null;
-
   return (
-    <div className="growth-chart-card">
-      {/* ── World-Class Pro Header with KPI Chips ── */}
-      <div className="growth-chart-header">
-        <div className="growth-chart-header-left">
-          <div className="growth-title-row">
-            <div className="growth-title-icon">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-                <polyline points="16 7 22 7 22 13" />
-              </svg>
-            </div>
-            <h3 className="growth-chart-title">User Growth Analytics</h3>
-            <span className="growth-live-badge">
-              <span className="growth-beacon-dot"></span>
-              LIVE
+    <div className="growth-velocity-card">
+      {/* ── Top Header Toolbar ── */}
+      <div className="velocity-card-header">
+        <div className="velocity-header-title-area">
+          <div className="velocity-title-row">
+            <h3 className="velocity-card-title">User Registration Growth</h3>
+            {/* Quick Contextual KPI Badge */}
+            <span className="velocity-kpi-badge">
+              {growthMode === "cumulative" ? (
+                <>
+                  <span className="velocity-kpi-label">Total Users:</span>
+                  <strong className="velocity-kpi-val">{kpiStats.totalCumulative}</strong>
+                  {kpiStats.totalPeriod > 0 && (
+                    <span className="velocity-kpi-growth">
+                      (+{kpiStats.totalPeriod} in {timeframeOptions.find((t) => t.value === timeframe)?.label})
+                    </span>
+                  )}
+                </>
+              ) : (
+                <>
+                  <span className="velocity-kpi-label">Signups:</span>
+                  <strong className="velocity-kpi-val">+{kpiStats.totalPeriod}</strong>
+                  {kpiStats.peakDaily > 0 && (
+                    <span className="velocity-kpi-sub">
+                      (Peak: {kpiStats.peakDaily}/day)
+                    </span>
+                  )}
+                </>
+              )}
             </span>
-          </div>
-
-          {/* ── Quick KPI Stat Chips (Linear Style) ── */}
-          <div className="growth-kpi-chips">
-            <div className="growth-kpi-chip primary-chip">
-              <span className="kpi-chip-label">Total in window:</span>
-              <span className="kpi-chip-val">
-                {isUpdating ? "..." : `+${kpiStats.total}`}
-              </span>
-            </div>
-            <div className="growth-kpi-chip">
-              <span className="kpi-chip-icon">⚡</span>
-              <span className="kpi-chip-label">Peak:</span>
-              <span className="kpi-chip-val">
-                {isUpdating ? "..." : `${kpiStats.peak} users`}
-              </span>
-            </div>
-            <div className="growth-kpi-chip">
-              <span className="kpi-chip-icon">📊</span>
-              <span className="kpi-chip-label">Avg:</span>
-              <span className="kpi-chip-val">
-                {isUpdating ? "..." : `${kpiStats.avgDaily}/day`}
-              </span>
-            </div>
           </div>
         </div>
 
-        {/* ── Timeframe Dropdown ── */}
-        {!isMobileScreen && (
-          <div className="growth-timeframe-dropdown" ref={dropdownRef}>
+        {/* ── Controls Toolbar (Mode Switcher, Type Switcher, Timeframes) ── */}
+        <div className="velocity-controls-bar">
+          {/* 1. Growth Mode: Daily vs Cumulative Toggle */}
+          <div
+            className="velocity-segmented-group"
+            role="group"
+            aria-label="Registration Growth Mode"
+          >
             <button
               type="button"
-              className="growth-timeframe-btn"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              aria-expanded={dropdownOpen}
+              className={`velocity-segment-btn ${growthMode === "daily" ? "active" : ""}`}
+              onClick={() => setGrowthMode("daily")}
+              title="View daily new signups"
+            >
+              <span>Daily</span>
+            </button>
+            <button
+              type="button"
+              className={`velocity-segment-btn ${growthMode === "cumulative" ? "active" : ""}`}
+              onClick={() => setGrowthMode("cumulative")}
+              title="View cumulative total user growth"
+            >
+              <span>Cumulative</span>
+            </button>
+          </div>
+
+          {/* 2. Chart Type Switcher: Spline Line vs Bar Chart */}
+          <div
+            className="velocity-segmented-group type-switcher"
+            role="group"
+            aria-label="Chart Type"
+          >
+            <button
+              type="button"
+              className={`velocity-segment-btn icon-btn ${chartType === "line" ? "active" : ""}`}
+              onClick={() => setChartType("line")}
+              title="Spline Line Chart"
             >
               <svg
                 width="13"
@@ -330,157 +408,144 @@ function UserGrowthChart() {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
+                <path d="M3 17l6-6 4 4 8-8" />
               </svg>
-              <span>{currentOption.label}</span>
+              <span className="btn-label-desktop">Line</span>
+            </button>
+            <button
+              type="button"
+              className={`velocity-segment-btn icon-btn ${chartType === "bar" ? "active" : ""}`}
+              onClick={() => setChartType("bar")}
+              title="Bar Chart"
+            >
               <svg
-                className={`growth-chevron ${dropdownOpen ? "open" : ""}`}
-                width="12"
-                height="12"
+                width="13"
+                height="13"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <polyline points="6 9 12 15 18 9" />
+                <rect x="3" y="12" width="4" height="9" rx="1" />
+                <rect x="10" y="7" width="4" height="14" rx="1" />
+                <rect x="17" y="3" width="4" height="18" rx="1" />
               </svg>
+              <span className="btn-label-desktop">Bar</span>
             </button>
-
-            {dropdownOpen && (
-              <div className="growth-timeframe-menu">
-                {timeframeOptions.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    className={`growth-timeframe-item ${opt.value === timeframe ? "active" : ""}`}
-                    onClick={() => {
-                      setTimeframe(opt.value);
-                      setDropdownOpen(false);
-                    }}
-                  >
-                    <span>{opt.label}</span>
-                    {opt.value === timeframe && (
-                      <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
-        )}
+
+          {/* 3. Timeframe Options (7d, 30d, 6m, 1y) */}
+          <div className="velocity-segmented-group timeframe-group" role="tablist">
+            {timeframeOptions.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                role="tab"
+                aria-selected={timeframe === opt.value}
+                className={`velocity-segment-btn ${timeframe === opt.value ? "active" : ""}`}
+                onClick={() => setTimeframe(opt.value)}
+              >
+                <span className="btn-label-desktop">{opt.label}</span>
+                <span className="btn-label-mobile">{opt.shortLabel}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* ── Chart Canvas Body ── */}
-      <div className="growth-chart-body" ref={chartBodyRef}>
-        {isMobileScreen ? (
-          <div className="growth-chart-mobile-notice">
-            <div className="mobile-notice-icon-box">
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-                <line x1="8" y1="21" x2="16" y2="21" />
-                <line x1="12" y1="17" x2="12" y2="21" />
-              </svg>
-            </div>
-            <div className="mobile-notice-content">
-              <h4 className="mobile-notice-title">Desktop & Tablet View</h4>
-              <p className="mobile-notice-desc">
-                Interactive growth curves and detailed daily scrubbers are optimized for larger screens.
-              </p>
-            </div>
-          </div>
-        ) : loading && !analytics ? (
-          <div className="growth-chart-skeleton">
-            <div className="growth-spinner"></div>
-            <span>Loading analytics...</span>
-          </div>
-        ) : userStore.error && !analytics ? (
-          <div className="growth-chart-empty">
-            <p>Could not load chart data. Please refresh.</p>
+      <div className="velocity-chart-body" ref={chartBodyRef}>
+        {loading && !analytics ? (
+          <div className="velocity-loading-state">
+            <div className="velocity-spinner"></div>
+            <span>Loading registration trends...</span>
           </div>
         ) : points.length === 0 ? (
-          <div className="growth-chart-empty">
-            <p>No user activity recorded for this period.</p>
+          <div className="velocity-empty-state">
+            <p>No registration activity found for this period.</p>
           </div>
         ) : (
           <div
-            className="growth-svg-container"
+            className="velocity-svg-wrapper"
             style={{ height: `${height}px` }}
           >
-            {/* Instant 0ms Synchronous Loading Overlay */}
             {isUpdating && (
-              <div className="growth-chart-loading-overlay">
-                <div className="growth-spinner"></div>
-                <span>Updating analytics...</span>
+              <div className="velocity-updating-overlay">
+                <div className="velocity-spinner-sm"></div>
               </div>
             )}
 
             <svg
+              ref={svgRef}
               width="100%"
               height={height}
               viewBox={`0 0 ${width} ${height}`}
-              className="growth-svg"
+              className="velocity-svg"
               onMouseLeave={() => setHoveredPoint(null)}
+              onTouchStart={handleTouchMove}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={() => {}}
             >
               <defs>
-                {/* Modern Dual Gradient Area Fill */}
+                {/* Luminous Area Gradient */}
                 <linearGradient
-                  id="proGrowthAreaGradient"
+                  id="velocityAreaGradient"
                   x1="0"
                   y1="0"
                   x2="0"
                   y2="1"
                 >
-                  <stop offset="0%" stopColor="#6366f1" stopOpacity="0.28" />
-                  <stop offset="40%" stopColor="#06b6d4" stopOpacity="0.12" />
-                  <stop offset="95%" stopColor="#06b6d4" stopOpacity="0.0" />
+                  <stop offset="0%" stopColor="#5b7cf6" stopOpacity="0.4" />
+                  <stop offset="50%" stopColor="#4f6bf7" stopOpacity="0.16" />
+                  <stop offset="95%" stopColor="#1e293b" stopOpacity="0.0" />
                 </linearGradient>
 
-                {/* Electric Vibrant Spline Line Gradient */}
+                {/* Spline Line Gradient */}
                 <linearGradient
-                  id="proGrowthLineGradient"
+                  id="velocityLineGradient"
                   x1="0"
                   y1="0"
                   x2="1"
                   y2="0"
                 >
-                  <stop offset="0%" stopColor="#4f46e5" />
-                  <stop offset="45%" stopColor="#818cf8" />
-                  <stop offset="85%" stopColor="#06b6d4" />
-                  <stop offset="100%" stopColor="#22d3ee" />
+                  <stop offset="0%" stopColor="#6380f7" />
+                  <stop offset="60%" stopColor="#7a96fc" />
+                  <stop offset="100%" stopColor="#9cb3fd" />
                 </linearGradient>
 
-                {/* Glow Filter for Dark Mode Line */}
+                {/* Bar Chart Default Gradient */}
+                <linearGradient
+                  id="velocityBarGradient"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop offset="0%" stopColor="#7a96fc" />
+                  <stop offset="100%" stopColor="#4f6bf7" stopOpacity="0.85" />
+                </linearGradient>
+
+                {/* Bar Chart Hover Gradient */}
+                <linearGradient
+                  id="velocityBarGradientHover"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop offset="0%" stopColor="#a5baff" />
+                  <stop offset="100%" stopColor="#6380f7" />
+                </linearGradient>
+
+                {/* Soft Curve Drop Shadow Glow */}
                 <filter
-                  id="proLineGlow"
+                  id="velocityGlowFilter"
                   x="-10%"
                   y="-10%"
                   width="120%"
@@ -490,29 +555,29 @@ function UserGrowthChart() {
                     dx="0"
                     dy="3"
                     stdDeviation="4"
-                    floodColor="#6366f1"
-                    floodOpacity="0.25"
+                    floodColor="#5b7cf6"
+                    floodOpacity="0.35"
                   />
                 </filter>
               </defs>
 
-              {/* Horizontal Clean Gridlines & Y-Axis Numbers */}
+              {/* Horizontal Gridlines & Left Y-Axis Values */}
               {yLevels.map((lvl, idx) => {
                 const yPos = paddingTop + lvl.posPct * chartHeight;
                 return (
-                  <g key={`y-grid-${idx}`} className="growth-grid-line-group">
+                  <g key={`y-grid-${idx}`} className="velocity-grid-row">
                     <line
                       x1={paddingLeft}
                       y1={yPos}
                       x2={width - paddingRight}
                       y2={yPos}
-                      className="growth-grid-line"
+                      className="velocity-grid-line"
                     />
                     <text
-                      x={paddingLeft - 9}
+                      x={paddingLeft - 8}
                       y={yPos + 3.5}
                       textAnchor="end"
-                      className="growth-axis-label y-axis"
+                      className="velocity-axis-y-label"
                     >
                       {lvl.label}
                     </text>
@@ -520,102 +585,191 @@ function UserGrowthChart() {
                 );
               })}
 
-              {/* Area Fill */}
-              <path
-                d={areaPath}
-                fill="url(#proGrowthAreaGradient)"
-                className="growth-area-path"
-              />
+              {/* ── BAR CHART MODE RENDERING ── */}
+              {chartType === "bar" && (
+                <g className="velocity-bars-layer">
+                  {points.map((pt, i) => {
+                    const isHovered = hoveredPoint && hoveredPoint.index === i;
+                    const isZero = pt.data.displayCount === 0;
+                    const barH = isZero ? 2 : Math.max(3, baseY - pt.y);
+                    const barY = isZero ? baseY - 2 : pt.y;
+                    const cornerRadius = Math.min(4, Math.floor(pt.barWidth / 2));
 
-              {/* Spline Line */}
-              <path
-                d={linePath}
-                fill="none"
-                stroke="url(#proGrowthLineGradient)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                filter="url(#proLineGlow)"
-                className="growth-line-path"
-              />
+                    return (
+                      <g key={`bar-${i}`} className="velocity-bar-group">
+                        <rect
+                          x={pt.barX}
+                          y={barY}
+                          width={pt.barWidth}
+                          height={barH}
+                          rx={cornerRadius}
+                          ry={cornerRadius}
+                          fill={
+                            isZero
+                              ? "rgba(148, 163, 184, 0.25)"
+                              : isHovered
+                                ? "url(#velocityBarGradientHover)"
+                                : "url(#velocityBarGradient)"
+                          }
+                          className={`velocity-bar-rect ${isZero ? "zero-bar" : ""} ${isHovered ? "active" : ""}`}
+                        />
 
-              {/* Active Hover Crosshair Line */}
+                        {/* Top Indicator Cap on Hover */}
+                        {isHovered && !isZero && (
+                          <rect
+                            x={pt.barX}
+                            y={barY}
+                            width={pt.barWidth}
+                            height={3}
+                            rx={cornerRadius}
+                            ry={cornerRadius}
+                            fill="#ffffff"
+                            className="velocity-bar-top-cap"
+                          />
+                        )}
+
+                        {/* Wide Hit Area for Smooth Mouse/Touch Hover */}
+                        <rect
+                          x={pt.x - pt.slotWidth / 2}
+                          y={paddingTop}
+                          width={pt.slotWidth}
+                          height={chartHeight + 8}
+                          fill="transparent"
+                          className="velocity-bar-target"
+                          onMouseEnter={() => setHoveredPoint(pt)}
+                        />
+                      </g>
+                    );
+                  })}
+                </g>
+              )}
+
+              {/* ── SPLINE LINE MODE RENDERING ── */}
+              {chartType === "line" && (
+                <>
+                  {/* Monotone Spline Gradient Area Fill */}
+                  <path
+                    d={areaPath}
+                    fill="url(#velocityAreaGradient)"
+                    className="velocity-area-path"
+                  />
+
+                  {/* Monotone Spline Stroke Curve */}
+                  <path
+                    d={linePath}
+                    fill="none"
+                    stroke="url(#velocityLineGradient)"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    filter="url(#velocityGlowFilter)"
+                    className="velocity-line-path"
+                  />
+
+                  {/* Live Pulse Beacon on Latest Point */}
+                  {latestPoint && !hoveredPoint && (
+                    <g className="velocity-latest-pulse-group">
+                      <circle
+                        cx={latestPoint.x}
+                        cy={latestPoint.y}
+                        r={timeframe === "30d" || timeframe === "1y" ? 7 : 9}
+                        className="velocity-pulse-ring"
+                      />
+                      <circle
+                        cx={latestPoint.x}
+                        cy={latestPoint.y}
+                        r={timeframe === "30d" || timeframe === "1y" ? 3 : 4}
+                        className="velocity-pulse-core"
+                      />
+                    </g>
+                  )}
+
+                  {/* Data Points (Dots on Line) */}
+                  {points.map((pt, i) => {
+                    const isHovered = hoveredPoint && hoveredPoint.index === i;
+                    const baseRadius =
+                      timeframe === "30d" || timeframe === "1y" ? 2.5 : 3.6;
+                    const activeRadius =
+                      timeframe === "30d" || timeframe === "1y" ? 5 : 6;
+                    const isZero = pt.data.displayCount === 0;
+
+                    return (
+                      <g key={`point-${i}`}>
+                        {/* Visible Data Point Dot on the line */}
+                        <circle
+                          cx={pt.x}
+                          cy={pt.y}
+                          r={isHovered ? activeRadius : baseRadius}
+                          className={`velocity-point-dot ${isHovered ? "active" : ""} ${isZero ? "zero-dot" : ""}`}
+                        />
+
+                        {/* Active Hover Halo Glow Ring */}
+                        {isHovered && (
+                          <circle
+                            cx={pt.x}
+                            cy={pt.y}
+                            r={activeRadius + 6}
+                            className="velocity-indicator-halo"
+                          />
+                        )}
+
+                        {/* Interactive Magnetic Hover Target */}
+                        <circle
+                          cx={pt.x}
+                          cy={pt.y}
+                          r={timeframe === "30d" || timeframe === "1y" ? 12 : 18}
+                          fill="transparent"
+                          className="velocity-point-target"
+                          onMouseEnter={() => setHoveredPoint(pt)}
+                        />
+                      </g>
+                    );
+                  })}
+                </>
+              )}
+
+              {/* Crosshair Line On Active Hover */}
               {hoveredPoint && (
                 <line
                   x1={hoveredPoint.x}
                   y1={paddingTop}
                   x2={hoveredPoint.x}
                   y2={baseY}
-                  className="growth-crosshair-line"
+                  className="velocity-crosshair"
                 />
               )}
 
-              {/* Live Pulse Beacon on Latest Point */}
-              {latestPoint && !hoveredPoint && (
-                <g className="growth-latest-pulse-group">
-                  <circle
-                    cx={latestPoint.x}
-                    cy={latestPoint.y}
-                    r="9"
-                    className="growth-pulse-ring"
-                  />
-                  <circle
-                    cx={latestPoint.x}
-                    cy={latestPoint.y}
-                    r="4"
-                    className="growth-pulse-core"
-                  />
-                </g>
-              )}
-
-              {/* Data Points (Dots on Line) */}
-              {points.map((pt, i) => {
-                const isHovered =
-                  hoveredPoint && hoveredPoint.data.date === pt.data.date;
-                return (
-                  <g key={i}>
-                    {/* Visual Point */}
-                    <circle
-                      cx={pt.x}
-                      cy={pt.y}
-                      r={isHovered ? 6 : pt.data.count > 0 ? 3.5 : 2}
-                      className={`growth-point-dot ${isHovered ? "active" : ""} ${pt.data.count === 0 ? "zero-dot" : ""}`}
-                    />
-
-                    {/* Interactive Magnetic Hover Target */}
-                    <circle
-                      cx={pt.x}
-                      cy={pt.y}
-                      r={16}
-                      fill="transparent"
-                      className="growth-point-target"
-                      onMouseEnter={() => setHoveredPoint(pt)}
-                    />
-                  </g>
-                );
-              })}
-
-              {/* X-Axis Dates Labels */}
+              {/* X-Axis Date/Month Labels */}
               {points
                 .map((pt, i) => ({ ...pt, originalIndex: i }))
                 .filter((pt) => tickIndices.has(pt.originalIndex))
                 .map((pt) => {
                   const isFirst = pt.originalIndex === 0;
                   const isLast = pt.originalIndex === points.length - 1;
-                  const anchor = isFirst ? "start" : isLast ? "end" : "middle";
-                  const xPos = isFirst
-                    ? paddingLeft
-                    : isLast
-                      ? width - paddingRight
-                      : pt.x;
+                  const anchor =
+                    chartType === "bar"
+                      ? "middle"
+                      : isFirst
+                        ? "start"
+                        : isLast
+                          ? "end"
+                          : "middle";
+                  const xPos =
+                    chartType === "bar"
+                      ? pt.x
+                      : isFirst
+                        ? paddingLeft
+                        : isLast
+                          ? width - paddingRight
+                          : pt.x;
 
                   return (
                     <text
                       key={`x-lbl-${pt.data.date || pt.data.label}-${pt.originalIndex}`}
                       x={xPos}
-                      y={height - 8}
+                      y={height - 10}
                       textAnchor={anchor}
-                      className="growth-axis-label x-axis"
+                      className="velocity-axis-x-label"
                     >
                       {formatXLabel(pt.data.label)}
                     </text>
@@ -623,23 +777,33 @@ function UserGrowthChart() {
                 })}
             </svg>
 
-            {/* ── Rich Floating Glass Tooltip ── */}
+            {/* ── Floating Smart Tooltip ── */}
             {hoveredPoint && (
-              <div
-                className={`growth-tooltip ${isNearTop ? "top-flip" : ""}`}
-                style={tooltipStyle}
-              >
-                <div className="growth-tooltip-header">
-                  <span className="tooltip-cal-icon">📅</span>
-                  <span>{hoveredPoint.data.label}</span>
-                </div>
-                <div className="growth-tooltip-body">
-                  <span className="tooltip-dot"></span>
-                  <span className="tooltip-value">
-                    <b>{hoveredPoint.data.count}</b>{" "}
-                    {hoveredPoint.data.count === 1 ? "User Registered" : "Users Registered"}
-                  </span>
-                </div>
+              <div className="velocity-tooltip-pill" style={tooltipStyle}>
+                {growthMode === "cumulative" ? (
+                  <div className="velocity-tooltip-content">
+                    <span className="tooltip-main-val">
+                      {hoveredPoint.data.cumulativeCount} total users
+                    </span>
+                    <span className="tooltip-sub-val">
+                      on {hoveredPoint.data.label}
+                      {hoveredPoint.data.dailyCount > 0 && (
+                        <span className="tooltip-gain-tag">
+                          {" "}(+{hoveredPoint.data.dailyCount} new)
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="velocity-tooltip-content">
+                    <span className="tooltip-main-val">
+                      {hoveredPoint.data.dailyCount > 0
+                        ? `+${hoveredPoint.data.dailyCount} new user${hoveredPoint.data.dailyCount === 1 ? "" : "s"}`
+                        : "0 new users"}
+                    </span>
+                    <span className="tooltip-sub-val">on {hoveredPoint.data.label}</span>
+                  </div>
+                )}
               </div>
             )}
           </div>

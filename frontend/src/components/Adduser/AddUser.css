@@ -1,0 +1,681 @@
+/* ════════════════════════════════════════════════════════════════
+   ⚡ Dedicated "Add User" Enterprise Form Styling
+   Clean, Unified, Continuous Form Grid (No Section Titles)
+   ════════════════════════════════════════════════════════════════ */
+
+.add-user-page-wrapper {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 12px 16px 48px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Main Form Card ── */
+.auf-card {
+  position: relative;
+  background: var(--bg-card, #0f172a);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
+    0 20px 45px -15px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+[data-theme="dark"] .auf-card {
+  background: linear-gradient(180deg, #0d1525 0%, #090e1a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.09),
+    0 24px 48px -12px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="light"] .auf-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
+    0 12px 32px -8px rgba(0, 0, 0, 0.07),
+    0 2px 6px -1px rgba(0, 0, 0, 0.04);
+}
+
+/* ── Card Header ── */
+.auf-header {
+  padding: 24px 28px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.06));
+  gap: 16px;
+}
+
+.auf-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.auf-header-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.18) 0%, rgba(139, 92, 246, 0.18) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #818cf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.2);
+}
+
+.auf-header-text h3 {
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: var(--text-primary, #f8fafc);
+  margin: 0 0 3px;
+  letter-spacing: -0.015em;
+}
+
+.auf-header-text p {
+  font-size: 0.78rem;
+  color: var(--text-muted, #8192a8);
+  margin: 0;
+}
+
+.auf-header-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+/* ── Card Body ── */
+.auf-body {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ── Avatar Upload Section ── */
+.auf-avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 16px 18px;
+  background: rgba(99, 102, 241, 0.04);
+  border: 1px solid rgba(99, 102, 241, 0.14);
+  border-radius: 12px;
+}
+
+[data-theme="light"] .auf-avatar-section {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.auf-avatar-wrapper {
+  position: relative;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.auf-avatar-ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2.5px solid #6366f1;
+  background: var(--bg-input, #192237);
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.25);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.auf-avatar-wrapper:hover .auf-avatar-ring {
+  border-color: #818cf8;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+  transform: scale(1.02);
+}
+
+.auf-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.auf-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #818cf8;
+  gap: 4px;
+  user-select: none;
+}
+
+.auf-avatar-initials {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #818cf8;
+  letter-spacing: -0.02em;
+}
+
+.auf-avatar-camera-badge {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #6366f1;
+  border: 2px solid var(--bg-card, #0f172a);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.18s ease;
+}
+
+.auf-avatar-wrapper:hover .auf-avatar-camera-badge {
+  transform: scale(1.1);
+  background: #4f46e5;
+}
+
+.auf-avatar-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.auf-avatar-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auf-avatar-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary, #f8fafc);
+  margin: 0;
+}
+
+.auf-avatar-desc {
+  font-size: 0.74rem;
+  color: var(--text-muted, #8192a8);
+  margin: 0;
+}
+
+.auf-avatar-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.auf-btn-photo-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 31px;
+  padding: 0 13px;
+  background: #6366f1;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
+  transition: all 0.18s ease;
+}
+
+.auf-btn-photo-upload:hover:not(:disabled) {
+  background: #4f46e5;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
+  transform: translateY(-1px);
+}
+
+.auf-btn-photo-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 31px;
+  padding: 0 11px;
+  background: rgba(239, 68, 68, 0.08);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.auf-btn-photo-remove:hover:not(:disabled) {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.auf-avatar-meta-hint {
+  font-size: 0.68rem;
+  color: var(--text-muted, #64748b);
+  margin-left: 2px;
+}
+
+/* ── Continuous Form Fields Grid (Unified, No Sections) ── */
+.auf-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px 18px;
+}
+
+.auf-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.auf-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary, #cbd5e1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+[data-theme="light"] .auf-label {
+  color: #334155;
+}
+
+.auf-req {
+  color: #ef4444;
+  margin-left: 3px;
+}
+
+/* Input Container */
+.auf-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 38px;
+  border-radius: 8px;
+  background: var(--bg-input, #192237);
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.12));
+  transition: all 0.18s ease;
+  box-sizing: border-box;
+}
+
+[data-theme="light"] .auf-input-wrap {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.auf-input-wrap:focus-within {
+  border-color: #6366f1;
+  background: var(--bg-card, #111726);
+  box-shadow: 0 0 0 2.5px rgba(99, 102, 241, 0.22);
+}
+
+[data-theme="light"] .auf-input-wrap:focus-within {
+  background: #ffffff;
+}
+
+.auf-input-wrap.has-error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+.auf-input-icon {
+  color: #64748b;
+  padding-left: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: none;
+  transition: color 0.18s ease;
+}
+
+.auf-input-wrap:focus-within .auf-input-icon {
+  color: #818cf8;
+}
+
+.auf-input {
+  flex: 1;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text-primary, #f8fafc);
+  font-family: inherit;
+  font-size: 0.82rem;
+  padding: 0 12px 0 9px;
+  outline: none;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+[data-theme="light"] .auf-input {
+  color: #0f172a;
+}
+
+.auf-input::placeholder {
+  color: var(--text-muted, #8192a8);
+  opacity: 0.75;
+}
+
+/* Password Toggle Eye Button */
+.auf-pwd-toggle {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  padding: 0 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  height: 100%;
+  transition: color 0.18s ease;
+  outline: none;
+}
+
+.auf-pwd-toggle:hover {
+  color: var(--text-primary, #f8fafc);
+}
+
+[data-theme="light"] .auf-pwd-toggle:hover {
+  color: #0f172a;
+}
+
+/* Readonly Field */
+.auf-input-wrap.readonly {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+  cursor: not-allowed;
+}
+
+[data-theme="light"] .auf-input-wrap.readonly {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+.auf-input.readonly-input {
+  cursor: not-allowed;
+  color: var(--text-muted, #8192a8);
+}
+
+.auf-trail-icon {
+  color: #64748b;
+  padding-right: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Error Text */
+.auf-error {
+  font-size: 0.69rem;
+  color: #ef4444;
+  font-weight: 500;
+  display: block;
+  margin-top: 2px;
+}
+
+/* Helper Text */
+.auf-hint {
+  font-size: 0.68rem;
+  color: var(--text-muted, #64748b);
+  margin-top: 2px;
+  display: block;
+}
+
+/* ── AppDatePicker Wrapper Overrides ── */
+.auf-picker-wrap {
+  width: 100%;
+}
+
+.auf-picker-wrap .app-datepicker-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.auf-picker-wrap .app-datepicker-wrapper .react-datepicker-wrapper {
+  width: 100%;
+  display: block;
+}
+
+.auf-picker-wrap .dp-input {
+  height: 38px !important;
+  min-height: 38px !important;
+  border-radius: 8px !important;
+  background: var(--bg-input, #192237) !important;
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.12)) !important;
+  color: var(--text-primary, #f8fafc) !important;
+  font-size: 0.82rem !important;
+  padding: 0 30px 0 11px !important;
+  box-sizing: border-box !important;
+  transition: all 0.18s ease !important;
+}
+
+[data-theme="light"] .auf-picker-wrap .dp-input {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.auf-picker-wrap .dp-input:focus {
+  border-color: #6366f1 !important;
+  background: var(--bg-card, #111726) !important;
+  box-shadow: 0 0 0 2.5px rgba(99, 102, 241, 0.22) !important;
+}
+
+/* ── CustomSelect Wrapper Overrides ── */
+.auf-select-wrap {
+  width: 100%;
+}
+
+.auf-select-wrap .custom-form-select-btn {
+  height: 38px !important;
+  min-height: 38px !important;
+  border-radius: 8px !important;
+  background: var(--bg-input, #192237) !important;
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.12)) !important;
+  color: var(--text-primary, #f8fafc) !important;
+  font-size: 0.82rem !important;
+  padding: 0 12px !important;
+  transition: all 0.18s ease !important;
+}
+
+[data-theme="light"] .auf-select-wrap .custom-form-select-btn {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.auf-select-wrap .custom-form-select-wrapper.open .custom-form-select-btn {
+  border-color: #6366f1 !important;
+  background: var(--bg-card, #111726) !important;
+  box-shadow: 0 0 0 2.5px rgba(99, 102, 241, 0.22) !important;
+}
+
+/* ── Card Footer Actions ── */
+.auf-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
+  background: rgba(0, 0, 0, 0.15);
+  border-top: 1px solid var(--border, rgba(255, 255, 255, 0.06));
+  box-sizing: border-box;
+}
+
+[data-theme="light"] .auf-footer {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.auf-footer-notice {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.73rem;
+  color: var(--text-muted, #8192a8);
+}
+
+.auf-footer-notice svg {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+.auf-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auf-btn-cancel {
+  height: 36px;
+  padding: 0 18px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.14));
+  color: var(--text-secondary, #cbd5e1);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+[data-theme="light"] .auf-btn-cancel {
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.auf-btn-cancel:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: var(--text-primary, #f8fafc);
+}
+
+[data-theme="light"] .auf-btn-cancel:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.auf-btn-submit {
+  height: 36px;
+  padding: 0 22px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  border: none;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.18s ease;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.auf-btn-submit:hover:not(:disabled) {
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45);
+  transform: translateY(-1px);
+}
+
+.auf-btn-submit:disabled,
+.auf-btn-cancel:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Responsive Queries ── */
+@media (max-width: 640px) {
+  .add-user-page-wrapper {
+    padding: 8px 10px 32px;
+  }
+
+  .auf-header {
+    padding: 16px 18px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .auf-body {
+    padding: 18px 16px;
+    gap: 18px;
+  }
+
+  .auf-avatar-section {
+    flex-direction: column;
+    text-align: center;
+    padding: 16px 12px;
+    gap: 14px;
+  }
+
+  .auf-avatar-label-row {
+    justify-content: center;
+  }
+
+  .auf-avatar-actions-row {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .auf-fields-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .auf-footer {
+    padding: 14px 16px;
+    flex-direction: column-reverse;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .auf-footer-notice {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .auf-footer-actions {
+    width: 100%;
+  }
+
+  .auf-btn-cancel,
+  .auf-btn-submit {
+    flex: 1;
+    height: 40px;
+  }
+}

@@ -187,7 +187,7 @@
 }
 
 /* Custom Colored Icon Containers */
-.userview-item svg {
+.userview-item > svg:first-child {
   flex-shrink: 0;
   width: 28px;
   height: 28px;
@@ -198,32 +198,32 @@
 }
 
 /* Color variations for specific icon types */
-.userview-item:nth-child(1) svg {
+.userview-item:nth-child(1) > svg:first-child {
   background: rgba(37, 99, 235, 0.12);
   color: #2563eb;
 }
 
-.userview-item:nth-child(2) svg {
+.userview-item:nth-child(2) > svg:first-child {
   background: rgba(124, 58, 237, 0.12);
   color: #7c3aed;
 }
 
-.userview-item:nth-child(3) svg {
+.userview-item:nth-child(3) > svg:first-child {
   background: rgba(236, 72, 153, 0.12);
   color: #ec4899;
 }
 
-.userview-item:nth-child(4) svg {
+.userview-item:nth-child(4) > svg:first-child {
   background: rgba(16, 185, 129, 0.12);
   color: #10b981;
 }
 
-.userview-item:nth-child(5) svg {
+.userview-item:nth-child(5) > svg:first-child {
   background: rgba(245, 158, 11, 0.12);
   color: #f59e0b;
 }
 
-.userview-item:nth-child(6) svg {
+.userview-item:nth-child(6) > svg:first-child {
   background: rgba(14, 165, 233, 0.12);
   color: #0ea5e9;
 }
@@ -233,6 +233,69 @@
   flex-direction: column;
   min-width: 0;
   flex: 1;
+}
+
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.76rem !important;
+  letter-spacing: -0.01em;
+}
+
+/* Sleek Seamless Copy Icon Button - Transparent with Crisp White Icon Lines */
+button.userview-copy-icon-btn,
+.userview-copy-icon-btn {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  min-height: 26px !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  margin-left: auto !important;
+  outline: none !important;
+  box-shadow: none !important;
+  opacity: 0.85;
+  transition: all 0.16s ease !important;
+}
+
+button.userview-copy-icon-btn:hover,
+.userview-copy-icon-btn:hover {
+  opacity: 1 !important;
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-radius: 5px !important;
+  transform: scale(1.1);
+}
+
+button.userview-copy-icon-btn.copied,
+.userview-copy-icon-btn.copied {
+  opacity: 1 !important;
+  color: #10b981 !important;
+  background: transparent !important;
+  border: none !important;
+  transform: scale(1.1);
+}
+
+.userview-copy-icon-btn svg {
+  width: 15px !important;
+  height: 15px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  color: inherit !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  stroke: currentColor !important;
 }
 
 .userview-item span {
@@ -457,6 +520,38 @@
   color: var(--text-muted);
   font-weight: 500;
   font-size: 0.76rem;
+}
+
+.userview-pending-email-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.64rem;
+  font-weight: 500;
+  background: rgba(245, 158, 11, 0.1);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.22);
+  margin-top: 3px;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.userview-pending-email-badge span {
+  font-size: 0.64rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  margin-bottom: 0 !important;
+  color: #fbbf24 !important;
+  word-break: break-all;
+}
+
+.userview-pending-email-badge strong {
+  color: #fef3c7 !important;
+  font-weight: 600 !important;
+  font-size: 0.64rem !important;
 }
 
 /* Skeletons */

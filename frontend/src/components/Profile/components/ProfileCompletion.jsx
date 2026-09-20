@@ -27,7 +27,7 @@ function ProfileCompletion({ loading, percentage, onHideCompletion }) {
             <div>
               <h3 className="completion-title">Profile Completion</h3>
               <p className="completion-subtitle">
-                Keep your profile up to date.
+                Complete your profile to personalize your experience.
               </p>
             </div>
 
@@ -56,8 +56,8 @@ function ProfileCompletion({ loading, percentage, onHideCompletion }) {
 
           <p className="completion-text">
             {percentage === 100
-              ? "🎉 Your profile is complete."
-              : "Complete your profile to unlock the best experience."}
+              ? "🎉 Great job! Your profile is 100% complete."
+              : "Add missing details to reach 100% profile completeness."}
           </p>
         </>
       )}

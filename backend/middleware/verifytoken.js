@@ -29,11 +29,41 @@ const verifyToken = async (req, res, next) => {
 
       if (!session) {
         return res.status(401).json({
-          message: "Session expired or revoked. Please login again.",
+          message:
+            "Session expired or revoked by administrator. Please login again.",
         });
       }
     }
 
+    // Security check: Unverified users cannot use protected endpoints
+    // Security check: Unverified, Suspended, or Banned users cannot use protected endpoints
+    const User = require("../models/user");
+    const userDoc = await User.findById(decoded.id || decoded._id).select(
+      "isVerified status",
+    );
+    if (userDoc) {
+      if (userDoc.status === "suspended") {
+        await Session.deleteMany({ userId: userDoc._id }).catch(() => {});
+        return res.status(403).json({
+          message:
+            "Your account has been suspended by administration. Contact support.",
+        });
+      }
+      if (userDoc.status === "banned") {
+        await Session.deleteMany({ userId: userDoc._id }).catch(() => {});
+        return res.status(403).json({
+          message:
+            "Your account has been permanently banned by administration.",
+        });
+      }
+      if (userDoc.isVerified === false) {
+        await Session.deleteMany({ userId: userDoc._id }).catch(() => {});
+        return res.status(401).json({
+          message:
+            "Your account is unverified. Access is revoked until email verification.",
+        });
+      }
+    }
     req.user = decoded;
     next();
   } catch (error) {

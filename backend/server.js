@@ -32,13 +32,20 @@ app.use(notificationRoutes);
 const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: 5000,
+    });
     console.log("✅ MongoDB Connected");
     app.listen(PORT, () => {
       console.log(`🚀 Server Running on Port ${PORT}`);
     });
   } catch (error) {
     console.error("❌ Database Connection Failed:", error.message);
+    if (error.message && (error.message.includes("ECONNREFUSED") || error.message.includes("connect"))) {
+      console.error("\n💡 Hint: MongoDB is not currently running!");
+      console.error("👉 Start MongoDB with: net start MongoDB (in Administrator terminal)");
+      console.error("👉 Or via Windows Services: press Win+R -> services.msc -> find 'MongoDB Server' -> click Start.\n");
+    }
     process.exit(1);
   }
 };

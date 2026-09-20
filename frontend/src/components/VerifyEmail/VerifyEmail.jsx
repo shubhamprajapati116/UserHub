@@ -1,8 +1,10 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useStore } from "../../stores/StoreContext";
 import { observer } from "mobx-react-lite";
+import { toast } from "react-toastify";
 import "../ForgotPassword/forgotpassword.css";
 
 function VerifyEmail() {
@@ -15,6 +17,36 @@ function VerifyEmail() {
   const [status, setStatus] = useState("verifying");
   const [message, setMessage] = useState("");
   const [redirectTimer, setRedirectTimer] = useState(3);
+  const [isSending, setIsSending] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timerId = setInterval(() => {
+      setCooldown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timerId);
+  }, [cooldown]);
+
+  const handleResend = async () => {
+    if (cooldown > 0 || isSending) return;
+
+    if (!token || !token.trim()) {
+      toast.error("No verification token found. Please sign in or contact your administrator.");
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      const res = await userStore.resendVerificationEmail({ token: token.trim() });
+      setCooldown(60);
+      toast.success(res?.message || "Fresh verification link sent to your email!");
+    } catch (err) {
+      toast.error(err?.message || "Failed to send verification link");
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   // 1️⃣ Verify Token on mount
   useEffect(() => {
@@ -90,7 +122,7 @@ function VerifyEmail() {
                 }}
               />
             </div>
-            <h3 className="auth-state-title">Verifying your email...</h3>
+            <h3 className="auth-state-title">Verifying Your Email...</h3>
             <p className="auth-state-desc" style={{ marginBottom: 0 }}>
               Please wait a moment while we validate your verification link.
             </p>
@@ -115,7 +147,7 @@ function VerifyEmail() {
               </svg>
             </div>
 
-            <h2 className="auth-state-title">Email verified!</h2>
+            <h2 className="auth-state-title">Email Verified!</h2>
             <p className="auth-state-desc">
               {message ||
                 "Your email address has been successfully verified. You can now sign in."}
@@ -126,15 +158,15 @@ function VerifyEmail() {
               className="btn btn-primary btn-full"
               onClick={() => navigate("/login")}
             >
-              Proceed to Login
+              Proceed to Sign In
             </button>
 
             <p className="redirect-countdown">
-              Redirecting to login in <strong>{redirectTimer}s</strong>...
+              Redirecting to sign in in <strong>{redirectTimer}s</strong>...
             </p>
 
             <div className="auth-footer" style={{ marginTop: "14px" }}>
-              <Link to="/login">← Back to sign in</Link>
+              <Link to="/login">← Back to Sign In</Link>
             </div>
           </div>
         )}
@@ -159,7 +191,7 @@ function VerifyEmail() {
               </svg>
             </div>
 
-            <h2 className="auth-state-title">Verification failed</h2>
+            <h2 className="auth-state-title">Verification Failed</h2>
             <p className="auth-state-desc">
               {message ||
                 "This email verification link is invalid, expired, or has already been used."}
@@ -177,25 +209,48 @@ function VerifyEmail() {
                 strokeLinejoin="round"
               >
                 <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12" y2="12" />
                 <line x1="12" y1="8" x2="12.01" y2="8" />
               </svg>
               <span>
-                If you already verified or need a new account, please sign in
-                or register again.
+                Click below to receive a fresh 72-hour verification link sent directly to your registered email address.
               </span>
+            </div>
+
+            <div style={{ width: "100%", margin: "16px 0 12px 0" }}>
+              <button
+                type="button"
+                className="btn btn-primary btn-full"
+                onClick={handleResend}
+                disabled={isSending || cooldown > 0}
+                style={{
+                  background: cooldown > 0 ? "rgba(99, 102, 241, 0.5)" : undefined,
+                  cursor: cooldown > 0 ? "not-allowed" : "pointer",
+                }}
+              >
+                {isSending
+                  ? "Sending Fresh Link..."
+                  : cooldown > 0
+                  ? `Resend available in ${cooldown}s`
+                  : "Resend Verification Link"}
+              </button>
             </div>
 
             <button
               type="button"
-              className="btn btn-primary btn-full"
+              className="btn btn-secondary btn-full"
               onClick={() => navigate("/login")}
+              style={{
+                background: "transparent",
+                border: "1px solid var(--border)",
+                color: "var(--text-secondary)",
+              }}
             >
               Go to Sign In
             </button>
 
             <div className="auth-footer" style={{ marginTop: "14px" }}>
-              Don&apos;t have an account? <Link to="/register">Sign up</Link>
+              Don&apos;t have an account? <Link to="/register">Sign Up</Link>
             </div>
           </div>
         )}

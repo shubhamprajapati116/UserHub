@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import AdminPanel from "./components/AdminPanel/AdminPanel";
+import AdminDashboard from "./components/AdminDashboard/AdminDashboard";
 import Loginform from "./components/LoginForm/loginform";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -50,7 +51,7 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/admin/users" replace />} />
+          <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/verify-email/:token" element={<VerifyEmail />} />
           
           {/* Settings & Profile Routes */}
@@ -99,7 +100,19 @@ function App() {
             }
           />
 
-          {/* Admin User Management Routes */}
+          {/* Admin Dashboard & Management Routes */}
+          <Route
+            path="/admin"
+            element={<Navigate to="/admin/dashboard" replace />}
+          />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
           <Route
             path="/admin/users"
             element={

@@ -43,7 +43,6 @@ function Regiform() {
       Object.entries(formData).forEach(([key, value]) => {
         formDataObj.append(key, value);
       });
-        console.log("Submitting registration form with data:", formData);
       const data = await userStore.register(formDataObj);
 
       toast.success(data.message);
@@ -51,7 +50,7 @@ function Regiform() {
       setErrors({});
       setTimeout(() => {
         navigate("/login");
-      }, 1200);
+      }, 600);
     } catch (error) {
       if (error?.field) {
         setErrors({
@@ -62,8 +61,8 @@ function Regiform() {
       }
     }
   };
-  const pageTitle = "Create account";
-  const pageSubtitle = "Fill in your details to get started";
+  const pageTitle = "Create an Account";
+  const pageSubtitle = "Enter your details to register and get started";
 
   return (
     <div className="auth-split register-split">
@@ -92,7 +91,7 @@ function Regiform() {
             handleSubmit={handleSubmit}
             loading={loading}
             buttontext="Create Account"
-            loadingtext="Creating..."
+            loadingtext="Creating Account..."
             showLoginLink={true}
           />
         </div>
