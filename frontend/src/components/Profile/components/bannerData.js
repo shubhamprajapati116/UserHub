@@ -8,8 +8,11 @@ import banner7 from "../../../assets/banners/banner_7_dark_code_matrix.jpg";
 import banner8 from "../../../assets/banners/banner_8_carbon_circuit.jpg";
 import banner9 from "../../../assets/banners/banner_9_midnight_city_bokeh.jpg";
 import banner10 from "../../../assets/banners/banner_10_minimal_architecture.jpg";
+import banner11 from "../../../assets/banners/banner_11_executive_saas.jpg";
+import banner12 from "../../../assets/banners/banner_12_minimal_desk_flatlay.jpg";
+import banner13 from "../../../assets/banners/banner_13_swiss_matrix_grid.jpg";
 
-export const DEFAULT_BANNER_ID = "banner_5";
+export const DEFAULT_BANNER_ID = "banner_11";
 
 export const BANNERS = [
   {
@@ -72,6 +75,24 @@ export const BANNERS = [
     category: "Monochrome Concrete",
     image: banner10,
   },
+  {
+    id: "banner_11",
+    name: "Executive SaaS Wave",
+    category: "Linear & Stripe 3D",
+    image: banner11,
+  },
+  {
+    id: "banner_12",
+    name: "Developer Desk Flatlay",
+    category: "Minimalist Workspace",
+    image: banner12,
+  },
+  {
+    id: "banner_13",
+    name: "Swiss Dot-Matrix Grid",
+    category: "Vercel Engineering",
+    image: banner13,
+  },
 ];
 
 export const getBannerById = (id) => {
@@ -80,18 +101,19 @@ export const getBannerById = (id) => {
   return found || BANNERS.find((b) => b.id === DEFAULT_BANNER_ID) || BANNERS[0];
 };
 
-// In-memory cache of decoded/loaded banner URLs
 export const loadedImageUrls = new Set();
 
-// Preload banners into browser memory to eliminate loading delay on page visits
-if (typeof window !== "undefined") {
+export const preloadAllBanners = () => {
+  if (typeof window === "undefined") return;
   BANNERS.forEach((b) => {
-    const img = new Image();
-    img.src = b.image;
-    if (img.complete) {
-      loadedImageUrls.add(b.image);
-    } else {
-      img.onload = () => loadedImageUrls.add(b.image);
+    if (!loadedImageUrls.has(b.image)) {
+      const img = new Image();
+      img.src = b.image;
+      if (img.complete) {
+        loadedImageUrls.add(b.image);
+      } else {
+        img.onload = () => loadedImageUrls.add(b.image);
+      }
     }
   });
-}
+};

@@ -7,7 +7,10 @@ function ProfileInfoGrid({ loading, profileInfo, onAddField }) {
         {loading
           ? Array.from({ length: 10 }).map((_, index) => (
               <div className="meta-item" key={index}>
-                <div className="skeleton skeleton-meta-label"></div>
+                <div className="meta-item-header">
+                  <div className="skeleton skeleton-meta-icon"></div>
+                  <div className="skeleton skeleton-meta-label"></div>
+                </div>
                 <div className="skeleton skeleton-meta-value"></div>
               </div>
             ))

@@ -3,8 +3,6 @@ import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/StoreContext";
 import "./UserGrowthChart.css";
 
-// ── Monotone Cubic Spline (Fritsch-Carlson) ──
-// Prevents overshooting, negative dips below baseline, and sharp needle loops
 function getMonotoneSplinePath(points, baseY) {
   if (!points || points.length === 0) return "";
   if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
@@ -25,7 +23,7 @@ function getMonotoneSplinePath(points, baseY) {
   const tangents = [m[0]];
   for (let i = 1; i < n - 1; i++) {
     if (m[i - 1] * m[i] <= 0) {
-      tangents.push(0); // Flat tangent at local extrema
+      tangents.push(0);
     } else {
       const p = (dx[i - 1] * m[i] + dx[i] * m[i - 1]) / (dx[i - 1] + dx[i]);
       tangents.push(p);
@@ -45,7 +43,6 @@ function getMonotoneSplinePath(points, baseY) {
     const cp2x = p2.x - dX / 3;
     let cp2y = p2.y - (tangents[i + 1] * dX) / 3;
 
-    // Strict clamp: never dip below baseline (higher Y coordinate in SVG)
     if (p1.data.displayCount === 0 && p2.data.displayCount === 0) {
       cp1y = baseY;
       cp2y = baseY;
@@ -59,7 +56,6 @@ function getMonotoneSplinePath(points, baseY) {
   return path;
 }
 
-// Helper to determine clean rounded Y-axis max
 const getNiceMax = (val) => {
   if (val <= 0) return 4;
   if (val <= 4) return 4;
@@ -73,12 +69,11 @@ const getNiceMax = (val) => {
   return Math.ceil(val / 100) * 100;
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 function UserGrowthChart() {
   const { userStore } = useStore();
   const [timeframe, setTimeframe] = useState("7d");
-  const [growthMode, setGrowthMode] = useState("daily"); // "daily" | "cumulative"
-  const [chartType, setChartType] = useState("line"); // "line" | "bar"
+  const [growthMode, setGrowthMode] = useState("daily");
+  const [chartType, setChartType] = useState("line");
   const [hoveredPoint, setHoveredPoint] = useState(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
@@ -86,13 +81,18 @@ function UserGrowthChart() {
   const svgRef = useRef(null);
 
   const analytics = userStore.userGrowthAnalytics;
-  const loading = userStore.loading.fetchAnalytics;
+  const isFetching = Boolean(userStore.loading.fetchGrowthAnalytics);
 
-  // Synchronous detection: true if API is fetching OR user selected a new timeframe whose data hasn't arrived yet.
-  const isStale = analytics && analytics.timeframe !== timeframe;
-  const isUpdating = loading || isStale;
+  const hasMatchingData = Boolean(
+    analytics && analytics.timeframe === timeframe,
+  );
 
-  // Measure actual container width so 1 SVG unit = 1 physical screen pixel
+  const isError = Boolean(userStore.error && !hasMatchingData && !isFetching);
+
+  const isInitialLoading = !hasMatchingData && !isError;
+
+  const isUpdating = isFetching && hasMatchingData;
+
   useEffect(() => {
     const el = chartBodyRef.current;
     if (!el) return;
@@ -114,7 +114,6 @@ function UserGrowthChart() {
     userStore.fetchUserGrowthAnalytics(timeframe);
   }, [timeframe, userStore]);
 
-  // ── Timeframe Options (Week, Month, 6 Months, 1 Year) ──
   const timeframeOptions = [
     { label: "Week", shortLabel: "7D", value: "7d" },
     { label: "Month", shortLabel: "30D", value: "30d" },
@@ -122,20 +121,21 @@ function UserGrowthChart() {
     { label: "1 Year", shortLabel: "1Y", value: "1y" },
   ];
 
-  const rawData = analytics?.timeline || [];
-  const totalUsers = analytics?.totalUsers || 0;
+  const rawData = useMemo(
+    () => (hasMatchingData ? analytics?.timeline || [] : []),
+    [hasMatchingData, analytics?.timeline],
+  );
+  const totalUsers = hasMatchingData ? analytics?.totalUsers || 0 : 0;
   const totalInWindow =
-    analytics?.totalInWindow !== undefined
+    hasMatchingData && analytics?.totalInWindow !== undefined
       ? analytics.totalInWindow
       : rawData.reduce((acc, curr) => acc + (curr.count || 0), 0);
 
-  // Baseline for cumulative calculation (users registered before this timeframe window)
   const baseline =
     analytics?.previousUsersCount !== undefined
       ? analytics.previousUsersCount
       : Math.max(0, totalUsers - totalInWindow);
 
-  // ── Data Transformation: Calculate Daily and Cumulative Series ──
   const processedData = useMemo(() => {
     if (!rawData || rawData.length === 0) return [];
 
@@ -157,12 +157,20 @@ function UserGrowthChart() {
     });
   }, [rawData, baseline, growthMode]);
 
-  // ── KPI Summary Calculations ──
   const kpiStats = useMemo(() => {
     if (!processedData || processedData.length === 0) {
-      return { totalPeriod: 0, peakDaily: 0, peakDate: "", avgDaily: "0.0", totalCumulative: 0 };
+      return {
+        totalPeriod: 0,
+        peakDaily: 0,
+        peakDate: "",
+        avgDaily: "0.0",
+        totalCumulative: 0,
+      };
     }
-    const totalPeriod = processedData.reduce((acc, curr) => acc + curr.dailyCount, 0);
+    const totalPeriod = processedData.reduce(
+      (acc, curr) => acc + curr.dailyCount,
+      0,
+    );
     let peakDaily = 0;
     let peakDate = "";
     processedData.forEach((d) => {
@@ -183,7 +191,6 @@ function UserGrowthChart() {
     return { totalPeriod, peakDaily, peakDate, avgDaily, totalCumulative };
   }, [processedData, totalUsers]);
 
-  // ── Responsive Dimensions ──
   const width = containerWidth || 800;
   const isMobile = width < 520;
   const isTablet = width >= 520 && width < 768;
@@ -198,11 +205,12 @@ function UserGrowthChart() {
   const chartHeight = Math.max(10, height - paddingTop - paddingBottom);
   const baseY = paddingTop + chartHeight;
 
-  // ── Dynamic Y-axis based on active display counts ──
-  const maxDisplayVal = Math.max(...processedData.map((d) => d.displayCount), 0);
+  const maxDisplayVal = Math.max(
+    ...processedData.map((d) => d.displayCount),
+    0,
+  );
   const yMax = getNiceMax(maxDisplayVal);
 
-  // 5 clean, evenly-spaced integer gridlines from 0 → yMax
   const yLevels = [];
   const stepsCount = 4;
   const stepVal = yMax / stepsCount;
@@ -221,13 +229,11 @@ function UserGrowthChart() {
     [baseY, chartHeight, yMax],
   );
 
-  // ── Coordinates Mapping (Adapted for Line Spline vs Bar Columns) ──
   const nPoints = processedData.length;
   const slotWidth = nPoints > 0 ? chartWidth / nPoints : chartWidth;
   const barWidth = Math.max(4, Math.min(Math.floor(slotWidth * 0.54), 32));
 
   const points = processedData.map((d, index) => {
-    // For line chart: points stretch across width; for bar chart: points are centered in each column slot
     const lineX =
       nPoints > 1
         ? paddingLeft + (index / (nPoints - 1)) * chartWidth
@@ -253,7 +259,6 @@ function UserGrowthChart() {
 
   const latestPoint = points.length > 0 ? points[points.length - 1] : null;
 
-  // Compute Spline Paths
   const linePoints = points.map((p) => ({ ...p, x: p.lineX }));
   const linePath = getMonotoneSplinePath(linePoints, baseY);
   const areaPath =
@@ -261,7 +266,6 @@ function UserGrowthChart() {
       ? `${linePath} L ${linePoints[linePoints.length - 1].x} ${baseY} L ${linePoints[0].x} ${baseY} Z`
       : "";
 
-  // ── X-Axis Ticks Generation (Zero Overlap Guarantee) ──
   let numTicks;
   if (timeframe === "7d") {
     numTicks = points.length;
@@ -292,7 +296,6 @@ function UserGrowthChart() {
     return rawLabel;
   };
 
-  // ── Mobile Touch Support ──
   const handleTouchMove = (e) => {
     if (!svgRef.current || points.length === 0) return;
     const rect = svgRef.current.getBoundingClientRect();
@@ -312,7 +315,6 @@ function UserGrowthChart() {
     setHoveredPoint(closest);
   };
 
-  // ── Smart Tooltip Placement ──
   let tooltipStyle = {};
   if (hoveredPoint) {
     const isNearTop = hoveredPoint.y < height * 0.38;
@@ -332,30 +334,47 @@ function UserGrowthChart() {
 
   return (
     <div className="growth-velocity-card">
-      {/* ── Top Header Toolbar ── */}
       <div className="velocity-card-header">
         <div className="velocity-header-title-area">
           <div className="velocity-title-row">
             <h3 className="velocity-card-title">User Registration Growth</h3>
-            {/* Quick Contextual KPI Badge */}
-            <span className="velocity-kpi-badge">
-              {growthMode === "cumulative" ? (
+            <span
+              className={`velocity-kpi-badge ${isInitialLoading ? "loading" : ""}`}
+            >
+              {isInitialLoading ? (
+                <span className="velocity-kpi-skeleton-wrap">
+                  <span className="velocity-spinner-xs" />
+                  <span className="velocity-kpi-skeleton-text">
+                    Loading trends...
+                  </span>
+                </span>
+              ) : growthMode === "cumulative" ? (
                 <>
                   <span className="velocity-kpi-label">Total Users:</span>
-                  <strong className="velocity-kpi-val">{kpiStats.totalCumulative}</strong>
+                  <strong className="velocity-kpi-val">
+                    {kpiStats.totalCumulative}
+                  </strong>
                   {kpiStats.totalPeriod > 0 && (
                     <span className="velocity-kpi-growth">
-                      (+{kpiStats.totalPeriod} in {timeframeOptions.find((t) => t.value === timeframe)?.label})
+                      (+{kpiStats.totalPeriod} in{" "}
+                      {
+                        timeframeOptions.find((t) => t.value === timeframe)
+                          ?.label
+                      }
+                      )
                     </span>
                   )}
                 </>
               ) : (
                 <>
                   <span className="velocity-kpi-label">Signups:</span>
-                  <strong className="velocity-kpi-val">+{kpiStats.totalPeriod}</strong>
+                  <strong className="velocity-kpi-val">
+                    +{kpiStats.totalPeriod}
+                  </strong>
                   {kpiStats.peakDaily > 0 && (
                     <span className="velocity-kpi-sub">
-                      (Peak: {kpiStats.peakDaily}/day)
+                      (Peak: {kpiStats.peakDaily}/
+                      {timeframe === "6m" || timeframe === "1y" ? "mo" : "day"})
                     </span>
                   )}
                 </>
@@ -364,9 +383,7 @@ function UserGrowthChart() {
           </div>
         </div>
 
-        {/* ── Controls Toolbar (Mode Switcher, Type Switcher, Timeframes) ── */}
         <div className="velocity-controls-bar">
-          {/* 1. Growth Mode: Daily vs Cumulative Toggle */}
           <div
             className="velocity-segmented-group"
             role="group"
@@ -390,7 +407,6 @@ function UserGrowthChart() {
             </button>
           </div>
 
-          {/* 2. Chart Type Switcher: Spline Line vs Bar Chart */}
           <div
             className="velocity-segmented-group type-switcher"
             role="group"
@@ -440,8 +456,10 @@ function UserGrowthChart() {
             </button>
           </div>
 
-          {/* 3. Timeframe Options (7d, 30d, 6m, 1y) */}
-          <div className="velocity-segmented-group timeframe-group" role="tablist">
+          <div
+            className="velocity-segmented-group timeframe-group"
+            role="tablist"
+          >
             {timeframeOptions.map((opt) => (
               <button
                 key={opt.value}
@@ -459,16 +477,113 @@ function UserGrowthChart() {
         </div>
       </div>
 
-      {/* ── Chart Canvas Body ── */}
       <div className="velocity-chart-body" ref={chartBodyRef}>
-        {loading && !analytics ? (
-          <div className="velocity-loading-state">
-            <div className="velocity-spinner"></div>
-            <span>Loading registration trends...</span>
+        {isInitialLoading ? (
+          <div
+            className="velocity-chart-skeleton"
+            style={{ height: `${height}px` }}
+            aria-busy="true"
+            aria-label="Loading registration trends"
+          >
+            <div className="velocity-skeleton-grid">
+              {[0, 1, 2, 3].map((lvl) => (
+                <div
+                  key={lvl}
+                  className="velocity-skeleton-gridline"
+                  style={{ top: `${lvl * 25}%` }}
+                >
+                  <span className="velocity-skeleton-y-pill" />
+                </div>
+              ))}
+            </div>
+
+            <div className="velocity-skeleton-wave-wrap">
+              <svg
+                width="100%"
+                height={height}
+                viewBox={`0 0 ${width} ${height}`}
+                className="velocity-skeleton-svg"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d={`M ${paddingLeft} ${height * 0.78} C ${width * 0.26} ${height * 0.65}, ${width * 0.45} ${height * 0.35}, ${width * 0.65} ${height * 0.55} C ${width * 0.8} ${height * 0.7}, ${width * 0.9} ${height * 0.25}, ${width - paddingRight} ${height * 0.3}`}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 4"
+                  className="velocity-skeleton-wave-path"
+                />
+              </svg>
+            </div>
+
+            <div className="velocity-skeleton-loader-badge">
+              <div className="velocity-spinner-ring" />
+              <div className="velocity-skeleton-text-group">
+                <span className="velocity-loader-title">
+                  Loading Registration Analytics
+                </span>
+                <span className="velocity-loader-sub">
+                  Fetching{" "}
+                  {timeframeOptions.find((t) => t.value === timeframe)?.label}{" "}
+                  trends...
+                </span>
+              </div>
+            </div>
+
+            <div
+              className="velocity-skeleton-x-ticks"
+              style={{ paddingLeft, paddingRight }}
+            >
+              {Array.from({ length: isMobile ? 4 : isTablet ? 6 : 8 }).map(
+                (_, i) => (
+                  <span key={i} className="velocity-skeleton-x-pill" />
+                ),
+              )}
+            </div>
+          </div>
+        ) : isError ? (
+          <div
+            className="velocity-error-state"
+            style={{ minHeight: `${height}px` }}
+          >
+            <div className="velocity-error-icon">!</div>
+            <p className="velocity-error-msg">
+              Failed to load registration trends.
+            </p>
+            <button
+              type="button"
+              className="velocity-retry-btn"
+              onClick={() => userStore.fetchUserGrowthAnalytics(timeframe)}
+            >
+              Retry
+            </button>
           </div>
         ) : points.length === 0 ? (
-          <div className="velocity-empty-state">
-            <p>No registration activity found for this period.</p>
+          <div
+            className="velocity-empty-state"
+            style={{ minHeight: `${height}px` }}
+          >
+            <div className="velocity-empty-icon-wrap">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M3 17l6-6 4 4 8-8" />
+                <path d="M14 7h7v7" />
+              </svg>
+            </div>
+            <p className="velocity-empty-title">
+              No registration activity in this timeframe
+            </p>
+            <span className="velocity-empty-sub">
+              Try selecting a broader timeframe like 30D or 1 Year
+            </span>
           </div>
         ) : (
           <div
@@ -476,8 +591,15 @@ function UserGrowthChart() {
             style={{ height: `${height}px` }}
           >
             {isUpdating && (
-              <div className="velocity-updating-overlay">
-                <div className="velocity-spinner-sm"></div>
+              <div className="velocity-updating-backdrop">
+                <div className="velocity-updating-pill">
+                  <div className="velocity-spinner-sm" />
+                  <span>
+                    Updating{" "}
+                    {timeframeOptions.find((t) => t.value === timeframe)?.label}
+                    ...
+                  </span>
+                </div>
               </div>
             )}
 
@@ -493,7 +615,6 @@ function UserGrowthChart() {
               onTouchEnd={() => {}}
             >
               <defs>
-                {/* Luminous Area Gradient */}
                 <linearGradient
                   id="velocityAreaGradient"
                   x1="0"
@@ -506,7 +627,6 @@ function UserGrowthChart() {
                   <stop offset="95%" stopColor="#1e293b" stopOpacity="0.0" />
                 </linearGradient>
 
-                {/* Spline Line Gradient */}
                 <linearGradient
                   id="velocityLineGradient"
                   x1="0"
@@ -519,7 +639,6 @@ function UserGrowthChart() {
                   <stop offset="100%" stopColor="#9cb3fd" />
                 </linearGradient>
 
-                {/* Bar Chart Default Gradient */}
                 <linearGradient
                   id="velocityBarGradient"
                   x1="0"
@@ -531,7 +650,6 @@ function UserGrowthChart() {
                   <stop offset="100%" stopColor="#4f6bf7" stopOpacity="0.85" />
                 </linearGradient>
 
-                {/* Bar Chart Hover Gradient */}
                 <linearGradient
                   id="velocityBarGradientHover"
                   x1="0"
@@ -543,7 +661,6 @@ function UserGrowthChart() {
                   <stop offset="100%" stopColor="#6380f7" />
                 </linearGradient>
 
-                {/* Soft Curve Drop Shadow Glow */}
                 <filter
                   id="velocityGlowFilter"
                   x="-10%"
@@ -561,7 +678,6 @@ function UserGrowthChart() {
                 </filter>
               </defs>
 
-              {/* Horizontal Gridlines & Left Y-Axis Values */}
               {yLevels.map((lvl, idx) => {
                 const yPos = paddingTop + lvl.posPct * chartHeight;
                 return (
@@ -585,7 +701,6 @@ function UserGrowthChart() {
                 );
               })}
 
-              {/* ── BAR CHART MODE RENDERING ── */}
               {chartType === "bar" && (
                 <g className="velocity-bars-layer">
                   {points.map((pt, i) => {
@@ -593,7 +708,10 @@ function UserGrowthChart() {
                     const isZero = pt.data.displayCount === 0;
                     const barH = isZero ? 2 : Math.max(3, baseY - pt.y);
                     const barY = isZero ? baseY - 2 : pt.y;
-                    const cornerRadius = Math.min(4, Math.floor(pt.barWidth / 2));
+                    const cornerRadius = Math.min(
+                      4,
+                      Math.floor(pt.barWidth / 2),
+                    );
 
                     return (
                       <g key={`bar-${i}`} className="velocity-bar-group">
@@ -614,7 +732,6 @@ function UserGrowthChart() {
                           className={`velocity-bar-rect ${isZero ? "zero-bar" : ""} ${isHovered ? "active" : ""}`}
                         />
 
-                        {/* Top Indicator Cap on Hover */}
                         {isHovered && !isZero && (
                           <rect
                             x={pt.barX}
@@ -628,7 +745,6 @@ function UserGrowthChart() {
                           />
                         )}
 
-                        {/* Wide Hit Area for Smooth Mouse/Touch Hover */}
                         <rect
                           x={pt.x - pt.slotWidth / 2}
                           y={paddingTop}
@@ -644,17 +760,14 @@ function UserGrowthChart() {
                 </g>
               )}
 
-              {/* ── SPLINE LINE MODE RENDERING ── */}
               {chartType === "line" && (
                 <>
-                  {/* Monotone Spline Gradient Area Fill */}
                   <path
                     d={areaPath}
                     fill="url(#velocityAreaGradient)"
                     className="velocity-area-path"
                   />
 
-                  {/* Monotone Spline Stroke Curve */}
                   <path
                     d={linePath}
                     fill="none"
@@ -666,36 +779,36 @@ function UserGrowthChart() {
                     className="velocity-line-path"
                   />
 
-                  {/* Live Pulse Beacon on Latest Point */}
                   {latestPoint && !hoveredPoint && (
                     <g className="velocity-latest-pulse-group">
                       <circle
                         cx={latestPoint.x}
                         cy={latestPoint.y}
-                        r={timeframe === "30d" || timeframe === "1y" ? 7 : 9}
+                        r={timeframe === "30d" ? 7 : 9}
                         className="velocity-pulse-ring"
                       />
                       <circle
                         cx={latestPoint.x}
                         cy={latestPoint.y}
-                        r={timeframe === "30d" || timeframe === "1y" ? 3 : 4}
+                        r={timeframe === "30d" ? 3 : 4}
                         className="velocity-pulse-core"
                       />
                     </g>
                   )}
 
-                  {/* Data Points (Dots on Line) */}
                   {points.map((pt, i) => {
                     const isHovered = hoveredPoint && hoveredPoint.index === i;
                     const baseRadius =
-                      timeframe === "30d" || timeframe === "1y" ? 2.5 : 3.6;
-                    const activeRadius =
-                      timeframe === "30d" || timeframe === "1y" ? 5 : 6;
+                      timeframe === "30d"
+                        ? 2.5
+                        : timeframe === "1y"
+                          ? 3.0
+                          : 3.6;
+                    const activeRadius = timeframe === "30d" ? 5 : 6;
                     const isZero = pt.data.displayCount === 0;
 
                     return (
                       <g key={`point-${i}`}>
-                        {/* Visible Data Point Dot on the line */}
                         <circle
                           cx={pt.x}
                           cy={pt.y}
@@ -703,7 +816,6 @@ function UserGrowthChart() {
                           className={`velocity-point-dot ${isHovered ? "active" : ""} ${isZero ? "zero-dot" : ""}`}
                         />
 
-                        {/* Active Hover Halo Glow Ring */}
                         {isHovered && (
                           <circle
                             cx={pt.x}
@@ -713,11 +825,10 @@ function UserGrowthChart() {
                           />
                         )}
 
-                        {/* Interactive Magnetic Hover Target */}
                         <circle
                           cx={pt.x}
                           cy={pt.y}
-                          r={timeframe === "30d" || timeframe === "1y" ? 12 : 18}
+                          r={timeframe === "30d" ? 12 : 16}
                           fill="transparent"
                           className="velocity-point-target"
                           onMouseEnter={() => setHoveredPoint(pt)}
@@ -728,7 +839,6 @@ function UserGrowthChart() {
                 </>
               )}
 
-              {/* Crosshair Line On Active Hover */}
               {hoveredPoint && (
                 <line
                   x1={hoveredPoint.x}
@@ -739,7 +849,6 @@ function UserGrowthChart() {
                 />
               )}
 
-              {/* X-Axis Date/Month Labels */}
               {points
                 .map((pt, i) => ({ ...pt, originalIndex: i }))
                 .filter((pt) => tickIndices.has(pt.originalIndex))
@@ -777,7 +886,6 @@ function UserGrowthChart() {
                 })}
             </svg>
 
-            {/* ── Floating Smart Tooltip ── */}
             {hoveredPoint && (
               <div className="velocity-tooltip-pill" style={tooltipStyle}>
                 {growthMode === "cumulative" ? (
@@ -786,10 +894,12 @@ function UserGrowthChart() {
                       {hoveredPoint.data.cumulativeCount} total users
                     </span>
                     <span className="tooltip-sub-val">
-                      on {hoveredPoint.data.label}
+                      {timeframe === "6m" || timeframe === "1y" ? "in " : "on "}
+                      {hoveredPoint.data.label}
                       {hoveredPoint.data.dailyCount > 0 && (
                         <span className="tooltip-gain-tag">
-                          {" "}(+{hoveredPoint.data.dailyCount} new)
+                          {" "}
+                          (+{hoveredPoint.data.dailyCount} new)
                         </span>
                       )}
                     </span>
@@ -801,7 +911,10 @@ function UserGrowthChart() {
                         ? `+${hoveredPoint.data.dailyCount} new user${hoveredPoint.data.dailyCount === 1 ? "" : "s"}`
                         : "0 new users"}
                     </span>
-                    <span className="tooltip-sub-val">on {hoveredPoint.data.label}</span>
+                    <span className="tooltip-sub-val">
+                      {timeframe === "6m" || timeframe === "1y" ? "in " : "on "}
+                      {hoveredPoint.data.label}
+                    </span>
                   </div>
                 )}
               </div>

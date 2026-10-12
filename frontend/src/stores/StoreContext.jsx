@@ -9,7 +9,6 @@ export function StoreProvider({ children }) {
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useStore() {
   return useContext(StoreContext);
 }

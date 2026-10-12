@@ -113,6 +113,35 @@
 
 .custom-form-select-item.active {
   background: rgba(99, 102, 241, 0.22);
-  color: var(--accent, #818cf8);
+  color: #4f46e5;
   font-weight: 600;
+}
+
+[data-theme="dark"] .selected-text {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .custom-form-select-menu {
+  background: #111726;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .custom-form-select-item {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .custom-form-select-item:hover {
+  background: rgba(99, 102, 241, 0.18);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .custom-form-select-item.active {
+  background: rgba(99, 102, 241, 0.32);
+  color: #e0e7ff;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .custom-form-select-item.active svg {
+  color: #a5b4fc;
 }

@@ -4,12 +4,10 @@ import apirequest from "../../api/apirequest";
 import { useStore } from "../../stores/StoreContext";
 import "./ActiveSessions.css";
 
-// Helper for device & OS brand icons
 const getDeviceBrandIcon = (os = "", device = "") => {
   const osLower = (os || "").toLowerCase();
   const devLower = (device || "").toLowerCase();
 
-  // Apple Ecosystem
   if (
     osLower.includes("mac") ||
     osLower.includes("ios") ||
@@ -32,7 +30,6 @@ const getDeviceBrandIcon = (os = "", device = "") => {
     );
   }
 
-  // Windows
   if (osLower.includes("win")) {
     return (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
@@ -41,7 +38,6 @@ const getDeviceBrandIcon = (os = "", device = "") => {
     );
   }
 
-  // Android
   if (osLower.includes("android")) {
     return (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
@@ -50,7 +46,6 @@ const getDeviceBrandIcon = (os = "", device = "") => {
     );
   }
 
-  // Linux
   if (osLower.includes("linux")) {
     return (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -63,7 +58,6 @@ const getDeviceBrandIcon = (os = "", device = "") => {
     );
   }
 
-  // Default Computer / Laptop
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="2" y="3" width="20" height="14" rx="2" />
@@ -73,7 +67,6 @@ const getDeviceBrandIcon = (os = "", device = "") => {
   );
 };
 
-// Relative time helper
 const formatRelativeTime = (dateStr) => {
   if (!dateStr) return "Active now";
   try {
@@ -95,7 +88,7 @@ const formatRelativeTime = (dateStr) => {
   }
 };
 
-const ActiveSessions = ({ onNavigateSecurity }) => {
+const ActiveSessions = () => {
   const { userStore } = useStore();
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -103,10 +96,9 @@ const ActiveSessions = ({ onNavigateSecurity }) => {
   const [revokingAll, setRevokingAll] = useState(false);
   const [copiedKey, setCopiedKey] = useState(null);
 
-  // Revocation Confirmation Modal State
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
-    type: "single", // 'single' | 'all'
+    type: "single",
     targetSession: null,
   });
 
@@ -231,7 +223,6 @@ const ActiveSessions = ({ onNavigateSecurity }) => {
 
   return (
     <div className="compact-sessions-panel">
-      {/* ── Header ── */}
       <div className="compact-sessions-header">
         <div className="compact-header-info">
           <div className="compact-header-title-row">
@@ -272,7 +263,6 @@ const ActiveSessions = ({ onNavigateSecurity }) => {
         </div>
       ) : (
         <div className="compact-devices-container">
-          {/* ── Current Device Row (GitHub/Google Style) ── */}
           {currentSession && (
             <div className="compact-device-row current">
               <div className="compact-device-left">
@@ -335,7 +325,6 @@ const ActiveSessions = ({ onNavigateSecurity }) => {
             </div>
           )}
 
-          {/* ── Other Connected Sessions ── */}
           {otherSessions.map((session, index) => {
             const sId = session.sessionId || session._id || `sess_${index}`;
             const isRevoking = revokingId === sId;
@@ -408,7 +397,6 @@ const ActiveSessions = ({ onNavigateSecurity }) => {
             );
           })}
 
-          {/* ── Empty State for Other Sessions ── */}
           {otherSessions.length === 0 && (
             <div className="compact-empty-state">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -421,7 +409,6 @@ const ActiveSessions = ({ onNavigateSecurity }) => {
         </div>
       )}
 
-      {/* ── Confirmation Modal ── */}
       {confirmModal.isOpen && (
         <div className="compact-modal-overlay" onClick={closeConfirmModal}>
           <div

@@ -8,19 +8,14 @@ function DemographicsWidget({
   maleCount = 0,
   femaleCount = 0,
   otherCount = 0,
-  activeCount = 0,
-  suspendedCount = 0,
-  bannedCount = 0,
   unverifiedCount = 0,
   loading = false,
 }) {
   const total = Math.max(0, systemTotalUsers);
 
-  // 1. Role Distribution Calculations (Admins vs Standard Users)
   const adminPct = total > 0 ? Math.round((adminCount / total) * 100) : 0;
   const userPct = total > 0 ? Math.max(0, 100 - adminPct) : 0;
 
-  // 2. Email Verification Health (Verified vs Unverified)
   const verifiedPct = total > 0 ? Math.round((verifiedCount / total) * 100) : 0;
   const resolvedUnverified = unverifiedCount > 0 ? unverifiedCount : Math.max(0, total - verifiedCount);
   const unverifiedPct = total > 0 ? Math.max(0, 100 - verifiedPct) : 0;
@@ -32,22 +27,79 @@ function DemographicsWidget({
     healthStatus = { label: "Moderate Health", type: "mid" };
   }
 
-  // 3. Gender Distribution Calculations
   const malePct = total > 0 ? Math.round((maleCount / total) * 100) : 0;
   const femalePct = total > 0 ? Math.round((femaleCount / total) * 100) : 0;
   const otherPct = total > 0 ? Math.max(0, 100 - malePct - femalePct) : 0;
 
-  // Conic gradient for the Donut Chart (Verification Health)
   const donutDeg = (verifiedPct / 100) * 360;
   const donutBackground = `conic-gradient(#10b981 0deg ${donutDeg}deg, rgba(245, 158, 11, 0.3) ${donutDeg}deg 360deg)`;
 
   if (loading) {
     return (
-      <div className="demographics-widget-container">
+      <div className="demographics-widget-container" aria-busy="true">
+        <div className="dashboard-section-header demographics-top-bar">
+          <div className="section-header-left">
+            <div className="skeleton" style={{ width: 32, height: 32, borderRadius: 8 }}></div>
+            <div className="section-header-content">
+              <div className="skeleton" style={{ width: 180, height: 16, borderRadius: 4, marginBottom: 4 }}></div>
+              <div className="skeleton" style={{ width: 260, height: 12, borderRadius: 4 }}></div>
+            </div>
+          </div>
+          <div className="section-header-right">
+            <div className="skeleton" style={{ width: 120, height: 24, borderRadius: 9999 }}></div>
+          </div>
+        </div>
+
         <div className="demographics-grid">
-          <div className="demographics-card skeleton-demo-card"></div>
-          <div className="demographics-card skeleton-demo-card"></div>
-          <div className="demographics-card skeleton-demo-card"></div>
+          <div className="demographics-card skeleton-demo-card">
+            <div className="demo-card-header">
+              <div className="demo-header-title-wrap">
+                <div className="skeleton" style={{ width: 28, height: 28, borderRadius: 7 }}></div>
+                <div className="skeleton" style={{ width: 110, height: 14, borderRadius: 4 }}></div>
+              </div>
+              <div className="skeleton" style={{ width: 45, height: 20, borderRadius: 20 }}></div>
+            </div>
+            <div className="demo-role-body">
+              <div className="skeleton" style={{ width: 90, height: 26, borderRadius: 6, marginBottom: 12 }}></div>
+              <div className="skeleton" style={{ width: "100%", height: 8, borderRadius: 9999, marginBottom: 10 }}></div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div className="skeleton" style={{ width: 60, height: 12, borderRadius: 4 }}></div>
+                <div className="skeleton" style={{ width: 60, height: 12, borderRadius: 4 }}></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="demographics-card skeleton-demo-card">
+            <div className="demo-card-header">
+              <div className="demo-header-title-wrap">
+                <div className="skeleton" style={{ width: 28, height: 28, borderRadius: 7 }}></div>
+                <div className="skeleton" style={{ width: 125, height: 14, borderRadius: 4 }}></div>
+              </div>
+              <div className="skeleton" style={{ width: 65, height: 20, borderRadius: 20 }}></div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 4 }}>
+              <div className="skeleton" style={{ width: 64, height: 64, borderRadius: "50%", flexShrink: 0 }}></div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
+                <div className="skeleton" style={{ width: 70, height: 20, borderRadius: 4 }}></div>
+                <div className="skeleton" style={{ width: "100%", height: 12, borderRadius: 4 }}></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="demographics-card skeleton-demo-card">
+            <div className="demo-card-header">
+              <div className="demo-header-title-wrap">
+                <div className="skeleton" style={{ width: 28, height: 28, borderRadius: 7 }}></div>
+                <div className="skeleton" style={{ width: 110, height: 14, borderRadius: 4 }}></div>
+              </div>
+              <div className="skeleton" style={{ width: 50, height: 20, borderRadius: 20 }}></div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 2 }}>
+              <div className="skeleton" style={{ width: "100%", height: 22, borderRadius: 6 }}></div>
+              <div className="skeleton" style={{ width: "100%", height: 22, borderRadius: 6 }}></div>
+              <div className="skeleton" style={{ width: "100%", height: 22, borderRadius: 6 }}></div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -55,7 +107,6 @@ function DemographicsWidget({
 
   return (
     <div className="demographics-widget-container" aria-label="Platform Demographics and Breakdown">
-      {/* ── Section Header: System Composition & Breakdown ── */}
       <div className="dashboard-section-header demographics-top-bar">
         <div className="section-header-left">
           <div className="section-header-icon-box">
@@ -92,9 +143,7 @@ function DemographicsWidget({
         </div>
       </div>
 
-      {/* ── 3 Visual Breakdown Cards ── */}
       <div className="demographics-grid">
-        {/* ══ 1. ROLE DISTRIBUTION CARD ══ */}
         <div className="demographics-card role-card">
           <div className="demo-card-head">
             <div className="demo-card-title-group">
@@ -116,7 +165,6 @@ function DemographicsWidget({
             </div>
           </div>
 
-          {/* Segmented Dual Progress Bar */}
           <div className="demo-progress-wrap" title={`Admins: ${adminPct}% • Standard Users: ${userPct}%`}>
             <div
               className="demo-progress-bar bar-purple"
@@ -130,7 +178,6 @@ function DemographicsWidget({
             )}
           </div>
 
-          {/* Legend Details */}
           <div className="demo-legend-row">
             <div className="demo-legend-item">
               <span className="legend-dot dot-purple"></span>
@@ -145,7 +192,6 @@ function DemographicsWidget({
           </div>
         </div>
 
-        {/* ══ 2. VERIFICATION HEALTH CARD (DONUT CHART) ══ */}
         <div className="demographics-card health-card">
           <div className="demo-card-head">
             <div className="demo-card-title-group">
@@ -158,7 +204,6 @@ function DemographicsWidget({
           </div>
 
           <div className="demo-donut-layout">
-            {/* Semantic Conic Donut Ring */}
             <div className="donut-wrapper">
               <div
                 className="donut-ring"
@@ -176,7 +221,6 @@ function DemographicsWidget({
               </div>
             </div>
 
-            {/* Donut Side Stats */}
             <div className="donut-details">
               <div className="donut-stat-box box-verified">
                 <div className="donut-stat-header">
@@ -199,7 +243,6 @@ function DemographicsWidget({
           </div>
         </div>
 
-        {/* ══ 3. GENDER DIVERSITY CARD ══ */}
         <div className="demographics-card gender-card">
           <div className="demo-card-head">
             <div className="demo-card-title-group">
@@ -211,7 +254,6 @@ function DemographicsWidget({
             </span>
           </div>
 
-          {/* Tri-segment Stacked Progress Bar */}
           <div
             className="demo-progress-wrap gender-progress-wrap"
             title={`Male: ${malePct}% • Female: ${femalePct}% • Other: ${otherPct}%`}
@@ -236,7 +278,6 @@ function DemographicsWidget({
             )}
           </div>
 
-          {/* 3 Metric Pills */}
           <div className="gender-pill-grid">
             <div className="gender-stat-pill pill-male">
               <div className="gender-pill-icon male">

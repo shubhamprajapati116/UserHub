@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/StoreContext";
 import { toast } from "react-toastify";
@@ -42,11 +42,23 @@ function Spinner() {
   );
 }
 
+const maskEmail = (email) => {
+  if (!email || typeof email !== "string" || !email.includes("@")) {
+    return "your current registered email";
+  }
+  const parts = email.trim().split("@");
+  if (parts.length !== 2) return email;
+  const name = parts[0];
+  const domain = parts[1];
+  if (name.length <= 2) return `${name[0]}*@${domain}`;
+  const maskedLength = Math.min(Math.max(name.length - 2, 1), 4);
+  return `${name[0]}${"*".repeat(maskedLength)}${name[name.length - 1]}@${domain}`;
+};
+
 function SecurityEmailModal({ isOpen, onClose }) {
   const { userStore } = useStore();
-  const currentUser = userStore.currentUser;
+  const currentUser = userStore.currentUser || userStore.user;
 
-  // Step 1: "form" (Enter new email + password) | Step 2: "otp" (Verify 6-digit code)
   const [step, setStep] = useState("form");
   const [newEmail, setNewEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -59,7 +71,6 @@ function SecurityEmailModal({ isOpen, onClose }) {
 
   const otpInputsRef = useRef([]);
 
-  // Reset state on open/close
   useEffect(() => {
     if (isOpen) {
       setStep("form");
@@ -80,7 +91,6 @@ function SecurityEmailModal({ isOpen, onClose }) {
     };
   }, [isOpen]);
 
-  // Countdown timer for resend OTP in Step 2
   useEffect(() => {
     let timer;
     if (step === "otp" && countdown > 0) {
@@ -99,7 +109,6 @@ function SecurityEmailModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  // Validate Step 1 Form
   const validateStep1 = () => {
     const errors = {};
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -123,7 +132,6 @@ function SecurityEmailModal({ isOpen, onClose }) {
     return Object.keys(errors).length === 0;
   };
 
-  // Submit Step 1: Request email change
   const handleRequestSubmit = async (e) => {
     e.preventDefault();
     if (!validateStep1()) return;
@@ -136,7 +144,8 @@ function SecurityEmailModal({ isOpen, onClose }) {
       });
 
       toast.info(
-        res?.message || `Verification code sent to ${newEmail.trim().toLowerCase()}`
+        res?.message ||
+          `Verification code sent to your new email (${newEmail.trim().toLowerCase()}).`
       );
       setStep("otp");
       setCountdown(60);
@@ -144,7 +153,6 @@ function SecurityEmailModal({ isOpen, onClose }) {
       setOtp(["", "", "", "", "", ""]);
       setOtpError("");
 
-      // Focus first OTP input after switching step
       setTimeout(() => {
         otpInputsRef.current[0]?.focus();
       }, 150);
@@ -157,7 +165,6 @@ function SecurityEmailModal({ isOpen, onClose }) {
     }
   };
 
-  // Handle OTP digit changes
   const handleOtpChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
 
@@ -171,14 +178,12 @@ function SecurityEmailModal({ isOpen, onClose }) {
     }
   };
 
-  // Handle OTP backspace navigation
   const handleOtpKeyDown = (index, e) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       otpInputsRef.current[index - 1]?.focus();
     }
   };
 
-  // Handle OTP Paste
   const handleOtpPaste = (e) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text").trim();
@@ -190,7 +195,6 @@ function SecurityEmailModal({ isOpen, onClose }) {
     otpInputsRef.current[5]?.focus();
   };
 
-  // Submit Step 2: Verify OTP
   const handleVerifySubmit = async (e) => {
     e.preventDefault();
     const otpCode = otp.join("");
@@ -209,7 +213,6 @@ function SecurityEmailModal({ isOpen, onClose }) {
     }
   };
 
-  // Resend OTP
   const handleResend = async () => {
     if (!canResend || userStore.loading.resendEmailChangeOtp) return;
     try {
@@ -225,23 +228,20 @@ function SecurityEmailModal({ isOpen, onClose }) {
     }
   };
 
-  // Cancel Email Change
   const handleCancelAll = async () => {
     if (step === "otp") {
       try {
         await userStore.cancelEmailChange();
         toast.info("Email change request cancelled. Your email remains unchanged.");
       } catch {
-        // Non-blocking
       }
     }
     onClose();
   };
 
   return (
-    <div className="sem-overlay" onClick={handleCancelAll}>
-      <div className="sem-modal" onClick={(e) => e.stopPropagation()}>
-        {/* Modal Header */}
+    <div className="sem-overlay">
+      <div className="sem-modal">
         <div className="sem-header">
           <div className="sem-header-left">
             <div className="sem-icon-circle">
@@ -268,11 +268,9 @@ function SecurityEmailModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Modal Body */}
         <div className="sem-body">
           {step === "form" ? (
             <form onSubmit={handleRequestSubmit} noValidate>
-              {/* Current Email Box */}
               <div className="sem-current-email-box">
                 <div className="sem-current-label-row">
                   <span className="sem-box-label">Current Email</span>
@@ -285,7 +283,6 @@ function SecurityEmailModal({ isOpen, onClose }) {
                 </div>
               </div>
 
-              {/* New Email Input */}
               <div className="sem-field-group">
                 <label className="sem-label" htmlFor="sem-new-email">
                   New Email Address <span className="sem-required">*</span>
@@ -321,7 +318,6 @@ function SecurityEmailModal({ isOpen, onClose }) {
                 )}
               </div>
 
-              {/* Current Password Input */}
               <div className="sem-field-group">
                 <label className="sem-label" htmlFor="sem-password">
                   Current Password <span className="sem-required">*</span>
@@ -365,18 +361,16 @@ function SecurityEmailModal({ isOpen, onClose }) {
                 )}
               </div>
 
-              {/* Security Banner */}
               <div className="sem-security-notice">
                 <div className="sem-sec-icon">
                   <FiShield size={16} />
                 </div>
                 <div className="sem-sec-text">
-                  <strong>Zero-Lockout Protection:</strong> Your current email will
-                  remain fully active until the new email is verified with the OTP code.
+                  <strong>Verification & Security:</strong> A 6-digit verification
+                  code will be sent to your new email to confirm ownership, and a security alert will be sent to your registered email (<strong>{maskEmail(currentUser?.email)}</strong>).
                 </div>
               </div>
 
-              {/* Modal Actions */}
               <div className="sem-actions">
                 <button
                   type="button"
@@ -405,20 +399,31 @@ function SecurityEmailModal({ isOpen, onClose }) {
             </form>
           ) : (
             <form onSubmit={handleVerifySubmit} noValidate>
-              {/* Step 2: OTP Verification */}
               <div className="sem-otp-instruction">
-                We sent a 6-digit verification code to{" "}
-                <strong className="sem-highlight">{newEmail}</strong>. Please enter the
-                code below to confirm the change.
+                We sent a 6-digit verification code to your new email{" "}
+                <strong className="sem-highlight">{newEmail}</strong>. Enter the code below to confirm this email belongs to you.
               </div>
 
-              {/* 6 Digit Input Boxes */}
+              <div className="sem-security-notice">
+                <div className="sem-sec-icon">
+                  <FiShield size={16} />
+                </div>
+                <div className="sem-sec-text">
+                  <strong>Security Alert Sent:</strong> A security notice was also dispatched to your current registered email (<strong>{maskEmail(currentUser?.email)}</strong>).
+                </div>
+              </div>
+
               <div className="sem-otp-boxes-wrapper" onPaste={handleOtpPaste}>
                 {otp.map((digit, idx) => (
                   <input
                     key={idx}
                     ref={(el) => (otpInputsRef.current[idx] = el)}
                     type="text"
+                    name={`email-otp-digit-${idx}`}
+                    autoComplete="one-time-code"
+                    data-lpignore="true"
+                    data-1p-ignore="true"
+                    data-form-type="other"
                     inputMode="numeric"
                     pattern="[0-9]*"
                     maxLength={1}
@@ -440,7 +445,6 @@ function SecurityEmailModal({ isOpen, onClose }) {
                 </div>
               )}
 
-              {/* Resend Action & Timer */}
               <div className="sem-resend-row">
                 <span className="sem-resend-prompt">Didn't receive the email?</span>
                 {canResend ? (
@@ -467,7 +471,6 @@ function SecurityEmailModal({ isOpen, onClose }) {
                 )}
               </div>
 
-              {/* Step 2 Actions */}
               <div className="sem-actions">
                 <button
                   type="button"

@@ -1,7 +1,4 @@
-/* ════════════════════════════════════════════════════════════════
-   ⚡ Layout 4 Matrix Architecture: High-Tech Enterprise Form
-   Clean Slate/Navy with Indigo Accent Line, High Contrast & Organized Grid
-   ════════════════════════════════════════════════════════════════ */
+
 
 .split-page-wrapper {
   max-width: 1060px;
@@ -17,7 +14,6 @@
   }
 }
 
-/* ── Reset wrapper for new modular form layout ── */
 .form-main-card {
   background: transparent;
   border: none;
@@ -25,8 +21,6 @@
   padding: 0;
 }
 
-
-/* ── Top Glowing Indigo Accent Strip ── */
 .matrix-top-accent-bar {
   position: absolute;
   top: 0;
@@ -36,7 +30,6 @@
   background: linear-gradient(90deg, #4f46e5 0%, #6366f1 50%, #818cf8 100%);
 }
 
-/* ── Main 2-Column Split Grid ── */
 .form-split-container {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
@@ -46,7 +39,6 @@
   box-sizing: border-box;
 }
 
-/* ── LEFT COLUMN: Avatar Card (~260px) ── */
 .left-profile-column {
   display: flex;
   flex-direction: column;
@@ -102,7 +94,6 @@
   justify-content: center;
 }
 
-/* User Info below avatar */
 .avatar-user-info {
   text-align: center;
   margin-bottom: 18px;
@@ -186,7 +177,6 @@
   display: none;
 }
 
-/* ── RIGHT COLUMN: Organized Grids ── */
 .right-fields-column {
   display: flex;
   flex-direction: column;
@@ -222,7 +212,6 @@
   font-weight: 600;
 }
 
-/* 2-Columns Grid */
 .matrix-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -230,7 +219,6 @@
   margin-bottom: 16px;
 }
 
-/* 3-Columns Grid */
 .matrix-grid-3 {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -244,7 +232,6 @@
   gap: 6px;
 }
 
-/* ── RIGHT COLUMN: Personal Information, Bio, Location ── */
 .right-fields-column {
   display: flex;
   flex-direction: column;
@@ -253,7 +240,6 @@
   box-sizing: border-box;
 }
 
-/* Grids & Spacing */
 .fields-grid-2col {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -405,7 +391,6 @@
   opacity: 0.65;
 }
 
-/* Errors */
 .edit-user-form .form-input.input-error {
   border-color: var(--danger, #ef4444) !important;
   box-shadow: 0 0 0 2.5px rgba(239, 68, 68, 0.25) !important;
@@ -419,7 +404,6 @@
   font-weight: 500;
 }
 
-/* ── Actions at Bottom Right: [ Cancel ] [ Save Changes ] ── */
 .right-form-actions {
   display: flex;
   align-items: center;
@@ -471,7 +455,6 @@
   border-color: var(--accent);
 }
 
-/* ── 📱 Responsive Breakpoints ── */
 @media (max-width: 860px) {
   .form-split-container {
     grid-template-columns: 1fr;
@@ -530,7 +513,6 @@
   }
 }
 
-/* ── Admin Edit Audit Metadata Banner ── */
 .admin-edit-audit-banner {
   display: inline-flex;
   align-items: center;
@@ -555,3 +537,59 @@
   background: rgba(139, 92, 246, 0.15);
   color: #8b5cf6;
 }
+
+[data-theme="dark"] .matrix-avatar-card {
+  background: #0f172a;
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .avatar-circle-wrapper {
+  background: #080c15;
+  border-color: #6366f1;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.35);
+}
+
+[data-theme="dark"] .edit-user-form .form-input,
+[data-theme="dark"] .edit-user-form .form-select,
+[data-theme="dark"] .edit-user-form .custom-form-select-btn,
+[data-theme="dark"] .edit-user-form .dp-input,
+[data-theme="dark"] .edit-user-form textarea.bio-textarea {
+  background: #131c2e;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .edit-user-form .form-input:focus,
+[data-theme="dark"] .edit-user-form .form-select:focus,
+[data-theme="dark"] .edit-user-form .custom-form-select-wrapper.open .custom-form-select-btn,
+[data-theme="dark"] .edit-user-form .dp-input:focus,
+[data-theme="dark"] .edit-user-form textarea:focus {
+  background: #162033;
+  border-color: #818cf8;
+  box-shadow: 0 0 0 2.5px rgba(99, 102, 241, 0.25);
+}
+
+[data-theme="dark"] .readonly-input {
+  background: #0c121e !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .admin-edit-audit-banner {
+  background: #131c2e;
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #8192a8;
+}
+
+[data-theme="dark"] .btn-secondary-cancel {
+  background: #162033;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .btn-secondary-cancel:hover {
+  background: #1e293b;
+  color: #ffffff;
+}
+

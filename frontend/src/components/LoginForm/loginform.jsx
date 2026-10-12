@@ -1,4 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
+
 import "./loginform.css";
 import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
@@ -8,7 +8,6 @@ import AuthBrandPanel from "../AuthBrandPanel/AuthBrandPanel";
 import { useStore } from "../../stores/StoreContext";
 import { observer } from "mobx-react-lite";
 
-// ── Small reusable spinner ──
 function Spinner() {
   return (
     <svg
@@ -47,14 +46,12 @@ function Loginform() {
   const resendotp = userStore.loading.resendLoginOtp;
   const [timer, setTimer] = useState(60);
 
-  // ── Unverified Account States ──
   const [isUnverified, setIsUnverified] = useState(false);
   const [unverifiedEmail, setUnverifiedEmail] = useState("");
   const [verificationResent, setVerificationResent] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [isResending, setIsResending] = useState(false);
 
-  // Cooldown timer for resending verification link
   useEffect(() => {
     if (resendCooldown <= 0) return;
     const interval = setInterval(() => {
@@ -72,7 +69,6 @@ function Loginform() {
     }
   };
 
-  // Step 1: Email + Password Submit
   const handlesubmit = async (e) => {
     e.preventDefault();
 
@@ -92,14 +88,12 @@ function Loginform() {
         console.log("Submitting login form with data:", formdata);
         const data = await userStore.login(formdata);
 
-        // 🛡️ Agar Unknown Device hai, OTP Screen dikhao
         if (data?.requireOtp) {
           setShowOtpScreen(true);
           toast.info(
             data.message || "Please enter the OTP sent to your email.",
           );
         } else {
-          // Known Device -> Direct Success
           toast.success(data.message || "Logged in successfully!");
           const userRole =
             data?.user?.role || data?.role || userStore.currentUser?.role;
@@ -111,7 +105,17 @@ function Loginform() {
         }
       }
     } catch (err) {
-      if (
+      if (err?.isPendingInvite) {
+        setIsUnverified(false);
+        seterror({
+          email:
+            err.message ||
+            "Your account invitation is pending. Please check your inbox for the invitation link to set your password.",
+        });
+        toast.info(
+          "Account invitation pending: Please check your email to set up your password.",
+        );
+      } else if (
         err?.isUnverified ||
         err?.message?.toLowerCase().includes("verify your email")
       ) {
@@ -132,7 +136,6 @@ function Loginform() {
     }
   };
 
-  // ── Public Resend Verification Link Handler ──
   const handleResendVerification = async () => {
     const targetEmail = unverifiedEmail || formdata.email;
     if (!targetEmail || !targetEmail.trim()) {
@@ -165,14 +168,12 @@ function Loginform() {
     return () => clearInterval(interval);
   }, [showOtpScreen, timer]);
 
-  // OTP digit input handler with auto-focus
   const handleOtpInput = (index, value) => {
-    const digit = value.replace(/\D/g, "").slice(-1); // only single digit
+    const digit = value.replace(/\D/g, "").slice(-1);
     const newDigits = [...otpDigits];
     newDigits[index] = digit;
     setOtpDigits(newDigits);
     seterror({ ...error, otp: "" });
-    // move focus to next box
     if (digit && index < 5) {
       otpRefs.current[index + 1]?.focus();
     }
@@ -202,7 +203,6 @@ function Loginform() {
     otpRefs.current[lastFilled]?.focus();
   };
 
-  // Step 2: OTP Verification Submit
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
     const otp = otpDigits.join("");
@@ -227,7 +227,6 @@ function Loginform() {
     }
   };
 
-  // Step 3: Resend OTP Handler
   const handleResendOtp = async () => {
     if (timer > 0) return;
     try {
@@ -257,7 +256,6 @@ function Loginform() {
           </div>
 
           {!showOtpScreen ? (
-            // ── Normal Email/Password Form ──
             <>
               <h2>Sign In</h2>
               <p className="auth-subtitle">
@@ -368,7 +366,6 @@ function Loginform() {
               </form>
             </>
           ) : (
-            // ── 🛡️ 2FA / OTP Verification Screen ──
             <>
               <h2>Device Verification</h2>
               <p className="auth-subtitle">

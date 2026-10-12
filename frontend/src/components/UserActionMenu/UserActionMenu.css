@@ -1,6 +1,4 @@
-/* ==========================================================================
-   User Action Menu Dropdown — Executive Enterprise SaaS Style
-   ========================================================================== */
+
 
 .uam-dropdown-menu {
   width: 188px;
@@ -56,7 +54,6 @@
     0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
-/* ── User Header Context ── */
 .uam-user-header {
   display: flex;
   align-items: center;
@@ -210,7 +207,6 @@
   max-width: 90px;
 }
 
-/* ── Section & Divider ── */
 .uam-section {
   display: flex;
   flex-direction: column;
@@ -223,7 +219,6 @@
   margin: 3px 4px;
 }
 
-/* ── Dropdown Item Rows ── */
 .uam-item {
   width: 100%;
   display: flex;
@@ -260,7 +255,6 @@
   cursor: not-allowed;
 }
 
-/* Icon Containers with contextual styling */
 .uam-icon-box {
   width: 20px;
   height: 20px;
@@ -302,8 +296,6 @@
   color: #fbbf24;
 }
 
-
-/* ── Suspend Account Action ── */
 .uam-icon-box.suspend {
   background: rgba(245, 158, 11, 0.14);
   color: #f59e0b;
@@ -323,7 +315,6 @@
   color: #fef08a;
 }
 
-/* ── Reactivate Account Action ── */
 .uam-icon-box.reactivate {
   background: rgba(16, 185, 129, 0.14);
   color: #10b981;
@@ -343,7 +334,6 @@
   color: #6ee7b7;
 }
 
-/* ── Ban Account Action ── */
 .uam-icon-box.ban {
   background: rgba(239, 68, 68, 0.14);
   color: #ef4444;
@@ -358,9 +348,19 @@
   color: #fca5a5;
 }
 
+[data-theme="light"] .uam-item.ban:hover:not(:disabled) {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
 .uam-item.ban:hover:not(:disabled) .uam-icon-box.ban {
   background: rgba(239, 68, 68, 0.22);
   color: #fca5a5;
+}
+
+[data-theme="light"] .uam-item.ban:hover:not(:disabled) .uam-icon-box.ban {
+  color: #dc2626;
+  background: #fecaca;
 }
 
 .uam-icon-box.revoke {
@@ -389,7 +389,6 @@
   text-overflow: ellipsis;
 }
 
-/* Danger Item Hover */
 .uam-item.danger {
   color: #f87171;
 }
@@ -399,7 +398,6 @@
   color: #ef4444;
 }
 
-/* Animations */
 @keyframes uamShowBottom {
   from {
     opacity: 0;

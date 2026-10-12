@@ -1,10 +1,28 @@
+import { useState, useRef, useEffect } from "react";
+import { isAuthBannerReady } from "../../utils/authBannerPreload";
 import "./AuthBrandPanel.css";
 
 function AuthBrandPanel({
   title = "Manage users with confidence",
   subtitle = "A secure platform for user management, profile updates, and account settings — built for modern teams.",
-  type = "login", // 'login' or 'register'
+  type = "login",
 }) {
+  const imgRef = useRef(null);
+  const [imageLoaded, setImageLoaded] = useState(() => isAuthBannerReady());
+
+  useEffect(() => {
+    if (isAuthBannerReady() || (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0)) {
+      setImageLoaded(true);
+    }
+  }, []);
+
+  const handleImageLoaded = () => {
+    setImageLoaded(true);
+    if (typeof window !== "undefined") {
+      window.__AUTH_BANNER_PRELOADED__ = true;
+    }
+  };
+
   const loginFeatures = [
     {
       title: "Role-Based Access Control",
@@ -112,14 +130,29 @@ function AuthBrandPanel({
         ? forgotFeatures
         : loginFeatures;
 
-
   return (
     <div className="auth-split-brand">
-      {/* Background Decorative Mesh & Glow Overlay */}
-      <div className="auth-brand-ambient-glow" />
-      <div className="auth-brand-grid-pattern" />
+      <div className="auth-brand-picture">
+        <img
+          ref={imgRef}
+          src="/auth-brand-bg.webp"
+          alt=""
+          aria-hidden="true"
+          className={`auth-brand-img ${imageLoaded ? "is-loaded" : ""}`}
+          fetchPriority="high"
+          loading="eager"
+          decoding="async"
+          onLoad={handleImageLoaded}
+          onError={(e) => {
+            if (e.currentTarget.src.endsWith(".webp")) {
+              e.currentTarget.src = "/auth-brand-bg.jpg";
+            }
+          }}
+        />
+      </div>
 
-      {/* Top Header Logo & Heading */}
+      <div className="auth-brand-scrim" aria-hidden="true" />
+
       <div className="auth-brand-top">
         <div className="auth-brand-logo">
           <div className="auth-brand-logo-icon">U</div>
@@ -135,7 +168,6 @@ function AuthBrandPanel({
         <div className="auth-brand-divider" />
       </div>
 
-      {/* Bottom Feature Items with Titles & Descriptions */}
       <div className="auth-brand-features">
         {features.map((feat, index) => (
           <div className="auth-brand-feature-item" key={index}>

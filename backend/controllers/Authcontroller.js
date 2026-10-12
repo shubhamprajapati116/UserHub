@@ -1,40 +1,95 @@
 const crypto = require("crypto");
 const User = require("../models/user");
 const sendEmail = require("../utils/sendEmail");
-const { userSchema, loginschema } = require("../validations/validate");
+const {
+  userSchema,
+  loginschema,
+  acceptInviteSchema,
+} = require("../validations/validate");
+const { validateEmailDeliverability } = require("../utils/emailValidator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const { v4: uuidv4 } = require("uuid");
+const uuidv4 = () => crypto.randomUUID();
 const Session = require("../models/session");
 const Notification = require("../models/notification");
 const getDeviceInfo = require("../utils/getDeviceInfo");
 const createNotification = require("../utils/createNotification");
 const emailTemplates = require("../utils/emailTemplates");
+const {
+  getSessions,
+  logoutSession,
+  logoutCurrentDevice,
+  logoutOtherSessions,
+} = require("./sessionController");
+const { deleteFile } = require("../utils/fileHelper");
+
+const checkEmailAvailability = async (req, res) => {
+  try {
+    const rawEmail = req.body?.email;
+    if (!rawEmail || typeof rawEmail !== "string" || !rawEmail.trim()) {
+      return res.status(400).json({
+        field: "email",
+        available: false,
+        message: "Email is required",
+      });
+    }
+
+    const email = rawEmail.trim().toLowerCase();
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(409).json({
+        field: "email",
+        available: false,
+        message:
+          "Email is already registered. Please log in or use another email.",
+      });
+    }
+
+    return res.status(200).json({
+      available: true,
+      message: "Email is available",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      available: false,
+      message: error.message,
+    });
+  }
+};
 
 const registeruser = async (req, res) => {
   try {
     const { error } = userSchema.validate(req.body);
 
     if (error) {
+      if (req.file) deleteFile(req.file.filename);
       return res.status(400).json({
         field: error.details[0].path[0],
         message: error.details[0].message,
       });
     }
 
-    if (!req.file) {
+    const normalizedEmail = (req.body.email || "").trim().toLowerCase();
+
+    const deliverability = await validateEmailDeliverability(normalizedEmail);
+    if (!deliverability.valid) {
+      if (req.file) deleteFile(req.file.filename);
       return res.status(400).json({
-        field: "profilephoto",
-        message: "Profile photo is required",
+        field: "email",
+        message: deliverability.reason,
+        code: deliverability.code,
+        suggestion: deliverability.suggestion,
       });
     }
 
     const existingUser = await User.findOne({
-      email: req.body.email,
+      $or: [{ email: normalizedEmail }, { pendingEmail: normalizedEmail }],
     });
 
     if (existingUser) {
+      if (req.file) deleteFile(req.file.filename);
       return res.status(409).json({
         field: "email",
         message: "Email already exists",
@@ -43,14 +98,14 @@ const registeruser = async (req, res) => {
 
     const hashedpassword = await bcrypt.hash(req.body.password, 10);
     const verificationToken = crypto.randomBytes(32).toString("hex");
-    const verificationTokenExpire = new Date(Date.now() + 72 * 60 * 60 * 1000); // 72 hours
+    const verificationTokenExpire = new Date(Date.now() + 72 * 60 * 60 * 1000);
     const user = new User({
-      name: req.body.name,
-      email: req.body.email,
+      name: req.body.name.trim(),
+      email: normalizedEmail,
       password: hashedpassword,
       gender: req.body.gender,
       dob: req.body.dob,
-      profilephoto: req.file.filename,
+      profilephoto: req.file ? req.file.filename : "",
       role: "user",
       status: "active",
       isVerified: false,
@@ -79,6 +134,7 @@ const registeruser = async (req, res) => {
         "Registration successful. Please check your email to verify your account.",
     });
   } catch (error) {
+    if (req.file) deleteFile(req.file.filename);
     return res.status(500).json({
       message: error.message,
     });
@@ -103,7 +159,6 @@ const loginuser = async (req, res) => {
     });
   }
 
-  // 1. Account Lockout Check
   if (user.lockUntil && user.lockUntil > Date.now()) {
     const remainingMinutes = Math.ceil(
       (user.lockUntil.getTime() - Date.now()) / (60 * 1000),
@@ -131,6 +186,15 @@ const loginuser = async (req, res) => {
       message: "Your account has been permanently banned by administration.",
     });
   }
+  if (user.inviteStatus === "pending") {
+    return res.status(403).json({
+      field: "email",
+      isPendingInvite: true,
+      email: user.email,
+      message:
+        "Your account invitation is pending. Please check your email inbox to accept the invitation and set your password.",
+    });
+  }
   if (!user.isVerified) {
     return res.status(403).json({
       field: "email",
@@ -140,7 +204,6 @@ const loginuser = async (req, res) => {
     });
   }
 
-  // 2. Password Check
   const ismatch = await bcrypt.compare(password, user.password);
 
   if (!ismatch) {
@@ -172,13 +235,11 @@ const loginuser = async (req, res) => {
     });
   }
 
-  // Reset login attempts on correct password
   if (user.loginAttempts > 0 || user.lockUntil) {
     user.loginAttempts = 0;
     user.lockUntil = null;
   }
 
-  // 3. 🛡️ DEVICE CHECK: Known vs Unknown Device
   const currentUA = req.headers["user-agent"] || "Unknown Browser / Device";
   const currentIp =
     req.headers["x-forwarded-for"] ||
@@ -186,19 +247,16 @@ const loginuser = async (req, res) => {
     req.ip ||
     "127.0.0.1";
 
-  // Check if deviceId is in trustedDevices list
   const isKnownDevice =
     deviceId &&
     user.trustedDevices &&
     user.trustedDevices.some((d) => d.deviceId === deviceId);
 
-  // ── UNKNOWN DEVICE: Send OTP & Require 2FA ──
   if (!isKnownDevice) {
-    // 6-digit random OTP generate karo
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const hashotp = crypto.createHash("sha256").update(otp).digest("hex");
     console.log(`🔐 [LOGIN OTP for ${user.email}]: ${otp}`);
-    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes expiry
+    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
 
     user.loginOtp = hashotp;
     user.loginOtpExpire = otpExpiry;
@@ -208,7 +266,6 @@ const loginuser = async (req, res) => {
     const deviceDesc =
       browser && os ? `${browser} on ${os}` : browser || os || "Unknown Device";
 
-    // Send OTP email in background
     sendEmail(
       user.email,
       "Your Login Verification Code - UserHub",
@@ -221,30 +278,15 @@ const loginuser = async (req, res) => {
       console.error("Error sending OTP email:", err.message);
     });
 
-    // 🔔 In-App Notification: Instant Alert to Real User about Unrecognized Login Attempt
-    await createNotification({
-      userId: user._id,
-      type: "security_login",
-      title: "Security Alert: Login Attempt",
-      message: `A login attempt was made from an unrecognized device (${deviceDesc}) and a 6-digit OTP was sent to your email.`,
-      metadata: {
-        browser,
-        os,
-        device,
-        ipAddress: currentIp,
-        sourceDeviceId: deviceId,
-      },
-    });
-
     return res.status(200).json({
       requireOtp: true,
-      message:
-        "Unrecognized device detected. A 6-digit OTP has been sent to your email.",
+      message: user.lastLogin
+        ? "Unrecognized device detected. A 6-digit OTP has been sent to your email."
+        : "A 6-digit verification code has been sent to your email.",
       email: user.email,
     });
   }
 
-  // ── KNOWN DEVICE: Direct JWT Generation ──
   const sessionId = uuidv4();
   const { browser, os, device } = getDeviceInfo(req.headers["user-agent"]);
 
@@ -310,7 +352,6 @@ const verifyLoginOtp = async (req, res) => {
       .update(otp.trim())
       .digest("hex");
 
-    // OTP match aur expiry check
     if (!user.loginOtp || user.loginOtp !== hashedOtp) {
       return res
         .status(400)
@@ -323,11 +364,9 @@ const verifyLoginOtp = async (req, res) => {
         .json({ message: "OTP has expired. Please request a new one." });
     }
 
-    // OTP verified -> Clear OTP fields
     user.loginOtp = null;
     user.loginOtpExpire = null;
 
-    // 🛡️ TRUST THIS DEVICE: Add to trustedDevices list
     const currentUA = req.headers["user-agent"] || "Unknown Browser / Device";
     const currentIp =
       req.headers["x-forwarded-for"] ||
@@ -349,7 +388,6 @@ const verifyLoginOtp = async (req, res) => {
       }
     }
 
-    // Create session
     const sessionId = uuidv4();
     const { browser, os, device } = getDeviceInfo(req.headers["user-agent"]);
 
@@ -375,7 +413,6 @@ const verifyLoginOtp = async (req, res) => {
       browser && os ? `${browser} on ${os}` : browser || os || "Unknown Device";
 
     if (isFirstEverLogin) {
-      
       await createNotification({
         userId: user._id,
         type: "welcome",
@@ -385,21 +422,6 @@ const verifyLoginOtp = async (req, res) => {
         metadata: { browser, os, device, ipAddress: currentIp },
       });
     } else {
-
-      if (deviceId) {
-        await Notification.updateMany(
-          {
-            userId: user._id,
-            type: "security_login",
-            "metadata.sourceDeviceId": deviceId,
-          },
-          {
-            $set: { "metadata.sourceSessionId": sessionId },
-          },
-        );
-      }
-
-      // 🛡️ Subsequent Login from New Device: Targeted Security Alert (Hidden from hacker session/device, visible on real user devices)
       await createNotification({
         userId: user._id,
         type: "security_login",
@@ -415,7 +437,6 @@ const verifyLoginOtp = async (req, res) => {
         },
       });
 
-      // 📧 Out-of-Band Security Email Alert to Real User's Personal Inbox
       const loginTime = new Date().toLocaleString("en-IN", {
         dateStyle: "medium",
         timeStyle: "short",
@@ -473,7 +494,7 @@ const resendLoginOtp = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    const COOLDOWN_MS = 60 * 1000; // 1 minute cooldown
+    const COOLDOWN_MS = 60 * 1000;
     if (
       user.lastOtpSentAt &&
       Date.now() - user.lastOtpSentAt.getTime() < COOLDOWN_MS
@@ -524,6 +545,14 @@ const forgotpassword = async (req, res) => {
         message: "Email not found",
       });
     }
+
+    if (user.inviteStatus === "pending") {
+      return res.status(400).json({
+        isPendingInvite: true,
+        message:
+          "This account was invited by an administrator and has not been activated yet. Please check your email for the invitation link, or contact your administrator to resend it.",
+      });
+    }
     const resetToken = crypto.randomBytes(32).toString("hex");
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
@@ -557,132 +586,7 @@ const forgotpassword = async (req, res) => {
     });
   }
 };
-const getSessions = async (req, res) => {
-  try {
-    const currentSessionId = req.user.sessionId;
 
-    const sessions = await Session.find({
-      userId: req.user.id,
-    }).sort({
-      createdAt: -1,
-    });
-
-    const formattedSessions = sessions.map((s) => ({
-      sessionId: s.sessionId,
-      browser: s.browser,
-      os: s.os,
-      device: s.device,
-      ipAddress: s.ipAddress,
-      createdAt: s.createdAt,
-      isCurrent: s.sessionId === currentSessionId,
-    }));
-
-    res.status(200).json(formattedSessions);
-  } catch (error) {
-    res.status(500).json({
-      message: "Something went wrong",
-    });
-  }
-};
-
-const logoutSession = async (req, res) => {
-  try {
-    const { sessionId } = req.params;
-
-    if (sessionId === req.user.sessionId) {
-      return res.status(400).json({
-        message:
-          "Cannot revoke your current active device session from here. Use the main Logout button.",
-      });
-    }
-
-    const session = await Session.findOne({
-      sessionId,
-      userId: req.user.id,
-    });
-
-    if (!session) {
-      return res.status(404).json({
-        message: "Session not found",
-      });
-    }
-
-    if (session.deviceId) {
-      await User.findByIdAndUpdate(req.user.id, {
-        $pull: {
-          trustedDevices: { deviceId: session.deviceId },
-        },
-      });
-    }
-
-    await Session.deleteOne({
-      sessionId,
-      userId: req.user.id,
-    });
-
-    return res.status(200).json({
-      message: "Session revoked successfully",
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Something went wrong",
-    });
-  }
-};
-const logoutCurrentDevice = async (req, res) => {
-  try {
-    await Session.deleteOne({
-      sessionId: req.user.sessionId,
-      userId: req.user.id,
-    });
-
-    return res.status(200).json({
-      message: "Logged out successfully",
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Something went wrong",
-    });
-  }
-};
-const logoutOtherSessions = async (req, res) => {
-  try {
-    // 1. Baaki saare sessions find karo taaki unke deviceIds nikal sakein
-    const otherSessions = await Session.find({
-      userId: req.user.id,
-      sessionId: {
-        $ne: req.user.sessionId,
-      },
-    });
-
-    const otherDeviceIds = otherSessions.map((s) => s.deviceId).filter(Boolean);
-
-    // 2. 🛡️ UNTRUST ALL OTHER DEVICES: user.trustedDevices se un sabhi ko hata do
-    if (otherDeviceIds.length > 0) {
-      await User.findByIdAndUpdate(req.user.id, {
-        $pull: {
-          trustedDevices: { deviceId: { $in: otherDeviceIds } },
-        },
-      });
-    }
-
-    // 3. Baaki saare sessions delete karo
-    await Session.deleteMany({
-      userId: req.user.id,
-      sessionId: {
-        $ne: req.user.sessionId,
-      },
-    });
-
-    return res.status(200).json({
-      message: "Other devices logged out and untrusted successfully",
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Something went wrong",
-    });
-  }
-};
 const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
@@ -708,7 +612,6 @@ const resetPassword = async (req, res) => {
 
     await user.save();
 
-    // 🔔 In-App Notification: Password Change (via Reset)
     await createNotification({
       userId: user._id,
       type: "password_change",
@@ -756,7 +659,6 @@ const verifyResetToken = async (req, res) => {
   }
 };
 
-// ── Public Resend Account Verification Link ──
 const resendVerificationEmail = async (req, res) => {
   try {
     const { email, token } = req.body;
@@ -773,7 +675,6 @@ const resendVerificationEmail = async (req, res) => {
       });
     }
 
-    // Security: If no user found, return standard success message to avoid account enumeration
     if (!user) {
       return res.status(200).json({
         success: true,
@@ -782,7 +683,6 @@ const resendVerificationEmail = async (req, res) => {
       });
     }
 
-    // If account is already verified AND there is NO pending email update
     if (user.isVerified && !user.pendingEmail) {
       return res.status(400).json({
         isAlreadyVerified: true,
@@ -790,7 +690,6 @@ const resendVerificationEmail = async (req, res) => {
       });
     }
 
-    // Cooldown rate-limiting (60 seconds)
     const COOLDOWN_MS = 60 * 1000;
     if (
       user.lastVerificationSentAt &&
@@ -809,13 +708,12 @@ const resendVerificationEmail = async (req, res) => {
 
     const verificationToken = crypto.randomBytes(32).toString("hex");
     user.verificationToken = verificationToken;
-    user.verificationTokenExpire = new Date(Date.now() + 72 * 60 * 60 * 1000); // 72 hours
+    user.verificationTokenExpire = new Date(Date.now() + 72 * 60 * 60 * 1000);
     user.lastVerificationSentAt = new Date();
     await user.save();
 
     const verificationLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/verify-email/${verificationToken}`;
 
-    // If this is an Admin-initiated email update pending verification:
     if (user.pendingEmail) {
       try {
         await sendEmail(
@@ -828,9 +726,14 @@ const resendVerificationEmail = async (req, res) => {
             verifyUrl: verificationLink,
           }),
         );
-        console.log(`✅ [Resend Verification]: Link dispatched to new email (${user.pendingEmail})`);
+        console.log(
+          `✅ [Resend Verification]: Link dispatched to new email (${user.pendingEmail})`,
+        );
       } catch (err) {
-        console.error("❌ [Resend Verification Error]: Failed to send to new email:", err.message);
+        console.error(
+          "❌ [Resend Verification Error]: Failed to send to new email:",
+          err.message,
+        );
       }
 
       try {
@@ -844,9 +747,14 @@ const resendVerificationEmail = async (req, res) => {
             changedBy: "an Administrator",
           }),
         );
-        console.log(`✅ [Resend Verification]: Security alert sent to old email (${user.email})`);
+        console.log(
+          `✅ [Resend Verification]: Security alert sent to old email (${user.email})`,
+        );
       } catch (err) {
-        console.error("❌ [Resend Verification Error]: Failed to send old email notice:", err.message);
+        console.error(
+          "❌ [Resend Verification Error]: Failed to send old email notice:",
+          err.message,
+        );
       }
 
       return res.status(200).json({
@@ -855,7 +763,6 @@ const resendVerificationEmail = async (req, res) => {
       });
     }
 
-    // Standard Registration Verification:
     try {
       await sendEmail(
         user.email,
@@ -878,7 +785,167 @@ const resendVerificationEmail = async (req, res) => {
   }
 };
 
+const getInviteDetails = async (req, res) => {
+  try {
+    const rawToken = (req.params.token || "").trim();
+    if (!rawToken) {
+      return res
+        .status(400)
+        .json({ message: "No invitation token provided." });
+    }
+
+    const tokenHash = crypto
+      .createHash("sha256")
+      .update(rawToken)
+      .digest("hex");
+
+    const user = await User.findOne({
+      inviteTokenHash: tokenHash,
+      inviteStatus: "pending",
+    }).select("+inviteTokenHash");
+
+    if (!user) {
+      return res.status(404).json({
+        valid: false,
+        message:
+          "Invalid or already used invitation link. If you already set your password, you can sign in directly.",
+      });
+    }
+
+    if (user.inviteTokenExpire && user.inviteTokenExpire < new Date()) {
+      return res.status(410).json({
+        valid: false,
+        isExpired: true,
+        message:
+          "This invitation link has expired (valid for 7 days). Please contact your administrator for a fresh invitation.",
+        expiresAt: user.inviteTokenExpire,
+      });
+    }
+
+    let invitedByName = "An Administrator";
+    if (user.invitedBy) {
+      const inviter = await User.findById(user.invitedBy).select("name");
+      if (inviter?.name) invitedByName = inviter.name;
+    }
+
+    return res.status(200).json({
+      valid: true,
+      name: user.name,
+      email: user.email,
+      invitedByName,
+      expiresAt: user.inviteTokenExpire,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const acceptInvite = async (req, res) => {
+  try {
+    const rawToken = (req.params.token || "").trim();
+    if (!rawToken) {
+      return res
+        .status(400)
+        .json({ message: "No invitation token provided." });
+    }
+
+    if (!req.body || typeof req.body !== "object") {
+      return res.status(400).json({
+        field: "password",
+        message: "Invalid request. Password is required.",
+      });
+    }
+
+    const { error } = acceptInviteSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        field: error.details && error.details[0]?.path ? error.details[0].path[0] : "password",
+        message: error.details && error.details[0]?.message ? error.details[0].message : "Password is required",
+      });
+    }
+
+    if (!req.body.password) {
+      return res.status(400).json({
+        field: "password",
+        message: "Password is required.",
+      });
+    }
+
+    const tokenHash = crypto
+      .createHash("sha256")
+      .update(rawToken)
+      .digest("hex");
+
+    const user = await User.findOne({
+      inviteTokenHash: tokenHash,
+      inviteStatus: "pending",
+    }).select("+inviteTokenHash");
+
+    if (!user) {
+      return res.status(404).json({
+        message:
+          "Invalid or already used invitation link. If you already activated your account, you can sign in directly.",
+      });
+    }
+
+    if (user.inviteTokenExpire && user.inviteTokenExpire < new Date()) {
+      return res.status(410).json({
+        isExpired: true,
+        message:
+          "This invitation link has expired. Please contact your administrator to receive a fresh invitation.",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+    user.password = hashedPassword;
+    user.isVerified = true;
+    user.inviteStatus = "accepted";
+    user.inviteAcceptedAt = new Date();
+    user.inviteTokenHash = null;
+    user.inviteTokenExpire = null;
+    user.status = "active";
+    await user.save();
+
+    const loginUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/login`;
+    try {
+      await sendEmail(
+        user.email,
+        "Welcome to UserHub! Account Successfully Activated",
+        emailTemplates.inviteAcceptedWelcomeEmail({
+          name: user.name,
+          loginUrl,
+        }),
+      );
+    } catch (mailErr) {
+      console.error("⚠️ [Welcome Email Failed]:", mailErr.message);
+    }
+
+    if (user.invitedBy) {
+      createNotification({
+        userId: user.invitedBy,
+        type: "account_verified",
+        title: "Invitation Accepted",
+        message: `${user.name} (${user.email}) has accepted your invitation and activated their account.`,
+        metadata: {
+          acceptedUserId: user._id,
+          acceptedUserEmail: user.email,
+        },
+      }).catch(() => {});
+    }
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Your invitation has been accepted and password set! You can now sign in.",
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
+  checkEmailAvailability,
   registeruser,
   loginuser,
   forgotpassword,
@@ -891,4 +958,7 @@ module.exports = {
   resendLoginOtp,
   verifyLoginOtp,
   resendVerificationEmail,
+  getInviteDetails,
+  acceptInvite,
 };
+

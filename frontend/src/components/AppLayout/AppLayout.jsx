@@ -1,4 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
+
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -91,6 +91,22 @@ const NavIcon = ({ name }) => {
         <line x1="21" y1="12" x2="9" y2="12" />
       </svg>
     ),
+    help: (
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+    ),
   };
   return icons[name] || null;
 };
@@ -112,11 +128,54 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
         .slice(0, 2)
         .toUpperCase()
     : "U";
-
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem("userhub_sidebar_collapsed") === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleSidebarCollapse = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("userhub_sidebar_collapsed", String(next));
+      } catch {
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
+        e.preventDefault();
+        if (window.innerWidth <= 768) {
+          setSidebarOpen((prev) => !prev);
+        } else {
+          toggleSidebarCollapse();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [photoError, setPhotoError] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const userMenuRef = useRef(null);
+
+  useEffect(() => {
+    const handlePageScroll = () => {
+      setIsScrolled(window.scrollY > 8);
+    };
+    window.addEventListener("scroll", handlePageScroll, { passive: true });
+    handlePageScroll();
+    return () => window.removeEventListener("scroll", handlePageScroll);
+  }, []);
 
   const isPlaceholderPhoto = (photo) => {
     if (!photo) return true;
@@ -140,6 +199,7 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
       : []),
     { label: "My Profile", path: "/profile", icon: "profile" },
     { label: "Settings", path: "/settings", icon: "settings" },
+    { label: "Help & Support", path: "/help", icon: "help" },
   ];
 
   const isNavActive = (itemPath) => {
@@ -147,6 +207,7 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
     if (itemPath === "/admin/users" && location.pathname.startsWith("/admin/users")) return true;
     if (itemPath === "/settings" && location.pathname.startsWith("/settings")) return true;
     if (itemPath === "/profile" && location.pathname.startsWith("/profile")) return true;
+    if (itemPath === "/help" && (location.pathname === "/help" || location.pathname === "/support")) return true;
     return false;
   };
 
@@ -191,7 +252,6 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
     setSidebarOpen(false);
 
     try {
-      // Backend se session delete karo MongoDB me se
       await apirequest("/logout", {
         method: "DELETE",
         headers: {
@@ -199,7 +259,6 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
         },
       });
     } catch {
-      // API fail hone par bhi local logout continue karega
     }
 
     localStorage.removeItem("token");
@@ -214,11 +273,13 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
   const handleNav = (path) => {
     setSidebarOpen(false);
     setUserMenuOpen(false);
+
+    if (location.pathname === path) return;
     navigate(path);
   };
 
   return (
-    <div className="app-layout">
+    <div className={`app-layout ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
       {sidebarOpen && (
         <div
           className="sidebar-overlay"
@@ -226,21 +287,101 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
           aria-hidden="true"
         />
       )}
-      <aside className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
-        <div className="sidebar-brand">
-          <div className="sidebar-logo">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="rgba(255, 255, 255, 0.2)" />
-              <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <circle cx="12" cy="10" r="3" stroke="#ffffff" strokeWidth="2" />
-              <path d="M7 18c.8-2.3 2.8-3.5 5-3.5s4.2 1.2 5 3.5" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </div>
-          <div className="sidebar-brand-text">
-            <span className="sidebar-brand-name">UserHub</span>
-            <span className="sidebar-brand-tag">Management</span>
+      <aside className={`sidebar ${sidebarOpen ? "sidebar-open" : ""} ${sidebarCollapsed ? "is-collapsed" : ""}`}>
+        <div
+          className="sidebar-brand-wrap"
+          onClick={() => {
+            if (sidebarCollapsed) {
+              toggleSidebarCollapse();
+            }
+          }}
+        >
+          <div
+            className="sidebar-brand"
+            onClick={(e) => {
+              if (sidebarCollapsed) {
+                e.stopPropagation();
+                toggleSidebarCollapse();
+              } else {
+                handleNav(role === "admin" ? "/admin/dashboard" : "/profile");
+              }
+            }}
+            style={{ cursor: "pointer" }}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                if (sidebarCollapsed) {
+                  toggleSidebarCollapse();
+                } else {
+                  handleNav(role === "admin" ? "/admin/dashboard" : "/profile");
+                }
+              }
+            }}
+          >
+            <div className="sidebar-logo">
+              <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
+                <defs>
+                  <linearGradient id="uhub-grad-1" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#6366f1" />
+                    <stop offset="0.5" stopColor="#818cf8" />
+                    <stop offset="1" stopColor="#c084fc" />
+                  </linearGradient>
+                  <linearGradient id="uhub-grad-2" x1="8" y1="8" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#38bdf8" />
+                    <stop offset="1" stopColor="#6366f1" />
+                  </linearGradient>
+                </defs>
+                <rect x="2" y="2" width="28" height="28" rx="8" fill="url(#uhub-grad-1)" fillOpacity="0.18" />
+                <path
+                  d="M9 8v9.5a7 7 0 0 0 14 0V8"
+                  stroke="url(#uhub-grad-1)"
+                  strokeWidth="2.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <circle cx="16" cy="13" r="3" fill="url(#uhub-grad-2)" />
+                <path
+                  d="M12.5 19.8c.9-1.4 2.2-2 3.5-2s2.6.6 3.5 2"
+                  stroke="url(#uhub-grad-2)"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+            <div className="sidebar-brand-text">
+              <span className="sidebar-brand-name">
+                User<span className="brand-accent">Hub</span>
+              </span>
+              <span className="sidebar-brand-tag">Platform</span>
+            </div>
           </div>
         </div>
+
+        <button
+          type="button"
+          className="sidebar-collapse-trigger"
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleSidebarCollapse();
+          }}
+          title={sidebarCollapsed ? "Expand sidebar (Ctrl+B)" : "Collapse sidebar (Ctrl+B)"}
+          aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <svg
+            className="collapse-arrow-icon"
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
 
         <nav className="sidebar-nav">
           {role === "admin" && (
@@ -250,6 +391,7 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
                 type="button"
                 className={`sidebar-link ${location.pathname === "/admin/dashboard" ? "active" : ""}`}
                 onClick={() => handleNav("/admin/dashboard")}
+                data-tooltip="Dashboard"
               >
                 <span className="sidebar-link-icon">
                   <NavIcon name="dashboard" />
@@ -260,6 +402,7 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
                 type="button"
                 className={`sidebar-link ${location.pathname.startsWith("/admin/users") ? "active" : ""}`}
                 onClick={() => handleNav("/admin/users")}
+                data-tooltip="User Management"
               >
                 <span className="sidebar-link-icon">
                   <NavIcon name="users" />
@@ -275,6 +418,7 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
               type="button"
               className={`sidebar-link ${location.pathname.startsWith("/profile") ? "active" : ""}`}
               onClick={() => handleNav("/profile")}
+              data-tooltip="My Profile"
             >
               <span className="sidebar-link-icon">
                 <NavIcon name="profile" />
@@ -285,25 +429,37 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
               type="button"
               className={`sidebar-link ${location.pathname.startsWith("/settings") ? "active" : ""}`}
               onClick={() => handleNav("/settings")}
+              data-tooltip="Settings"
             >
               <span className="sidebar-link-icon">
                 <NavIcon name="settings" />
               </span>
               <span className="sidebar-link-text">Settings</span>
             </button>
+            <button
+              type="button"
+              className={`sidebar-link ${location.pathname.startsWith("/help") || location.pathname.startsWith("/support") ? "active" : ""}`}
+              onClick={() => handleNav("/help")}
+              data-tooltip="Help & Support"
+            >
+              <span className="sidebar-link-icon">
+                <NavIcon name="help" />
+              </span>
+              <span className="sidebar-link-text">Help & Support</span>
+            </button>
           </div>
         </nav>
       </aside>
 
       <div className="app-content">
-        {/* Top Navbar Header - Clean & Focused */}
-        <header className="top-header">
+        <header className={`top-header ${isScrolled ? "is-scrolled" : ""}`}>
           <div className="top-header-left">
             <button
               type="button"
-              className="menu-toggle btn-icon"
+              className="menu-toggle"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              aria-label="Toggle menu"
+              aria-label="Open mobile navigation"
+              title="Open navigation"
             >
               <svg
                 width="20"
@@ -313,6 +469,7 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
                 stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
+                strokeLinejoin="round"
               >
                 <line x1="3" y1="6" x2="21" y2="6" />
                 <line x1="3" y1="12" x2="21" y2="12" />
@@ -328,7 +485,6 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
           <div className="top-header-right">
             {role && <span className="top-header-role-badge">{role}</span>}
 
-            {/* Notification Bell Dropdown */}
             <NotificationDropdown />
 
             <div className="user-menu-wrap" ref={userMenuRef}>
@@ -369,14 +525,18 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
 
               {userMenuOpen && (
                 <div className="user-menu-dropdown" role="menu" aria-label="User Account Menu">
-                  {/* Profile Card Header */}
                   <div className="user-menu-profile-card">
                     <div className="user-menu-card-avatar-wrap">
-                      {userPhoto ? (
+                      {userPhoto && !isPlaceholderPhoto(userPhoto) && !photoError ? (
                         <img
                           className="user-menu-card-avatar"
-                          src={`${import.meta.env.VITE_API_URL}/uploads/${userPhoto}`}
+                          src={
+                            userPhoto.startsWith("http") || userPhoto.startsWith("data:")
+                              ? userPhoto
+                              : `${import.meta.env.VITE_API_URL}/uploads/${userPhoto}`
+                          }
                           alt={userName}
+                          onError={() => setPhotoError(true)}
                         />
                       ) : (
                         <span className="user-menu-card-initials">{initials}</span>
@@ -411,7 +571,6 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
 
                   <div className="user-menu-divider" />
 
-                  {/* Menu Navigation Items */}
                   <div className="user-menu-items">
                     <button
                       type="button"
@@ -441,7 +600,6 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
                       </svg>
                     </button>
 
-                    {/* Quick Theme Toggle Item */}
                     {themeStore && (
                       <button
                         type="button"
@@ -479,7 +637,6 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
 
                   <div className="user-menu-divider" />
 
-                  {/* Logout Button */}
                   <button
                     type="button"
                     className="user-menu-item user-menu-logout"
@@ -496,7 +653,6 @@ function AppLayout({ children, title, subtitle, breadcrumbs }) {
           </div>
         </header>
 
-        {/* Main Content Area with Dedicated Breadcrumbs on Top */}
         <main className="app-main">
           {breadcrumbs && breadcrumbs.length > 0 && (
             <div className="app-main-breadcrumb-bar">

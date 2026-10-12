@@ -1,0 +1,240 @@
+
+.pending-email-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1px solid #fcd34d;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pending-email-banner-icon {
+  flex-shrink: 0;
+  color: #d97706;
+  margin-top: 2px;
+}
+
+.pending-email-banner-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.pending-email-banner-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #92400e;
+  margin: 0 0 4px;
+}
+
+.pending-email-banner-desc {
+  font-size: 12.5px;
+  color: #78350f;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.pending-email-banner-desc strong {
+  color: #92400e;
+}
+
+.pending-email-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.pending-email-resend-btn {
+  padding: 7px 14px;
+  background: #d97706;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s;
+  white-space: nowrap;
+}
+
+.pending-email-resend-btn:hover:not(:disabled) {
+  background: #b45309;
+}
+
+.pending-email-resend-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.pending-email-cancel-btn {
+  padding: 7px 12px;
+  background: transparent;
+  color: #92400e;
+  border: 1px solid #d97706;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+
+.pending-email-cancel-btn:hover {
+  background: rgba(217, 119, 6, 0.1);
+  color: #78350f;
+}
+
+.pending-email-cancel-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+[data-theme="dark"] .pending-email-banner {
+  background: linear-gradient(135deg, rgba(120, 53, 15, 0.3) 0%, rgba(69, 26, 3, 0.45) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+[data-theme="dark"] .pending-email-banner-icon {
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .pending-email-banner-title {
+  color: #fde68a;
+}
+
+[data-theme="dark"] .pending-email-banner-desc {
+  color: #fed7aa;
+}
+
+[data-theme="dark"] .pending-email-banner-desc strong {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .pending-email-cancel-btn {
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fde68a;
+}
+
+[data-theme="dark"] .pending-email-cancel-btn:hover {
+  background: rgba(245, 158, 11, 0.15);
+  color: #ffffff;
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .pending-email-banner {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    grid-template-areas:
+      "icon body"
+      "actions actions";
+    gap: 10px 14px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+  }
+
+  .pending-email-banner-icon {
+    grid-area: icon;
+    margin-top: 2px;
+  }
+
+  .pending-email-banner-body {
+    grid-area: body;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .pending-email-actions {
+    grid-area: actions;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .pending-email-resend-btn {
+    flex: initial;
+    width: auto;
+    padding: 7px 14px;
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+
+  .pending-email-cancel-btn {
+    flex: initial;
+    width: auto;
+    padding: 7px 12px;
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .pending-email-banner {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    grid-template-areas:
+      "icon body"
+      "actions actions";
+    gap: 10px 12px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    border-radius: 8px;
+  }
+
+  .pending-email-banner-icon {
+    grid-area: icon;
+    margin-top: 2px;
+  }
+
+  .pending-email-banner-body {
+    grid-area: body;
+    min-width: 0;
+  }
+
+  .pending-email-banner-title {
+    font-size: 13px;
+    margin-bottom: 3px;
+  }
+
+  .pending-email-banner-desc {
+    font-size: 12px;
+    word-break: break-word;
+  }
+
+  .pending-email-actions {
+    grid-area: actions;
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .pending-email-resend-btn,
+  .pending-email-cancel-btn {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+    padding: 8px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 420px) {
+  .pending-email-actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .pending-email-resend-btn,
+  .pending-email-cancel-btn {
+    width: 100%;
+    padding: 8px 12px;
+  }
+}

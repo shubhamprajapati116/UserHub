@@ -1,7 +1,7 @@
-/* eslint-disable react-hooks/set-state-in-effect */
-/* eslint-disable react-refresh/only-export-components */
+
+
 import { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import "../ForgotPassword/forgotpassword.css";
 import { toast } from "react-toastify";
 import { useStore } from "../../stores/StoreContext";
@@ -36,15 +36,15 @@ function Spinner() {
 
 function ResetPassword() {
   const { token } = useParams();
+  const [searchParams] = useSearchParams();
+  const isEmergency = searchParams.get("emergency") === "true";
   const { userStore } = useStore();
   const loading = userStore.loading.resetPassword;
   const navigate = useNavigate();
 
-  // 'checking' | 'valid' | 'invalid'
   const [tokenStatus, setTokenStatus] = useState("checking");
   const [invalidReason, setInvalidReason] = useState("");
 
-  // Post-reset success state & redirect countdown
   const [isSuccess, setIsSuccess] = useState(false);
   const [redirectTimer, setRedirectTimer] = useState(3);
 
@@ -54,7 +54,6 @@ function ResetPassword() {
   });
   const [error, setError] = useState({});
 
-  // 1️⃣ Check token validity on component mount & on token change
   useEffect(() => {
     let isMounted = true;
     setTokenStatus("checking");
@@ -98,7 +97,6 @@ function ResetPassword() {
     };
   }, [token, userStore]);
 
-  // ⏱️ Auto-redirect countdown after successful reset
   useEffect(() => {
     if (!isSuccess || redirectTimer === 0) {
       if (isSuccess && redirectTimer === 0) {
@@ -164,13 +162,11 @@ function ResetPassword() {
   return (
     <div className="auth-centered-page">
       <div className="auth-centered-card">
-        {/* Logo */}
         <div className="auth-centered-logo">
           <div className="auth-mobile-logo-icon">U</div>
           <span>UserHub</span>
         </div>
 
-        {/* ── 1. CHECKING TOKEN STATE ── */}
         {tokenStatus === "checking" && (
           <div className="auth-state-box">
             <div
@@ -201,7 +197,6 @@ function ResetPassword() {
           </div>
         )}
 
-        {/* ── 2. INVALID OR EXPIRED TOKEN STATE ── */}
         {tokenStatus === "invalid" && (
           <div className="auth-state-box">
             <div className="auth-status-badge badge-danger">
@@ -261,7 +256,6 @@ function ResetPassword() {
           </div>
         )}
 
-        {/* ── 3. SUCCESS STATE (AFTER RESET) ── */}
         {tokenStatus === "valid" && isSuccess && (
           <div className="auth-state-box">
             <div className="auth-status-badge badge-emerald">
@@ -302,13 +296,44 @@ function ResetPassword() {
           </div>
         )}
 
-        {/* ── 4. VALID TOKEN FORM (ENTER NEW PASSWORD) ── */}
         {tokenStatus === "valid" && !isSuccess && (
           <>
+            {isEmergency && (
+              <div
+                style={{
+                  backgroundColor: "#fef2f2",
+                  border: "1px solid #fecaca",
+                  borderRadius: "10px",
+                  padding: "14px 16px",
+                  marginBottom: "18px",
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "12px",
+                  color: "#991b1b",
+                  fontSize: "0.88rem",
+                  lineHeight: "1.45",
+                  textAlign: "left",
+                }}
+              >
+                <div style={{ fontSize: "1.3rem", lineHeight: 1 }}>🛑</div>
+                <div>
+                  <strong style={{ color: "#991b1b", display: "block", marginBottom: "3px" }}>
+                    Emergency Account Lockdown Activated!
+                  </strong>
+                  <span>
+                    All unauthorized active sessions across all devices have been terminated. Enter a new strong password below to regain exclusive control of your account.
+                  </span>
+                </div>
+              </div>
+            )}
             <h2 style={{ fontSize: "1.25rem", fontWeight: "700", marginBottom: "4px" }}>
-              Set New Password
+              {isEmergency ? "Set New Secure Password" : "Set New Password"}
             </h2>
-            <p className="auth-subtitle">Choose a strong password to protect your account.</p>
+            <p className="auth-subtitle">
+              {isEmergency
+                ? "Your compromised password has been revoked. Set a new password to finish securing your account."
+                : "Choose a strong password to protect your account."}
+            </p>
 
             <form noValidate onSubmit={handleSubmit}>
               <label className="form-label" htmlFor="password">

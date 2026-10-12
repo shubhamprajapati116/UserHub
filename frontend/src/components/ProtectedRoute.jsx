@@ -1,4 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
+ 
 import { Navigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../stores/StoreContext";

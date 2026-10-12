@@ -1,5 +1,5 @@
-/* eslint-disable react-hooks/set-state-in-effect */
-/* eslint-disable react-refresh/only-export-components */
+
+
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useStore } from "../../stores/StoreContext";
@@ -13,7 +13,6 @@ function VerifyEmail() {
   const { userStore } = useStore();
   const hasRequested = useRef(false);
 
-  // 'verifying' | 'success' | 'error'
   const [status, setStatus] = useState("verifying");
   const [message, setMessage] = useState("");
   const [redirectTimer, setRedirectTimer] = useState(3);
@@ -48,7 +47,6 @@ function VerifyEmail() {
     }
   };
 
-  // 1️⃣ Verify Token on mount
   useEffect(() => {
     if (hasRequested.current) return;
     hasRequested.current = true;
@@ -75,7 +73,6 @@ function VerifyEmail() {
     verify();
   }, [token, userStore]);
 
-  // 2️⃣ Auto-Redirect to login on Success
   useEffect(() => {
     if (status !== "success" || redirectTimer === 0) {
       if (status === "success" && redirectTimer === 0) {
@@ -94,13 +91,11 @@ function VerifyEmail() {
   return (
     <div className="auth-centered-page">
       <div className="auth-centered-card">
-        {/* Logo */}
         <div className="auth-centered-logo">
           <div className="auth-mobile-logo-icon">U</div>
           <span>UserHub</span>
         </div>
 
-        {/* ── 1. LOADING / VERIFYING STATE ── */}
         {status === "verifying" && (
           <div className="auth-state-box">
             <div
@@ -129,7 +124,6 @@ function VerifyEmail() {
           </div>
         )}
 
-        {/* ── 2. SUCCESS STATE ── */}
         {status === "success" && (
           <div className="auth-state-box">
             <div className="auth-status-badge badge-emerald">
@@ -171,7 +165,6 @@ function VerifyEmail() {
           </div>
         )}
 
-        {/* ── 3. ERROR / EXPIRED STATE ── */}
         {status === "error" && (
           <div className="auth-state-box">
             <div className="auth-status-badge badge-danger">

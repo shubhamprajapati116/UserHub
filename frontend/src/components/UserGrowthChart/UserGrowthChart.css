@@ -1,7 +1,4 @@
-/* ══════════════════════════════════════════════════════════
-   User Registration Velocity Chart Card
-   Matches Concept 5: Dark Minimalist SaaS Area Spline & Bar
-   ══════════════════════════════════════════════════════════ */
+
 
 .growth-velocity-card {
   position: relative;
@@ -32,7 +29,14 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
-/* ── Top Header Toolbar ── */
+.growth-velocity-card:has(.velocity-skeleton-canvas) {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-theme="light"] .growth-velocity-card:has(.velocity-skeleton-canvas) {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+}
+
 .velocity-card-header {
   display: flex;
   align-items: center;
@@ -63,7 +67,10 @@
   margin: 0;
 }
 
-/* ── Quick Contextual KPI Badge in Header ── */
+[data-theme="light"] .velocity-card-title {
+  color: #0f172a;
+}
+
 .velocity-kpi-badge {
   display: inline-flex;
   align-items: center;
@@ -103,7 +110,6 @@
   opacity: 0.85;
 }
 
-/* ── Controls Toolbar (Mode, Type, Timeframe) ── */
 .velocity-controls-bar {
   display: flex;
   align-items: center;
@@ -111,7 +117,6 @@
   gap: 8px;
 }
 
-/* ── Segmented Pill Groups ── */
 .velocity-segmented-group {
   display: inline-flex;
   align-items: center;
@@ -176,7 +181,6 @@
   opacity: 1;
 }
 
-/* Desktop vs Mobile label visibility */
 .btn-label-mobile {
   display: none;
 }
@@ -185,7 +189,6 @@
   display: inline;
 }
 
-/* ── Chart Canvas Body ── */
 .velocity-chart-body {
   position: relative;
   width: 100%;
@@ -204,7 +207,6 @@
   cursor: crosshair;
 }
 
-/* ── Gridlines & Axis Numbers ── */
 .velocity-grid-line {
   stroke: rgba(255, 255, 255, 0.06);
   stroke-width: 1;
@@ -228,7 +230,6 @@
   font-family: inherit;
 }
 
-/* ── Curves & Area ── */
 .velocity-area-path {
   pointer-events: none;
 }
@@ -244,7 +245,6 @@
   stroke-width: 1.2;
 }
 
-/* ── Bar Chart Specific Styling ── */
 .velocity-bar-rect {
   transition: opacity 0.15s ease, filter 0.15s ease;
   cursor: pointer;
@@ -268,7 +268,6 @@
   cursor: crosshair;
 }
 
-/* ── Visible Data Points on the Spline Line ── */
 .velocity-point-dot {
   fill: #6380f7;
   stroke: #090e1a;
@@ -300,7 +299,6 @@
   opacity: 0.75;
 }
 
-/* ── Live Pulse Beacon on Latest Point ── */
 .velocity-pulse-ring {
   fill: none;
   stroke: #7a96fc;
@@ -332,7 +330,6 @@
   }
 }
 
-/* ── Hover Indicator Point Dot & Halo ── */
 .velocity-indicator-halo {
   fill: rgba(91, 124, 246, 0.25);
   animation: haloPulse 1.8s infinite ease-out;
@@ -348,7 +345,6 @@
   cursor: crosshair;
 }
 
-/* ── Floating Tooltip Pill ── */
 .velocity-tooltip-pill {
   position: absolute;
   pointer-events: none;
@@ -398,13 +394,237 @@
   to { opacity: 1; }
 }
 
-/* ── Updating & Loading States ── */
-.velocity-updating-overlay {
+.velocity-kpi-badge.loading {
+  background: rgba(99, 128, 247, 0.08);
+  border-color: rgba(99, 128, 247, 0.18);
+}
+
+.velocity-kpi-skeleton-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.velocity-spinner-xs {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid rgba(99, 128, 247, 0.3);
+  border-top-color: #6380f7;
+  border-radius: 50%;
+  animation: spinSlow 0.6s linear infinite;
+  display: inline-block;
+}
+
+.velocity-kpi-skeleton-text {
+  font-size: 0.72rem;
+  color: var(--text-muted, #94a3b8);
+  letter-spacing: -0.01em;
+}
+
+.velocity-chart-skeleton {
+  position: relative;
+  width: 100%;
+  min-height: 185px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px dashed rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  box-sizing: border-box;
+  animation: skeletonPulse 2s ease-in-out infinite;
+}
+
+[data-theme="light"] .velocity-chart-skeleton {
+  background: rgba(241, 245, 249, 0.5);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.95; }
+  50% { opacity: 0.72; }
+}
+
+.velocity-skeleton-grid {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 10;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 30px;
   pointer-events: none;
+}
+
+.velocity-skeleton-gridline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.05) 15%, rgba(255, 255, 255, 0.05) 85%, transparent 100%);
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+}
+
+[data-theme="light"] .velocity-skeleton-gridline {
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.05) 15%, rgba(0, 0, 0, 0.05) 85%, transparent 100%);
+}
+
+.velocity-skeleton-y-pill {
+  width: 18px;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .velocity-skeleton-y-pill {
+  background: rgba(0, 0, 0, 0.07);
+}
+
+.velocity-skeleton-wave-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  opacity: 0.12;
+}
+
+.velocity-skeleton-wave-path {
+  color: #6380f7;
+  animation: waveDash 1.8s linear infinite;
+}
+
+@keyframes waveDash {
+  to { stroke-dashoffset: -40; }
+}
+
+.velocity-skeleton-loader-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+  z-index: 5;
+  user-select: none;
+}
+
+[data-theme="light"] .velocity-skeleton-loader-badge {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: none;
+}
+
+.velocity-spinner-ring {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(99, 128, 247, 0.25);
+  border-top-color: #6380f7;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: spinSlow 0.7s linear infinite;
+}
+
+.velocity-skeleton-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.velocity-loader-title {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: -0.01em;
+}
+
+[data-theme="light"] .velocity-loader-title {
+  color: #0f172a;
+}
+
+.velocity-loader-sub {
+  font-size: 0.71875rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+[data-theme="light"] .velocity-loader-sub {
+  color: #64748b;
+}
+
+.velocity-skeleton-x-ticks {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.velocity-skeleton-x-pill {
+  width: 28px;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .velocity-skeleton-x-pill {
+  background: rgba(0, 0, 0, 0.07);
+}
+
+.velocity-updating-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(14, 22, 38, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 15;
+  border-radius: 10px;
+  pointer-events: none;
+  animation: pillFadeIn 0.2s ease;
+}
+
+[data-theme="light"] .velocity-updating-backdrop {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.velocity-updating-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="light"] .velocity-updating-pill {
+  background: #ffffff;
+  border-color: rgba(99, 102, 241, 0.25);
+  color: #3b82f6;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
 }
 
 .velocity-spinner-sm {
@@ -416,34 +636,91 @@
   animation: spinSlow 0.6s linear infinite;
 }
 
-.velocity-loading-state,
+.velocity-error-state,
 .velocity-empty-state {
-  min-height: 180px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  color: var(--text-muted, #64748b);
-  font-size: 0.8125rem;
+  text-align: center;
+  padding: 24px 16px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
-.velocity-spinner {
-  width: 24px;
-  height: 24px;
-  border: 2.5px solid rgba(91, 124, 246, 0.2);
-  border-top-color: #5b7cf6;
+.velocity-error-icon {
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  animation: spinSlow 0.75s linear infinite;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.velocity-error-msg {
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #94a3b8);
+  margin: 0 0 12px 0;
+}
+
+.velocity-retry-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 14px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid rgba(99, 128, 247, 0.35);
+  background: rgba(99, 128, 247, 0.15);
+  color: #6380f7;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.velocity-retry-btn:hover {
+  background: #6380f7;
+  color: #ffffff;
+}
+
+.velocity-empty-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.18);
+  color: #818cf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.velocity-empty-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+  margin: 0 0 4px 0;
+}
+
+[data-theme="light"] .velocity-empty-title {
+  color: #1e293b;
+}
+
+.velocity-empty-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
 }
 
 @keyframes spinSlow {
   to { transform: rotate(360deg); }
 }
-
-/* ══════════════════════════════════════════════════════════
-   Responsive Adjustments (Mobile, Tablet, Desktop)
-   ══════════════════════════════════════════════════════════ */
 
 @media (max-width: 900px) {
   .velocity-card-header {

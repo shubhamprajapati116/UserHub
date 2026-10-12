@@ -1,7 +1,4 @@
-/* ════════════════════════════════════════════════════════════════
-   🌟 Real-World Modern SaaS Breadcrumb System
-   Strictly using project CSS variables & supporting Light / Dark mode
-   ════════════════════════════════════════════════════════════════ */
+
 
 .breadcrumb-nav-container {
   display: inline-flex;
@@ -32,12 +29,12 @@
   flex-wrap: nowrap;
   max-width: 100%;
   overflow-x: auto;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .breadcrumb-trail::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
 }
 
 .breadcrumb-item {
@@ -54,7 +51,6 @@
   flex-shrink: 1;
 }
 
-/* ── Interactive Pills ── */
 .breadcrumb-pill {
   display: inline-flex;
   align-items: center;
@@ -84,7 +80,6 @@
   box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
-/* ── Home Button Pill ── */
 .breadcrumb-home-link {
   color: var(--text-muted);
   padding: 5px 7px;
@@ -100,7 +95,6 @@
   flex-shrink: 0;
 }
 
-/* ── Current Active Page Pill ── */
 .breadcrumb-current {
   color: var(--text-primary);
   font-weight: 600;
@@ -122,7 +116,6 @@
   max-width: 220px;
 }
 
-/* ── Separator Chevron ── */
 .breadcrumb-chevron {
   color: var(--text-muted);
   opacity: 0.6;
@@ -138,7 +131,6 @@
   font-size: 0.875rem;
 }
 
-/* ── Responsive Behavior ── */
 @media (max-width: 768px) {
   .breadcrumb-nav-container {
     padding: 3px 5px;

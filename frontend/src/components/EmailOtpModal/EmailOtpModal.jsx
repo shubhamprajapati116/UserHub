@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./EmailOtpModal.css";
 
 function Spinner() {
@@ -54,7 +54,6 @@ export default function EmailOtpModal({
     }
 
     setTimer(60);
-    // Auto focus first input box on open
     const timeout = setTimeout(() => {
       inputRefs.current[0]?.focus();
     }, 120);
@@ -141,7 +140,7 @@ export default function EmailOtpModal({
   const displayError = localError || error;
 
   return (
-    <div className="email-otp-overlay" onClick={(e) => e.target === e.currentTarget && onCancel()}>
+    <div className="email-otp-overlay">
       <div className="email-otp-card" role="dialog" aria-modal="true" aria-labelledby="email-otp-title">
         <button
           type="button"

@@ -2,9 +2,35 @@ import { toast } from "react-toastify";
 
 const apirequest = async (url, options = {}) => {
   try {
+    const headers = { ...(options.headers || {}) };
+    const hasContentType = Object.keys(headers).some(
+      (k) => k.toLowerCase() === "content-type",
+    );
+    if (
+      !hasContentType &&
+      options.body &&
+      typeof options.body === "string" &&
+      !(options.body instanceof FormData)
+    ) {
+      headers["Content-Type"] = "application/json";
+    }
+
+    const token = localStorage.getItem("token");
+    if (token && !headers.Authorization && !headers.authorization) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const deviceId = localStorage.getItem("deviceId");
+    if (deviceId && !headers["x-device-id"] && !headers["X-Device-Id"]) {
+      headers["x-device-id"] = deviceId;
+    }
+
     const response = await fetch(
       `${import.meta.env.VITE_API_URL}${url}`,
-      options,
+      {
+        ...options,
+        headers,
+      },
     );
 
     const text = await response.text();
@@ -19,12 +45,29 @@ const apirequest = async (url, options = {}) => {
       };
     }
     if (response.status === 401) {
-      if (!url.includes("/login")) {
+      const publicPaths = [
+        "/login",
+        "/register",
+        "/forgotpassword",
+        "/forgot-password",
+        "/reset-password",
+        "/verify-email",
+        "/accept-invite",
+      ];
+      const isPublicPath =
+        window.location.pathname === "/" ||
+        publicPaths.some((p) => window.location.pathname.startsWith(p));
+      const isPublicApi =
+        url.includes("/login") ||
+        url.includes("/register") ||
+        url.includes("/check-email") ||
+        url.includes("/invite");
+
+      if (!isPublicApi && !data?.field) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        // localStorage.removeItem("role");
 
-        if (!window.location.pathname.includes("/login")) {
+        if (!isPublicPath) {
           toast.error(data?.message || "Session expired. Please login again.", {
             toastId: "session-expired",
           });

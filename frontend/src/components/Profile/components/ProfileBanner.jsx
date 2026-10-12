@@ -1,18 +1,16 @@
 import { useState, useEffect, useRef } from "react";
-import { getBannerById, loadedImageUrls } from "./bannerData";
+import { getBannerById, loadedImageUrls, preloadAllBanners } from "./bannerData";
 import { FiCamera, FiLoader } from "react-icons/fi";
 
-function ProfileBanner({ bannerId, onOpenEditModal, isUpdating }) {
+function ProfileBanner({ bannerId, onOpenEditModal, isUpdating, isLoading }) {
   const bannerObj = getBannerById(bannerId);
   const imgRef = useRef(null);
 
-  // If already loaded in memory cache, initialize as loaded immediately (0ms delay)
   const isCached = loadedImageUrls.has(bannerObj.image);
   const [imageLoaded, setImageLoaded] = useState(isCached);
   const prevImageRef = useRef(bannerObj.image);
 
   useEffect(() => {
-    // If the banner image actually changed
     if (prevImageRef.current !== bannerObj.image) {
       prevImageRef.current = bannerObj.image;
       if (!loadedImageUrls.has(bannerObj.image)) {
@@ -20,19 +18,16 @@ function ProfileBanner({ bannerId, onOpenEditModal, isUpdating }) {
       }
     }
 
-    // Check if DOM image is already complete (browser cache)
-    if (imgRef.current && (imgRef.current.complete || imgRef.current.naturalWidth > 0)) {
+    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
       setImageLoaded(true);
       loadedImageUrls.add(bannerObj.image);
     }
 
-    // Failsafe safety timeout: ensure loading never hangs
-    const safetyTimer = setTimeout(() => {
+    const networkTimeout = setTimeout(() => {
       setImageLoaded(true);
-      loadedImageUrls.add(bannerObj.image);
-    }, 450);
+    }, 12000);
 
-    return () => clearTimeout(safetyTimer);
+    return () => clearTimeout(networkTimeout);
   }, [bannerObj.image]);
 
   const handleLoaded = () => {
@@ -40,47 +35,53 @@ function ProfileBanner({ bannerId, onOpenEditModal, isUpdating }) {
     loadedImageUrls.add(bannerObj.image);
   };
 
-  // Only show loading if actively updating or image genuinely not loaded yet
-  const showLoading = isUpdating || (!imageLoaded && !loadedImageUrls.has(bannerObj.image));
+  const handleError = () => {
+    setImageLoaded(true);
+  };
+
+  const isBannerShimmering = isLoading || !imageLoaded;
 
   return (
     <div className="profile-banner">
-      {/* Shimmer / Skeleton Loader ONLY when actively changing or first loading */}
-      {showLoading && (
-        <div className="profile-banner-skeleton">
+      {isBannerShimmering && (
+        <div className="profile-banner-skeleton" aria-hidden="true">
           <div className="banner-skeleton-shimmer"></div>
-          <div className="banner-skeleton-badge">
-            <FiLoader className="banner-skeleton-spinner" size={14} />
-            <span>Updating banner...</span>
-          </div>
         </div>
       )}
 
-      {/* Actual Banner Image */}
       <img
         ref={imgRef}
         src={bannerObj.image}
         alt={bannerObj.name || "Profile Cover Banner"}
-        className={`profile-banner-img ${!showLoading ? "loaded" : "loading"}`}
+        className={`profile-banner-img ${imageLoaded ? "loaded" : "loading"}`}
         onLoad={handleLoaded}
-        onError={handleLoaded}
+        onError={handleError}
+        loading="eager"
+        fetchPriority="high"
         decoding="async"
       />
 
-      {/* Bottom Subtle Gradient Fade */}
-      <div className="banner-overlay-fade"></div>
+      {isUpdating && (
+        <div className="profile-banner-updating-badge">
+          <FiLoader className="banner-skeleton-spinner" size={13} />
+          <span>Updating banner...</span>
+        </div>
+      )}
 
-      {/* Small Edit Banner Button */}
-      <button
-        type="button"
-        className="profile-banner-edit-btn"
-        onClick={onOpenEditModal}
-        title="Change cover banner"
-        aria-label="Edit Cover Banner"
-      >
-        <FiCamera size={14} className="banner-edit-icon" />
-        <span className="banner-edit-text">Edit Banner</span>
-      </button>
+      {!isLoading && (
+        <button
+          type="button"
+          className="profile-banner-edit-btn"
+          onClick={onOpenEditModal}
+          onMouseEnter={preloadAllBanners}
+          onFocus={preloadAllBanners}
+          title="Change cover banner"
+          aria-label="Edit Cover Banner"
+        >
+          <FiCamera size={14} className="banner-edit-icon" />
+          <span className="banner-edit-text">Edit Banner</span>
+        </button>
+      )}
     </div>
   );
 }

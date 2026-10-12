@@ -15,11 +15,10 @@ function ProfileCompletion({ loading, percentage, onHideCompletion }) {
           <div className="completion-progress">
             <div className="skeleton skeleton-completion-percentage"></div>
 
-            <div className="completion-bar"></div>
+            <div className="completion-bar skeleton"></div>
           </div>
 
           <div className="skeleton skeleton-completion-text"></div>
-          <div className="skeleton skeleton-completion-text skeleton-completion-text-short"></div>
         </>
       ) : (
         <>

@@ -2,7 +2,7 @@
   margin-top: 24px;
 }
 
-/* ── Interactive Unverified Email Banner ── */
+
 .login-unverified-callout {
   margin-top: 16px;
   padding: 14px 16px;
@@ -91,3 +91,24 @@
   opacity: 0.75;
   box-shadow: none;
 }
+
+
+[data-theme="dark"] .login-unverified-callout {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .luc-icon-box {
+  background: rgba(245, 158, 11, 0.22);
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .luc-title {
+  color: #fde68a;
+}
+
+[data-theme="dark"] .luc-desc {
+  color: #cbd5e1;
+}
+

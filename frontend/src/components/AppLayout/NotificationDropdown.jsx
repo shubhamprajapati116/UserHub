@@ -19,7 +19,6 @@ function formatTimeAgo(dateString) {
   return date.toLocaleDateString();
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 const NotificationIcon = ({ type }) => {
   if (type === "welcome") {
     return (
@@ -103,7 +102,6 @@ const NotificationIcon = ({ type }) => {
     );
   }
 
-  // password_change default
   return (
     <div className="notif-icon-wrap password-change">
       <svg
@@ -123,7 +121,6 @@ const NotificationIcon = ({ type }) => {
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 function NotificationDropdown() {
   const { notificationStore } = useStore();
   const [isOpen, setIsOpen] = useState(false);
@@ -131,27 +128,31 @@ function NotificationDropdown() {
 
   const { notifications, unreadCount, isLoading } = notificationStore;
 
-  // Initial fetch, window focus refresh, and auto-refresh interval
   useEffect(() => {
     notificationStore.fetchNotifications();
 
-    const handleFocus = () => {
-      notificationStore.fetchNotifications();
+    const handleSync = () => {
+      if (!document.hidden) {
+        notificationStore.fetchNotifications();
+      }
     };
 
-    window.addEventListener("focus", handleFocus);
+    window.addEventListener("focus", handleSync);
+    document.addEventListener("visibilitychange", handleSync);
 
     const interval = setInterval(() => {
-      notificationStore.fetchNotifications();
-    }, 8000); // 8s polling for responsive updates
+      if (!document.hidden) {
+        notificationStore.fetchNotifications();
+      }
+    }, 20000);
 
     return () => {
-      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("focus", handleSync);
+      document.removeEventListener("visibilitychange", handleSync);
       clearInterval(interval);
     };
   }, [notificationStore]);
 
-  // Click outside to close
   useEffect(() => {
     if (!isOpen) return;
 
@@ -225,8 +226,11 @@ function NotificationDropdown() {
       </button>
 
       {isOpen && (
-        <div className="notif-dropdown-card" role="dialog" aria-label="Notifications Panel">
-          {/* Header */}
+        <div
+          className="notif-dropdown-card"
+          role="dialog"
+          aria-label="Notifications Panel"
+        >
           <div className="notif-dropdown-header">
             <div className="notif-header-title-wrap">
               <span className="notif-header-title">Notifications</span>
@@ -246,7 +250,6 @@ function NotificationDropdown() {
             )}
           </div>
 
-          {/* List */}
           <div className="notif-list-body">
             {isLoading && notifications.length === 0 ? (
               <div className="notif-empty-state">
@@ -321,7 +324,6 @@ function NotificationDropdown() {
             )}
           </div>
 
-          {/* Footer */}
           {notifications.length > 0 && (
             <div className="notif-dropdown-footer">
               <button

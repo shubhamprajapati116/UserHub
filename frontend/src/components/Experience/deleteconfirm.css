@@ -147,9 +147,6 @@
   transform: translateY(-1px);
 }
 
-/* ════════════════════════════════════════════════════════════════
-   📱 Responsive Media Queries for Delete Modal
-   ════════════════════════════════════════════════════════════════ */
 @media (max-width: 480px) {
   .del-modal-overlay {
     padding: 10px;
@@ -219,3 +216,27 @@
     min-height: 34px;
   }
 }
+
+[data-theme="dark"] .del-modal-card {
+  background: #0f172a;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75);
+}
+
+[data-theme="dark"] .del-item-preview {
+  background: #131c2e;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .del-cancel-btn {
+  background: #162033;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .del-cancel-btn:hover {
+  background: #1e293b;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/StoreContext";
@@ -15,10 +14,11 @@ function AdminDashboard() {
   const users = userStore.users;
   const totalUsers = userStore.totalUsers;
   const backendStats = userStore.stats;
-  const loading = userStore.loading.fetchAnalytics && !backendStats;
+  const loading =
+    (userStore.loading.fetchStats || userStore.loading.fetchAnalytics) &&
+    !backendStats;
 
   useEffect(() => {
-    // Dedicated fetch to load aggregate metrics and numbers for KPI cards (without corrupting userStore.users)
     userStore.fetchStats();
     userStore.fetchTodayUsers();
   }, []);
@@ -49,8 +49,7 @@ function AdminDashboard() {
     backendStats?.maleUsersCount !== undefined
       ? backendStats.maleUsersCount
       : users.filter((u) => u.gender?.toLowerCase() === "male").length +
-        (matchesCurrentUser &&
-        currentUser?.gender?.toLowerCase() === "male"
+        (matchesCurrentUser && currentUser?.gender?.toLowerCase() === "male"
           ? 1
           : 0);
 
@@ -58,8 +57,7 @@ function AdminDashboard() {
     backendStats?.femaleUsersCount !== undefined
       ? backendStats.femaleUsersCount
       : users.filter((u) => u.gender?.toLowerCase() === "female").length +
-        (matchesCurrentUser &&
-        currentUser?.gender?.toLowerCase() === "female"
+        (matchesCurrentUser && currentUser?.gender?.toLowerCase() === "female"
           ? 1
           : 0);
 
@@ -74,14 +72,10 @@ function AdminDashboard() {
       ).length +
       (matchesCurrentUser &&
       currentUser?.createdAt &&
-      new Date(currentUser.createdAt).toDateString() === new Date().toDateString()
+      new Date(currentUser.createdAt).toDateString() ===
+        new Date().toDateString()
         ? 1
         : 0);
-
-  const verifiedPercentage =
-    systemTotalUsers > 0
-      ? Math.round((verifiedCount / systemTotalUsers) * 100)
-      : 100;
 
   const activeUsersCount =
     backendStats?.activeUsersCount !== undefined
@@ -106,7 +100,6 @@ function AdminDashboard() {
 
   const unverifiedCount = Math.max(0, systemTotalUsers - verifiedCount);
 
-  // Restricted accounts strictly include moderated/penalized users (Suspended & Banned).
   const restrictedCount = suspendedCount + bannedCount;
 
   const kpiStats = [
@@ -164,7 +157,8 @@ function AdminDashboard() {
       subtext: "Suspended or banned users",
       value: restrictedCount,
       colorType: "amber",
-      badge: restrictedCount > 0 ? `${restrictedCount} Action Req.` : "All Clean",
+      badge:
+        restrictedCount > 0 ? `${restrictedCount} Action Req.` : "All Clean",
       icon: (
         <svg
           width="16"
@@ -215,7 +209,6 @@ function AdminDashboard() {
       subtitle="System overview, user growth analytics, and key platform metrics"
     >
       <div className="admin-dashboard-wrapper">
-        {/* ── Section Header: Overview & Analytics ── */}
         <div className="dashboard-section-header dash-top-toolbar">
           <div className="section-header-left">
             <div className="section-header-icon-box">
@@ -238,7 +231,8 @@ function AdminDashboard() {
             <div className="section-header-content">
               <h2 className="section-header-title">Overview & Analytics</h2>
               <p className="section-header-sub">
-                Platform performance, registration trends, and key platform metrics summary
+                Platform performance, registration trends, and key platform
+                metrics summary
               </p>
             </div>
           </div>
@@ -250,7 +244,6 @@ function AdminDashboard() {
           </div>
         </div>
 
-        {/* ── Precision Metric KPI Grid ── */}
         <div className="admin-stat-grid">
           {loading
             ? Array.from({ length: 4 }).map((_, i) => (
@@ -302,7 +295,6 @@ function AdminDashboard() {
               ))}
         </div>
 
-        {/* ── Visual Ratio Breakdown Widget (Role, Verification, Gender) ── */}
         <DemographicsWidget
           systemTotalUsers={systemTotalUsers}
           adminCount={adminCount}
@@ -318,19 +310,18 @@ function AdminDashboard() {
           loading={loading}
         />
 
-        {/* ── Split Grid: Velocity Chart (Desktop Only) / Mobile Info Card + Today's Registered Users ── */}
         <div className="dash-split-grid">
-          {/* Desktop & Tablet Chart */}
           <div className="dash-chart-col desktop-tablet-chart">
             <UserGrowthChart />
           </div>
 
-          {/* Mobile Info Card (replaces chart on mobile <= 767px) */}
           <div className="dash-chart-mobile-info">
             <div className="dash-chart-mobile-header">
               <div className="dash-chart-mobile-title-wrap">
                 <h3 className="dash-chart-mobile-title">Registration Trends</h3>
-                <span className="dash-chart-mobile-sub">Growth and registration analytics</span>
+                <span className="dash-chart-mobile-sub">
+                  Growth and registration analytics
+                </span>
               </div>
               <span className="dash-chart-desktop-pill">
                 <svg
@@ -373,7 +364,8 @@ function AdminDashboard() {
                 Chart Available on Desktop & Tablet
               </h4>
               <p className="dash-chart-empty-desc">
-                Interactive growth charts are optimized for larger screens. Open on tablet or desktop to view detailed trends.
+                Interactive growth charts are optimized for larger screens. Open
+                on tablet or desktop to view detailed trends.
               </p>
             </div>
           </div>

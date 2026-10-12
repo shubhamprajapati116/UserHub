@@ -1,14 +1,4 @@
-/**
- * ════════════════════════════════════════════════════════════════
- * ✉️ UserHub Enterprise Email Template System
- * Responsive, Modern, Clean HTML Email Templates matching
- * industry standards (Stripe, GitHub, Google Workspace, AWS).
- * ════════════════════════════════════════════════════════════════
- */
 
-/**
- * Common Responsive Base Layout for all emails
- */
 function baseLayout({ title, badge, badgeColor = "#2563eb", contentHtml }) {
   return `
 <!DOCTYPE html>
@@ -24,7 +14,7 @@ function baseLayout({ title, badge, badgeColor = "#2563eb", contentHtml }) {
       <td align="center">
         <!-- Main Card -->
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:560px; background-color:#ffffff; border-radius:14px; border:1px solid #e2e8f0; box-shadow:0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.04); overflow:hidden;">
-          
+
           <!-- Header -->
           <tr>
             <td style="padding:28px 32px 20px; border-bottom:1px solid #f1f5f9; background:linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);">
@@ -76,24 +66,6 @@ function baseLayout({ title, badge, badgeColor = "#2563eb", contentHtml }) {
   `.trim();
 }
 
-/**
- * ════════════════════════════════════════════════════════════════
- * 📌 TEMPLATE 1: Registration Account Verification Email
- * ────────────────────────────────────────────────────────────────
- * • Kiske Liye Hai (Purpose):
- *   Naye register hone wale user ke email address ko verify aur account ko
- *   activate karne ke liye.
- * • Trigger Point:
- *   - Authcontroller.js -> register()
- *   - Authcontroller.js -> resendVerificationEmail()
- * • Recipient:
- *   Naye user ka registered email address.
- * • Functionality:
- *   Isme ek secure time-limited verification link button hota hai. Jab user
- *   is link par click karta hai, to uska account 'isVerified: true' mark
- *   ho jaata hai.
- * ════════════════════════════════════════════════════════════════
- */
 function registerVerificationEmail({ name, verifyUrl }) {
   const contentHtml = `
     <h1 style="margin:0 0 12px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
@@ -131,23 +103,6 @@ function registerVerificationEmail({ name, verifyUrl }) {
   });
 }
 
-/**
- * ════════════════════════════════════════════════════════════════
- * 📌 TEMPLATE 2: Login Security 6-Digit OTP Email (2FA / New Device)
- * ────────────────────────────────────────────────────────────────
- * • Kiske Liye Hai (Purpose):
- *   Jab user kisi naye device, unrecognized browser ya IP se login karta
- *   hai to identity verify karne ke liye 6-digit OTP code bheja jaata hai.
- * • Trigger Point:
- *   - Authcontroller.js -> login()
- *   - Authcontroller.js -> resendLoginOtp()
- * • Recipient:
- *   User ka registered email address.
- * • Functionality:
- *   Large font 6-digit OTP box jo 10 minutes me expire hota hai.
- *   Saath me security warning ki ye code kisi ke saath share na karein.
- * ════════════════════════════════════════════════════════════════
- */
 function loginOtpEmail({ name, otp, deviceDesc, timeStr }) {
   const contentHtml = `
     <h1 style="margin:0 0 10px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
@@ -192,22 +147,6 @@ function loginOtpEmail({ name, otp, deviceDesc, timeStr }) {
   });
 }
 
-/**
- * ════════════════════════════════════════════════════════════════
- * 📌 TEMPLATE 3: Password Reset Link Email
- * ────────────────────────────────────────────────────────────────
- * • Kiske Liye Hai (Purpose):
- *   Jab user apna password bhool jaata hai aur "Forgot Password" form se
- *   reset link request karta hai.
- * • Trigger Point:
- *   - Authcontroller.js -> forgotpassword()
- * • Recipient:
- *   User ka registered email address.
- * • Functionality:
- *   15 minutes valid cryptographic reset token link. Is par click karke
- *   user seedhe "Reset Password" page par pahunch kar naya password set karta hai.
- * ════════════════════════════════════════════════════════════════
- */
 function passwordResetEmail({ name, resetUrl, verifyUrl }) {
   const url = resetUrl || verifyUrl;
   const contentHtml = `
@@ -246,24 +185,6 @@ function passwordResetEmail({ name, resetUrl, verifyUrl }) {
   });
 }
 
-/**
- * ════════════════════════════════════════════════════════════════
- * 📌 TEMPLATE 4: Self Profile Email Change - 6-Digit OTP Email
- * ────────────────────────────────────────────────────────────────
- * • Kiske Liye Hai (Purpose):
- *   Jab user khud apni profile ya Security settings me jaakar apna
- *   email address change karne ki request daalta hai.
- * • Trigger Point:
- *   - profileController.js -> requestEmailChange()
- *   - profileController.js -> resendEmailChangeOtp()
- *   - profileController.js -> changeEmail()
- * • Recipient:
- *   User ka NAYA (NEW) requested email address (inbox ownership confirm karne ke liye).
- * • Functionality:
- *   6-digit verification code jo 10 minutes tak valid rehta hai. User is
- *   code ko Edit Profile modal me submit karke email change finalize karta hai.
- * ════════════════════════════════════════════════════════════════
- */
 function selfEmailChangeOtpEmail({ name, newEmail, otp }) {
   const contentHtml = `
     <h1 style="margin:0 0 10px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
@@ -302,25 +223,69 @@ function selfEmailChangeOtpEmail({ name, newEmail, otp }) {
   });
 }
 
-/**
- * ════════════════════════════════════════════════════════════════
- * 📌 TEMPLATE 5: Admin-Initiated Email Change Pending Verification Link
- * ────────────────────────────────────────────────────────────────
- * • Kiske Liye Hai (Purpose):
- *   Jab Administrator Admin Panel se kisi user ka email change karta hai,
- *   to bina verification ke user ka purana access band nahi hota. Naye email
- *   par verification link bheja jaata hai.
- * • Trigger Point:
- *   - usercontroller.js -> updateUser()
- *   - usercontroller.js -> resendPendingEmailVerification()
- *   - Authcontroller.js -> resendVerificationEmail() (agar pendingEmail exist karta ho)
- * • Recipient:
- *   User ka NAYA (NEW / Requested) email address.
- * • Functionality:
- *   Naye email par click-to-confirm link provide karta hai. Jab tak user is
- *   link ko click karke confirm nahi karta, uska purana email active rehta hai.
- * ════════════════════════════════════════════════════════════════
- */
+function authorizeEmailChangeEmail({
+  name,
+  currentEmail,
+  newEmail,
+  otp,
+  emergencyRevokeUrl,
+}) {
+  const contentHtml = `
+    <h1 style="margin:0 0 10px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
+      Authorize Email Address Change 🔐
+    </h1>
+    <p style="margin:0 0 16px; font-size:14.5px; color:#475569; line-height:1.6;">
+      Hello ${name || "User"}, a request was submitted on your UserHub account to change your login email address.
+    </p>
+
+    <div style="background-color:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:14px 18px; margin:18px 0;">
+      <div style="font-size:13px; color:#64748b; margin-bottom:6px;">Current Registered Email: <strong style="color:#0f172a;">${currentEmail}</strong></div>
+      <div style="font-size:13px; color:#64748b;">Requested New Email: <strong style="color:#2563eb;">${newEmail}</strong></div>
+    </div>
+
+    <p style="margin:0 0 16px; font-size:14px; color:#475569; line-height:1.6;">
+      To authorize this change, enter the following 6-digit security code in your UserHub Security Settings modal:
+    </p>
+
+    <!-- OTP Box -->
+    <div style="background:linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%); border:1.5px dashed #3b82f6; border-radius:12px; padding:22px 16px; text-align:center; margin:22px 0;">
+      <div style="font-size:12px; font-weight:700; color:#2563eb; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:10px;">
+        Security Authorization Code
+      </div>
+      <div style="font-size:38px; font-weight:800; letter-spacing:10px; color:#0f172a; font-family:'SF Mono', Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; line-height:1;">
+        ${otp}
+      </div>
+      <div style="margin-top:10px; font-size:12px; color:#64748b;">
+        ⏱️ Code valid for <strong>10 minutes</strong>. Never share this code with anyone.
+      </div>
+    </div>
+
+    <!-- 🚨 Emergency Attack Defense Card -->
+    <div style="background-color:#fff1f2; border:1px solid #fecdd3; border-radius:10px; padding:16px 18px; margin:26px 0 16px;">
+      <div style="margin-bottom:8px;">
+        <span style="font-size:16px; margin-right:8px;">🚨</span>
+        <strong style="font-size:14px; color:#9f1239;">Did NOT request this change?</strong>
+      </div>
+      <p style="margin:0 0 14px; font-size:13px; color:#9f1239; line-height:1.5;">
+        If you did not initiate this request, someone may be logged into your account without your permission! Click below immediately to terminate all active sessions, cancel the email change, and lock down your account:
+      </p>
+      <div style="text-align:center;">
+        <a href="${emergencyRevokeUrl}" style="display:inline-block; padding:11px 24px; background:linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color:#ffffff; text-decoration:none; border-radius:8px; font-weight:700; font-size:13px; box-shadow:0 4px 12px rgba(220, 38, 38, 0.3);">
+          🛑 Revoke All Sessions & Secure Account
+        </a>
+      </div>
+    </div>
+  `;
+
+  return baseLayout({
+    title: "Authorize Email Change - UserHub",
+    badge: "Security Authorization",
+    badgeColor: "#2563eb",
+    contentHtml,
+  });
+}
+
+
 function adminEmailChangePendingVerificationEmail({
   name,
   oldEmail,
@@ -368,29 +333,6 @@ function adminEmailChangePendingVerificationEmail({
   });
 }
 
-/**
- * ════════════════════════════════════════════════════════════════
- * 📌 TEMPLATE 6: Security Notice to OLD Email Address (ZERO OTP in message)
- * ────────────────────────────────────────────────────────────────
- * • Kiske Liye Hai (Purpose):
- *   Jab bhi account ka email address change karne ki request create hoti hai ya
- *   complete hoti hai, to purane email inbox par instant security alert bheja jaata hai.
- * • Trigger Point:
- *   - profileController.js -> requestEmailChange()
- *   - profileController.js -> verifyEmailChangeOtp()
- *   - profileController.js -> changeEmail()
- *   - usercontroller.js -> updateUser()
- *   - usercontroller.js -> completePendingEmailVerification()
- *   - Authcontroller.js -> resendVerificationEmail()
- * • Recipient:
- *   User ka PURANA / CURRENT ACTIVE email address.
- * • Security Rule:
- *   Is email me KABHI BHI OTP ya confirmation link NAHI hota. Agar purana
- *   inbox hack bhi hua ho, to attacker verification code intercept nahi kar
- *   sakta. Isme user ko password change karne aur support se contact karne ki
- *   warning hoti hai.
- * ════════════════════════════════════════════════════════════════
- */
 function oldEmailChangeNoticeTemplate({
   name,
   oldEmail,
@@ -430,23 +372,6 @@ function oldEmailChangeNoticeTemplate({
   });
 }
 
-/**
- * ════════════════════════════════════════════════════════════════
- * 📌 TEMPLATE 7: Email Change Completed Success Notice
- * ────────────────────────────────────────────────────────────────
- * • Kiske Liye Hai (Purpose):
- *   Naye email address ki verification successfully complete hone ke baad
- *   user ko final success confirmation bhejne ke liye.
- * • Trigger Point:
- *   - profileController.js -> verifyEmailChangeOtp()
- *   - usercontroller.js -> completePendingEmailVerification()
- * • Recipient:
- *   NAYA (Successfully Updated Primary) email address.
- * • Functionality:
- *   User ko confirm karta hai ki ab unka naya email officially account ka
- *   primary login aur communication email ban chuka hai.
- * ════════════════════════════════════════════════════════════════
- */
 function emailChangeSuccessTemplate({ name, newEmail }) {
   const contentHtml = `
     <h1 style="margin:0 0 12px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
@@ -477,23 +402,6 @@ function emailChangeSuccessTemplate({ name, newEmail }) {
   });
 }
 
-/**
- * ════════════════════════════════════════════════════════════════
- * 📌 TEMPLATE 8: Admin Global Session Revocation Security Alert Email
- * ────────────────────────────────────────────────────────────────
- * • Kiske Liye Hai (Purpose):
- *   Jab administrator kisi user ke sabhi active device sessions ko ek sath
- *   terminate (force logout) kar deta hai (e.g. security breach suspicion).
- * • Trigger Point:
- *   - usercontroller.js -> revokeAllUserSessions()
- * • Recipient:
- *   User ka registered email address.
- * • Security Rule:
- *   Is email me ZERO expiring login tokens ya password bypass links hote hain.
- *   User ko kewal standard login page ka link milta hai taaki wo secure tarike
- *   se login credentials enter karke dubara authenticate kare.
- * ════════════════════════════════════════════════════════════════
- */
 function sessionRevocationAlertEmail({ name, loginUrl, sessionCount = 0 }) {
   const contentHtml = `
     <h1 style="margin:0 0 12px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
@@ -552,25 +460,6 @@ function sessionRevocationAlertEmail({ name, loginUrl, sessionCount = 0 }) {
   });
 }
 
-/**
- * ════════════════════════════════════════════════════════════════
- * 📌 TEMPLATE 9: Unrecognized / New Device Login Security Alert (Out-of-Band)
- * ────────────────────────────────────────────────────────────────
- * • Kiske Liye Hai (Purpose):
- *   Jab user kisi naye device, unrecognized browser ya IP se OTP verify karke
- *   successfully sign-in karta hai, to real user ke inbox me instant out-of-band
- *   security notification alert bheja jaata hai.
- * • Trigger Point:
- *   - Authcontroller.js -> verifyLoginOtp()
- * • Recipient:
- *   User ka registered email address (Personal Inbox).
- * • Functionality:
- *   Device name, IP address aur timestamp clearly display karta hai, aur
- *   sath me "Review & Revoke Sessions" button provide karta hai jo user ko
- *   seedhe Settings/Sessions page par le jaata hai taaki unknown session ko
- *   turant revoke kiya ja sake.
- * ════════════════════════════════════════════════════════════════
- */
 function newDeviceLoginAlertEmail({
   name,
   deviceDesc,
@@ -634,15 +523,147 @@ function newDeviceLoginAlertEmail({
   });
 }
 
+function emergencyLockNoticeEmail({ name, resetUrl }) {
+  const contentHtml = `
+    <h1 style="margin:0 0 10px; font-size:22px; font-weight:700; color:#dc2626; letter-spacing:-0.02em;">
+      Emergency Account Lockdown Activated 🛑
+    </h1>
+    <p style="margin:0 0 16px; font-size:14.5px; color:#475569; line-height:1.6;">
+      Hello ${name || "User"}, your UserHub account was immediately locked down following your emergency kill-switch request.
+    </p>
+
+    <div style="background-color:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:16px 18px; margin:20px 0;">
+      <div style="font-weight:700; color:#991b1b; margin-bottom:8px; font-size:14px;">
+        🛡️ Protective Actions Executed:
+      </div>
+      <ul style="margin:0; padding-left:20px; color:#991b1b; font-size:13.5px; line-height:1.6;">
+        <li>All active login sessions across all devices were terminated immediately.</li>
+        <li>The unauthorized pending email change request was cancelled.</li>
+        <li>Your old password was invalidated and scrambled.</li>
+      </ul>
+    </div>
+
+    <p style="margin:0 0 20px; font-size:14px; color:#475569; line-height:1.6;">
+      To regain secure access to your account, please set a brand new password using the button below:
+    </p>
+
+    <div style="text-align:center; margin:25px 0;">
+      <a href="${resetUrl}" style="display:inline-block; padding:12px 28px; background:linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color:#ffffff; text-decoration:none; border-radius:8px; font-weight:700; font-size:14px; box-shadow:0 4px 12px rgba(37, 99, 235, 0.3);">
+        Set New Password Now
+      </a>
+    </div>
+
+    <p style="font-size:12.5px; color:#64748b; line-height:1.5;">
+      ⏱️ This link will expire in <strong>30 minutes</strong> for your safety. If you need any assistance, contact our security team immediately.
+    </p>
+  `;
+
+  return baseLayout({
+    title: "Account Lockdown Activated - UserHub",
+    badge: "Emergency Lockdown",
+    badgeColor: "#dc2626",
+    contentHtml,
+  });
+}
+
+function adminInvitationEmail({ name, invitedByName, acceptUrl, expiresAtStr }) {
+  const contentHtml = `
+    <h1 style="margin:0 0 10px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
+      You've Been Invited to UserHub! 🎉
+    </h1>
+    <p style="margin:0 0 16px; font-size:14.5px; color:#475569; line-height:1.6;">
+      Hello <strong>${name || "there"}</strong>,
+    </p>
+    <p style="margin:0 0 20px; font-size:14.5px; color:#475569; line-height:1.6;">
+      <strong>${invitedByName || "An administrator"}</strong> has invited you to join the <strong>UserHub</strong> platform. To activate your account and access the workspace, please confirm your email address and set your secure password.
+    </p>
+
+    <div style="background-color:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:16px 18px; margin:20px 0;">
+      <div style="font-weight:700; color:#166534; margin-bottom:6px; font-size:14px;">
+        ✨ What happens next?
+      </div>
+      <ul style="margin:0; padding-left:20px; color:#15803d; font-size:13.5px; line-height:1.6;">
+        <li>Click the button below to accept your invitation.</li>
+        <li>Choose a secure password known only to you.</li>
+        <li>Your account will be verified and instantly ready to use.</li>
+      </ul>
+    </div>
+
+    <div style="text-align:center; margin:28px 0;">
+      <a href="${acceptUrl}" style="display:inline-block; padding:13px 32px; background:linear-gradient(135deg, #2563eb 0%, #4f46e5 100%); color:#ffffff; text-decoration:none; border-radius:8px; font-weight:700; font-size:15px; box-shadow:0 4px 14px rgba(37, 99, 235, 0.35); letter-spacing:0.01em;">
+        Accept Invitation & Set Password
+      </a>
+    </div>
+
+    <div style="background-color:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 14px; margin:20px 0; font-size:12px; color:#64748b; word-break:break-all;">
+      Or copy and paste this link into your browser:<br/>
+      <a href="${acceptUrl}" style="color:#2563eb; text-decoration:underline;">${acceptUrl}</a>
+    </div>
+
+    <p style="font-size:12.5px; color:#64748b; line-height:1.5; margin:0;">
+      ⏱️ For your security, this invitation link will expire in <strong>7 days</strong>${expiresAtStr ? ` (${expiresAtStr})` : ""}. If you were not expecting this invitation, you can safely ignore this email.
+    </p>
+  `;
+
+  return baseLayout({
+    title: "You've been invited to UserHub",
+    badge: "Account Invitation",
+    badgeColor: "#2563eb",
+    contentHtml,
+  });
+}
+
+function inviteAcceptedWelcomeEmail({ name, loginUrl }) {
+  const contentHtml = `
+    <h1 style="margin:0 0 10px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
+      Welcome to UserHub! 🚀
+    </h1>
+    <p style="margin:0 0 16px; font-size:14.5px; color:#475569; line-height:1.6;">
+      Hello <strong>${name || "User"}</strong>, your account has been successfully verified and your password has been set.
+    </p>
+
+    <div style="background-color:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:16px 18px; margin:20px 0;">
+      <div style="font-weight:700; color:#166534; margin-bottom:4px; font-size:14px;">
+        ✅ Account Activated
+      </div>
+      <p style="margin:0; color:#15803d; font-size:13.5px; line-height:1.5;">
+        You can now sign in at any time with your email and password.
+      </p>
+    </div>
+
+    <div style="text-align:center; margin:26px 0;">
+      <a href="${loginUrl}" style="display:inline-block; padding:12px 30px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#ffffff; text-decoration:none; border-radius:8px; font-weight:700; font-size:14.5px; box-shadow:0 4px 12px rgba(16, 185, 129, 0.3);">
+        Sign In to Your Account
+      </a>
+    </div>
+
+    <p style="font-size:12.5px; color:#64748b; line-height:1.5; margin:0;">
+      If you did not activate this account, please contact our security team immediately.
+    </p>
+  `;
+
+  return baseLayout({
+    title: "Account Activated - UserHub",
+    badge: "Welcome",
+    badgeColor: "#10b981",
+    contentHtml,
+  });
+}
+
 module.exports = {
   baseLayout,
   registerVerificationEmail,
   loginOtpEmail,
   passwordResetEmail,
   selfEmailChangeOtpEmail,
+  authorizeEmailChangeEmail,
+  emergencyLockNoticeEmail,
   adminEmailChangePendingVerificationEmail,
   oldEmailChangeNoticeTemplate,
   emailChangeSuccessTemplate,
   sessionRevocationAlertEmail,
   newDeviceLoginAlertEmail,
+  adminInvitationEmail,
+  inviteAcceptedWelcomeEmail,
 };
+

@@ -1,3 +1,28 @@
+const getInitials = (name) => {
+  if (!name) return "U";
+  const parts = name.trim().split(" ").filter(Boolean);
+  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
+const getInitialsBg = (name) => {
+  const gradients = [
+    "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+    "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
+    "linear-gradient(135deg, #ec4899 0%, #be185d 100%)",
+    "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+    "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+    "linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)",
+    "linear-gradient(135deg, #6366f1 0%, #4338ca 100%)",
+  ];
+  let hash = 0;
+  const str = name || "User";
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return gradients[Math.abs(hash) % gradients.length];
+};
+
 function ProfileHeader({
   user,
   loading,
@@ -19,12 +44,23 @@ function ProfileHeader({
           <div className="skeleton skeleton-profile-avatar"></div>
         ) : (
           <>
-            <img
-              className="profile-avatar"
-              src={avatarSrc}
-              alt={user?.name || "Profile"}
-              onClick={onOpenImageModal}
-            />
+            {avatarSrc ? (
+              <img
+                className="profile-avatar"
+                src={avatarSrc}
+                alt={user?.name || "Profile"}
+                onClick={onOpenImageModal}
+              />
+            ) : (
+              <div
+                className="profile-avatar profile-avatar-initials-view"
+                style={{ background: getInitialsBg(user?.name) }}
+                title={user?.name || "Profile"}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {getInitials(user?.name)}
+              </div>
+            )}
 
             <button
               type="button"

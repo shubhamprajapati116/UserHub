@@ -1,14 +1,10 @@
-/* ==========================================================================
-   ⚡ EditUserForm — Sleek, Modern, Ultra-Responsive Profile Form
-   Flawless on Large Desktop, Laptops with Sidebar, Tablets, & Mobile Phones
-   ========================================================================== */
+
 
 .edit-user-form {
   width: 100%;
   box-sizing: border-box;
 }
 
-/* ── Outer Split Grid (Desktop Side-by-Side on screens >= 1240px) ── */
 .euf-container {
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
@@ -17,10 +13,6 @@
   width: 100%;
   box-sizing: border-box;
 }
-
-/* ══════════════════════════════════════════════════════════════════════════
-   1. Left Column: Compact Profile Identity & Avatar Card
-   ══════════════════════════════════════════════════════════════════════════ */
 
 .euf-identity-card {
   position: relative;
@@ -42,7 +34,6 @@
   border-color: rgba(99, 102, 241, 0.3);
 }
 
-/* Subtle Top Ambient Glow */
 .euf-ambient-glow {
   position: absolute;
   top: 0;
@@ -53,7 +44,6 @@
   pointer-events: none;
 }
 
-/* ── Compact Concentric Avatar Ring ── */
 .euf-avatar-wrapper {
   position: relative;
   margin-bottom: 12px;
@@ -118,7 +108,6 @@
   box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
 }
 
-/* ── User Identity Meta ── */
 .euf-identity-info {
   display: flex;
   flex-direction: column;
@@ -180,7 +169,6 @@
   border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
-/* ── Photo Actions & Format Hint Wrapper ── */
 .euf-actions-wrapper {
   display: flex;
   flex-direction: column;
@@ -262,10 +250,6 @@
   text-align: center;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   2. Right Column: Unified Form Card (Consolidated & Compact)
-   ══════════════════════════════════════════════════════════════════════════ */
-
 .euf-form-card {
   position: relative;
   background: var(--bg-card, #111726);
@@ -281,7 +265,6 @@
   container-type: inline-size;
 }
 
-/* ── Card Header ── */
 .euf-card-header {
   display: flex;
   align-items: center;
@@ -330,7 +313,6 @@
   white-space: nowrap;
 }
 
-/* ── Form Body & Grids ── */
 .euf-form-body {
   display: flex;
   flex-direction: column;
@@ -349,7 +331,6 @@
   gap: 13px;
 }
 
-/* ── Field Groups & Labels ── */
 .euf-field-group {
   display: flex;
   flex-direction: column;
@@ -410,7 +391,6 @@
   background: rgba(245, 158, 11, 0.08);
 }
 
-/* ── Input Wrapper with Leading Icon (Height 36px) ── */
 .euf-input-wrap {
   display: flex;
   align-items: center;
@@ -455,7 +435,6 @@
   opacity: 0.75;
 }
 
-/* Focus States */
 .euf-input-wrap:focus-within {
   border-color: var(--accent, #6366f1);
   background: var(--bg-card, #111726);
@@ -466,7 +445,6 @@
   color: var(--accent, #6366f1);
 }
 
-/* Error States */
 .euf-input-wrap.has-error {
   border-color: #ef4444 !important;
   box-shadow: 0 0 0 2.5px rgba(239, 68, 68, 0.18) !important;
@@ -476,7 +454,6 @@
   color: #ef4444;
 }
 
-/* Readonly Input */
 .euf-input-wrap.readonly {
   background: rgba(255, 255, 255, 0.03);
   border-color: rgba(255, 255, 255, 0.08);
@@ -498,7 +475,6 @@
   flex-shrink: 0;
 }
 
-/* ── Integrated AppDatePicker Overrides ── */
 .euf-picker-wrap {
   width: 100%;
   min-width: 0;
@@ -534,7 +510,6 @@
   box-shadow: 0 0 0 2.5px rgba(99, 102, 241, 0.2) !important;
 }
 
-/* ── Integrated CustomSelect Overrides ── */
 .euf-select-wrap {
   width: 100%;
   min-width: 0;
@@ -558,7 +533,6 @@
   box-shadow: 0 0 0 2.5px rgba(99, 102, 241, 0.2) !important;
 }
 
-/* ── Bio Textarea (Height 76px, custom sleek scrollbar) ── */
 .euf-textarea-container {
   width: 100%;
 }
@@ -613,7 +587,6 @@
   box-shadow: 0 0 0 2.5px rgba(239, 68, 68, 0.18);
 }
 
-/* ── Form Error Message ── */
 .euf-error-text {
   font-size: 0.68rem;
   color: #ef4444;
@@ -621,10 +594,6 @@
   display: block;
   margin-top: 2px;
 }
-
-/* ══════════════════════════════════════════════════════════════════════════
-   3. Integrated Action Bar Footer
-   ══════════════════════════════════════════════════════════════════════════ */
 
 .euf-card-footer {
   display: flex;
@@ -716,7 +685,6 @@
   transform: none;
 }
 
-/* Spinner */
 .btn-spinner {
   width: 13px;
   height: 13px;
@@ -730,10 +698,6 @@
     transform: rotate(360deg);
   }
 }
-
-/* ══════════════════════════════════════════════════════════════════════════
-   4. Light Mode Overrides
-   ══════════════════════════════════════════════════════════════════════════ */
 
 [data-theme="light"] .euf-identity-card,
 [data-theme="light"] .euf-form-card {
@@ -806,10 +770,6 @@
   background: #cbd5e1;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   5. CONTAINER QUERIES (Intrinsically Adaptable to Any Parent Width)
-   ══════════════════════════════════════════════════════════════════════════ */
-
 @container (max-width: 640px) {
   .euf-fields-grid.trio {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -837,12 +797,6 @@
   }
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   6. COMPLETE RESPONSIVE MEDIA QUERIES (Universal Fallback)
-   ══════════════════════════════════════════════════════════════════════════ */
-
-/* ── Screen Width <= 1239px (Laptops with sidebar, iPads, half-windows):
-   Switch to the Sleek Stacked Banner so the form card has 100% width ── */
 @media (max-width: 1239px) {
   .euf-container {
     grid-template-columns: 1fr;
@@ -921,7 +875,6 @@
   }
 }
 
-/* ── Tablet / Medium Viewports (<= 760px) ── */
 @media (max-width: 760px) {
   .euf-fields-grid.trio {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -947,7 +900,6 @@
   }
 }
 
-/* ── Mobile Viewport (<= 580px) ── */
 @media (max-width: 580px) {
   .euf-container {
     gap: 12px;
@@ -985,7 +937,6 @@
     width: 100%;
   }
 
-  /* Photo buttons: compact, balanced, never bloated */
   .euf-photo-actions {
     display: inline-flex;
     flex-direction: row;
@@ -1018,7 +969,6 @@
     font-size: 0.67rem;
   }
 
-  /* Form Fields collapse to 1 column */
   .euf-fields-grid,
   .euf-fields-grid.trio {
     grid-template-columns: 1fr;
@@ -1047,7 +997,6 @@
     min-height: 37px !important;
   }
 
-  /* Footer Action Buttons on Mobile: Proper sizing, clean alignment */
   .euf-card-footer {
     flex-direction: column-reverse;
     align-items: center;
@@ -1093,9 +1042,6 @@
   }
 }
 
-/* ══════════════════════════════════════════════════════════════
-   Email Security & Locked Field Styling (Enterprise Standard)
-   ══════════════════════════════════════════════════════════════ */
 .euf-field-label-row {
   display: flex;
   align-items: center;
@@ -1184,3 +1130,51 @@
 .euf-link-btn:hover {
   color: #818cf8;
 }
+
+[data-theme="dark"] .euf-identity-card,
+[data-theme="dark"] .euf-form-card {
+  background: #0f172a;
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="dark"] .euf-card-header {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .euf-card-footer {
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .euf-input-wrap {
+  background: #131c2e;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .euf-input-wrap:focus-within {
+  background: #162033;
+  border-color: #818cf8;
+  box-shadow: 0 0 0 2.5px rgba(99, 102, 241, 0.25);
+}
+
+[data-theme="dark"] .euf-input.readonly {
+  background: #0c121e;
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .euf-input-wrap.readonly-wrap {
+  background: #0c121e;
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="dark"] .euf-btn-cancel {
+  background: #162033;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .euf-btn-cancel:hover:not(:disabled) {
+  background: #1e293b;
+  color: #ffffff;
+}
+

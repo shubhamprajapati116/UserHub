@@ -2,22 +2,6 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./AppDatePicker.css";
 
-/**
- * AppDatePicker — Reusable styled date picker for the whole app.
- *
- * Props:
- *   id             — string  — input id (for label htmlFor)
- *   name           — string  — field name (used in onChange synthetic event)
- *   value          — string  — date string "YYYY-MM-DD" or ISO date or ""
- *   onChange       — fn(e)   — synthetic event handler, same signature as <input onChange>
- *   disabled       — bool
- *   className      — string  — extra class on outer wrapper
- *   inputClassName — string  — extra class on input element
- *   maxDate        — Date    — optional upper limit (e.g. today for dob)
- *   minDate        — Date    — optional lower limit
- *   placeholderText— string
- *   error          — bool    — adds error border
- */
 function AppDatePicker({
   id,
   name,
@@ -31,7 +15,6 @@ function AppDatePicker({
   placeholderText = "Select date",
   error = false,
 }) {
-  // Safely convert date string (YYYY-MM-DD or ISO string) → Date object for the picker
   const parseSelectedDate = (val) => {
     if (!val) return null;
     try {
@@ -50,12 +33,10 @@ function AppDatePicker({
   const selectedDate = parseSelectedDate(value);
 
   const handleDateChange = (date) => {
-    // Convert Date → "YYYY-MM-DD" string and fire a synthetic event
     const formatted = date
-      ? date.toLocaleDateString("en-CA") // gives YYYY-MM-DD
+      ? date.toLocaleDateString("en-CA")
       : "";
 
-    // Fire synthetic event so existing handleChange(e) works unchanged
     const syntheticEvent = {
       target: {
         name,

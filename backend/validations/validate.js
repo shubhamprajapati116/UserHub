@@ -6,6 +6,7 @@ const userSchema = joi.object({
   password: joi.string().min(8).required(),
   dob: joi.date().required(),
   gender: joi.string().valid("male", "female", "other").required(),
+  profilephoto: joi.any().allow("", null).optional(),
 });
 const loginschema = joi.object({
   email: joi.string().trim().email().required(),
@@ -30,10 +31,10 @@ const updateUserSchema = joi.object({
   country: joi.string().trim().max(100).allow("").optional(),
   state: joi.string().trim().max(100).allow("").optional(),
   city: joi.string().trim().max(100).allow("").optional(),
-  role: joi.string().valid("admin", "user").optional(),
   profilephoto: joi.any().optional(),
+  removePhoto: joi.any().optional(),
   profileBanner: joi.string().trim().allow("").optional(),
-});
+}).unknown(true);
 
 const changePasswordValidation = (data) => {
   const changepasswordschema = joi.object({
@@ -51,9 +52,48 @@ const changePasswordValidation = (data) => {
   return changepasswordschema.validate(data);
 };
 
+const inviteUserSchema = joi.object({
+  name: joi.string().trim().min(3).max(50).required().messages({
+    "string.empty": "Full name is required",
+    "string.min": "Full name must be at least 3 characters",
+    "string.max": "Full name cannot exceed 50 characters",
+  }),
+  email: joi.string().trim().email().required().messages({
+    "string.empty": "Email is required",
+    "string.email": "Please enter a valid email address",
+  }),
+  dob: joi.date().required().messages({
+    "any.required": "Date of birth is required",
+  }),
+  gender: joi.string().valid("male", "female", "other").required().messages({
+    "any.only": "Please select a valid gender",
+    "any.required": "Gender is required",
+  }),
+  profilephoto: joi.any().allow("", null).optional(),
+});
+
+const acceptInviteSchema = joi
+  .object({
+    password: joi.string().min(8).required().messages({
+      "string.empty": "Password is required",
+      "string.min": "Password must be at least 8 characters",
+      "any.required": "Password is required",
+    }),
+    confirmPassword: joi
+      .string()
+      .valid(joi.ref("password"))
+      .optional()
+      .messages({
+        "any.only": "Passwords do not match",
+      }),
+  })
+  .required();
+
 module.exports = {
   userSchema,
   loginschema,
   updateUserSchema,
   changePasswordValidation,
+  inviteUserSchema,
+  acceptInviteSchema,
 };

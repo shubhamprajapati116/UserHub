@@ -1,10 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import "./CustomSelect.css";
 
-/**
- * CustomSelect — Reusable styled custom dropdown for forms.
- * Replaces native HTML <select> with a sleek dark glassmorphism component.
- */
 function CustomSelect({
   id,
   name,

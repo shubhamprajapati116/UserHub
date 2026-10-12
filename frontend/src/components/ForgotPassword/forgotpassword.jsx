@@ -1,4 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
+
 import { Link } from "react-router-dom";
 import "./forgotpassword.css";
 import { useState, useEffect } from "react";
@@ -19,12 +19,11 @@ function Spinner() {
 function Forgotpassword() {
   const [error, seterror] = useState("");
   const [email, setemail] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false); // 👈 Success screen toggle
-  const [timer, setTimer] = useState(60); // 👈 60s Countdown
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [timer, setTimer] = useState(60);
   const { userStore } = useStore();
   const loading = userStore.loading.forgotPassword;
 
-  // ⏱️ 60s Countdown Timer Effect
   useEffect(() => {
     if (!isSubmitted || timer === 0) return;
     const interval = setInterval(() => {
@@ -33,7 +32,6 @@ function Forgotpassword() {
     return () => clearInterval(interval);
   }, [isSubmitted, timer]);
 
-  // 1️⃣ Pehli baar Submit karne par
   const handlesubmit = async (e) => {
     e.preventDefault();
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -52,8 +50,8 @@ function Forgotpassword() {
     try {
       const data = await userStore.forgotPassword(email);
       toast.success(data?.message || "Reset link sent!");
-      setIsSubmitted(true); // 👈 Page ko Success State mein badal do
-      setTimer(60); // 60s countdown shuru karo
+      setIsSubmitted(true);
+      setTimer(60);
     } catch (err) {
       if (err?.message?.includes("ENOTFOUND") || err?.message?.includes("connect")) {
         toast.error("Email service unreachable. Please check internet connection.");
@@ -64,13 +62,12 @@ function Forgotpassword() {
     }
   };
 
-  // 2️⃣ Dobara Link bhejne ke liye (Resend Handler)
   const handleResend = async () => {
     if (timer > 0 || loading) return;
     try {
       const data = await userStore.forgotPassword(email);
       toast.success(data?.message || "A new reset link has been sent!");
-      setTimer(60); // Timer fir se 60s par reset
+      setTimer(60);
     } catch (err) {
       if (err?.message?.includes("ENOTFOUND") || err?.message?.includes("connect")) {
         toast.error("Email service unreachable. Please check internet connection.");
@@ -96,7 +93,6 @@ function Forgotpassword() {
           </div>
 
           {!isSubmitted ? (
-            // ── 🔹 STATE 1: Email Form ──
             <>
               <h2>Forgot Password?</h2>
               <p className="auth-subtitle">
@@ -133,7 +129,6 @@ function Forgotpassword() {
               </form>
             </>
           ) : (
-            // ── 🔹 STATE 2: Success Screen ("Check your email") ──
             <div className="auth-state-box">
               <div className="auth-status-badge badge-indigo">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -157,7 +152,6 @@ function Forgotpassword() {
                 <span>Didn&apos;t receive the email? Check your spam folder or request a new link.</span>
               </div>
 
-              {/* Resend Button with Countdown */}
               <button
                 type="button"
                 className="btn btn-primary btn-full"
@@ -173,7 +167,6 @@ function Forgotpassword() {
                 )}
               </button>
 
-              {/* Email change karne ka option */}
               <button
                 type="button"
                 className="btn-change-email"

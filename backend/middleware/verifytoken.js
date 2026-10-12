@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const Session = require("../models/session");
+const User = require("../models/user");
 
 const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -19,12 +20,12 @@ const verifyToken = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id || decoded._id;
 
-    // If token includes sessionId, verify active session
     if (decoded.sessionId) {
       const session = await Session.findOne({
         sessionId: decoded.sessionId,
-        userId: decoded.id || decoded._id,
+        userId,
       });
 
       if (!session) {
@@ -35,35 +36,36 @@ const verifyToken = async (req, res, next) => {
       }
     }
 
-    // Security check: Unverified users cannot use protected endpoints
-    // Security check: Unverified, Suspended, or Banned users cannot use protected endpoints
-    const User = require("../models/user");
-    const userDoc = await User.findById(decoded.id || decoded._id).select(
-      "isVerified status",
-    );
-    if (userDoc) {
-      if (userDoc.status === "suspended") {
-        await Session.deleteMany({ userId: userDoc._id }).catch(() => {});
-        return res.status(403).json({
-          message:
-            "Your account has been suspended by administration. Contact support.",
-        });
-      }
-      if (userDoc.status === "banned") {
-        await Session.deleteMany({ userId: userDoc._id }).catch(() => {});
-        return res.status(403).json({
-          message:
-            "Your account has been permanently banned by administration.",
-        });
-      }
-      if (userDoc.isVerified === false) {
-        await Session.deleteMany({ userId: userDoc._id }).catch(() => {});
-        return res.status(401).json({
-          message:
-            "Your account is unverified. Access is revoked until email verification.",
-        });
-      }
+    const userDoc = await User.findById(userId).select("isVerified status");
+    if (!userDoc) {
+      await Session.deleteMany({ userId }).catch(() => {});
+      return res.status(401).json({
+        message: "User account no longer exists. Please register or log in again.",
+      });
     }
+
+    if (userDoc.status === "suspended") {
+      await Session.deleteMany({ userId: userDoc._id }).catch(() => {});
+      return res.status(403).json({
+        message:
+          "Your account has been suspended by administration. Contact support.",
+      });
+    }
+    if (userDoc.status === "banned") {
+      await Session.deleteMany({ userId: userDoc._id }).catch(() => {});
+      return res.status(403).json({
+        message:
+          "Your account has been permanently banned by administration.",
+      });
+    }
+    if (userDoc.isVerified === false) {
+      await Session.deleteMany({ userId: userDoc._id }).catch(() => {});
+      return res.status(401).json({
+        message:
+          "Your account is unverified. Access is revoked until email verification.",
+      });
+    }
+
     req.user = decoded;
     next();
   } catch (error) {

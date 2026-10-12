@@ -1,4 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
+
 import AppLayout from "../AppLayout/AppLayout";
 import "./ChangePassword.css";
 import { useState,useEffect } from "react";
@@ -203,7 +203,6 @@ function ChangePassword() {
                 </div>
               </form>
 
-              {/* ── In-App Collapsible Forgot Password Dropdown Box ── */}
               <div className={`forgot-password-prompt-box ${isForgotOpen ? "is-open" : ""}`}>
                 <div
                   className="prompt-toggle-header"

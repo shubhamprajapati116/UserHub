@@ -7,7 +7,6 @@ function ProfileBio({ user, loading, onAddBio }) {
         {loading ? (
           <>
             <div className="skeleton skeleton-bio-line"></div>
-            <div className="skeleton skeleton-bio-line"></div>
             <div className="skeleton skeleton-bio-line skeleton-bio-short"></div>
           </>
         ) : user?.bio ? (

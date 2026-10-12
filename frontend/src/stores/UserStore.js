@@ -33,24 +33,32 @@ class UserStore {
     verifyEmail: false,
     experience: false,
     notificationPreferences: false,
+    fetchStats: false,
     fetchAnalytics: false,
+    fetchGrowthAnalytics: false,
     fetchTodayUsers: false,
     requestEmailChange: false,
     verifyEmailChangeOtp: false,
     resendEmailChangeOtp: false,
     cancelEmailChange: false,
+    cancelAdminPendingEmailChange: false,
     resendPendingVerification: false,
+    validateInviteEmail: false,
+    resendInvite: false,
+    cancelInvite: false,
+    getInviteDetails: false,
+    acceptInvite: false,
     updateBanner: false,
     revokeSession: false,
     resendVerification: false,
     updateUserStatus: false,
     revokeSessions: false,
+    bulkDelete: false,
+    bulkRole: false,
   };
-  // Device ID generator & getter
   getDeviceId() {
     let deviceId = localStorage.getItem("deviceId");
     if (!deviceId) {
-      // Unique random device fingerprint string (e.g. dev_8f9a2b1c...)
       deviceId =
         "dev_" +
         Math.random().toString(36).substring(2, 12) +
@@ -77,6 +85,14 @@ class UserStore {
   setAuthLoading(value) {
     this.authLoading = value;
   }
+  get isAuthenticated() {
+    return Boolean(localStorage.getItem("token") && this.currentUser);
+  }
+
+  get user() {
+    return this.currentUser;
+  }
+
   clearCurrentUser() {
     this.currentUser = null;
     localStorage.removeItem("user");
@@ -105,7 +121,6 @@ class UserStore {
     } catch (error) {
       runInAction(() => {
         this.error = error;
-        // Only clear credentials on actual 401 unauthorized errors, NEVER on 429 rate limit or server blips
         if (
           error?.status === 401 ||
           error?.statusCode === 401 ||
@@ -126,22 +141,8 @@ class UserStore {
     }
   }
 
-  async resendPendingVerification() {
-    this.loading.resendPendingVerification = true;
-    try {
-      const response = await apirequest(
-        "/profile/resend-pending-verification",
-        {
-          method: "POST",
-          headers: getAuthHeaders(),
-        },
-      );
-      return response;
-    } finally {
-      runInAction(() => {
-        this.loading.resendPendingVerification = false;
-      });
-    }
+  async resendPendingVerification(id) {
+    return this.resendPendingEmailVerification(id);
   }
 
   async login(formdata) {
@@ -186,7 +187,6 @@ class UserStore {
       });
     }
   }
-  // ── 1. Verify Login OTP Method ──
   async verifyLoginOtp(email, otp) {
     this.loading.login = true;
     this.error = null;
@@ -202,7 +202,6 @@ class UserStore {
         body: JSON.stringify({ email, otp, deviceId }),
       });
 
-      // Token save karo aur Current User state update karo
       if (response.token) {
         localStorage.setItem("token", response.token);
 
@@ -227,7 +226,6 @@ class UserStore {
     }
   }
 
-  // ── 2. Resend Login OTP Method ──
   async resendLoginOtp(email) {
     if (this.loading.resendLoginOtp) return;
     this.loading.resendLoginOtp = true;
@@ -252,7 +250,10 @@ class UserStore {
     }
   }
   async fetchStats() {
-    this.loading.fetchAnalytics = true;
+    runInAction(() => {
+      this.loading.fetchStats = true;
+      this.loading.fetchAnalytics = true;
+    });
     try {
       let response;
       try {
@@ -260,7 +261,6 @@ class UserStore {
           headers: getAuthHeaders(),
         });
       } catch {
-        // Fallback for backward compatibility
         response = await apirequest("/api/admin/users?page=1&limit=1", {
           headers: getAuthHeaders(),
         });
@@ -278,6 +278,7 @@ class UserStore {
       console.error("Failed to fetch admin stats:", error);
     } finally {
       runInAction(() => {
+        this.loading.fetchStats = false;
         this.loading.fetchAnalytics = false;
       });
     }
@@ -327,7 +328,6 @@ class UserStore {
         headers: getAuthHeaders(),
       });
 
-      // Strict race condition guard: only update if this is the latest in-flight request
       if (fetchId === this.currentFetchUsersId) {
         runInAction(() => {
           this.users = response.users || [];
@@ -336,7 +336,7 @@ class UserStore {
           this.systemTotalUsers =
             response.systemTotalUsers ?? response.totalUsers ?? 0;
           this.totalInList =
-            response.totalInList ?? response.users?.length ?? 0;
+            response.totalInList ?? response.totalCount ?? response.users?.length ?? 0;
           this.stats = response.stats || null;
         });
       }
@@ -360,7 +360,6 @@ class UserStore {
   }
 
   async fetchUserGrowthAnalytics(timeframe = "7d") {
-    // 1. Instant Cache: If timeframe was already fetched, display immediately with 0 latency
     if (this.userGrowthCache[timeframe]) {
       runInAction(() => {
         this.userGrowthAnalytics = this.userGrowthCache[timeframe];
@@ -368,8 +367,11 @@ class UserStore {
     }
 
     const fetchId = ++this.currentFetchAnalyticsId;
-    this.loading.fetchAnalytics = true;
-    this.error = null;
+    runInAction(() => {
+      this.loading.fetchGrowthAnalytics = true;
+      this.loading.fetchAnalytics = true;
+      this.error = null;
+    });
 
     try {
       const response = await apirequest(
@@ -379,14 +381,12 @@ class UserStore {
         },
       );
 
-      // 2. Race Condition Guard: Only update active view if this request is still the latest requested
       if (fetchId === this.currentFetchAnalyticsId) {
         runInAction(() => {
           this.userGrowthCache[timeframe] = response;
           this.userGrowthAnalytics = response;
         });
       } else {
-        // Silently preserve in cache for future instant navigation
         this.userGrowthCache[timeframe] = response;
       }
 
@@ -399,6 +399,7 @@ class UserStore {
     } finally {
       if (fetchId === this.currentFetchAnalyticsId) {
         runInAction(() => {
+          this.loading.fetchGrowthAnalytics = false;
           this.loading.fetchAnalytics = false;
         });
       }
@@ -497,7 +498,6 @@ class UserStore {
     this.error = null;
 
     try {
-      // Immediate local cache & MobX reactive state update
       if (this.currentUser) {
         runInAction(() => {
           this.currentUser = { ...this.currentUser, profileBanner: bannerId };
@@ -550,6 +550,13 @@ class UserStore {
         },
         body: JSON.stringify({ newEmail, password }),
       });
+      runInAction(() => {
+        this.error = null;
+        if (this.currentUser) {
+          this.currentUser.pendingEmail = newEmail;
+          localStorage.setItem("user", JSON.stringify(this.currentUser));
+        }
+      });
       return response;
     } catch (error) {
       runInAction(() => {
@@ -580,6 +587,9 @@ class UserStore {
 
       runInAction(() => {
         this.error = null;
+        if (response.token) {
+          localStorage.setItem("token", response.token);
+        }
         if (response.user) {
           this.currentUser = response.user;
           localStorage.setItem("user", JSON.stringify(response.user));
@@ -637,6 +647,9 @@ class UserStore {
         if (response.user) {
           this.currentUser = response.user;
           localStorage.setItem("user", JSON.stringify(response.user));
+        } else if (this.currentUser) {
+          this.currentUser.pendingEmail = null;
+          localStorage.setItem("user", JSON.stringify(this.currentUser));
         }
       });
 
@@ -654,8 +667,8 @@ class UserStore {
   }
 
   async cancelAdminPendingEmailChange(id) {
-    if (this.loading.cancelEmailChange) return;
-    this.loading.cancelEmailChange = true;
+    if (this.loading.cancelAdminPendingEmailChange) return;
+    this.loading.cancelAdminPendingEmailChange = true;
     this.error = null;
 
     try {
@@ -685,7 +698,7 @@ class UserStore {
       throw error;
     } finally {
       runInAction(() => {
-        this.loading.cancelEmailChange = false;
+        this.loading.cancelAdminPendingEmailChange = false;
       });
     }
   }
@@ -716,6 +729,132 @@ class UserStore {
     }
   }
 
+  async validateInviteEmail(email) {
+    return await apirequest("/api/admin/users/validate-email", {
+      method: "POST",
+      headers: {
+        ...getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async resendInvite(id) {
+    if (this.loading.resendInvite) return;
+    this.loading.resendInvite = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest(
+        `/api/admin/users/${id}/resend-invite`,
+        {
+          method: "POST",
+          headers: getAuthHeaders(),
+        },
+      );
+
+      runInAction(() => {
+        const user = this.users.find((u) => u._id === id);
+        if (user) {
+          user.lastInviteSentAt = new Date();
+          user.inviteDeliveryStatus = response.deliveryStatus || "sent";
+          if (response.expiresAt) user.inviteTokenExpire = response.expiresAt;
+        }
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.resendInvite = false;
+      });
+    }
+  }
+
+  async cancelInvite(id) {
+    if (this.loading.cancelInvite) return;
+    this.loading.cancelInvite = true;
+    this.error = null;
+
+    try {
+      const response = await apirequest(`/api/admin/users/${id}/invite`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+
+      runInAction(() => {
+        this.users = this.users.filter((u) => u._id !== id);
+        this.totalCount = Math.max(0, this.totalCount - 1);
+        this.totalUsers = Math.max(0, this.totalUsers - 1);
+        if (this.stats && this.stats.pendingInvitesCount > 0) {
+          this.stats.pendingInvitesCount -= 1;
+        }
+      });
+
+      return response;
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.cancelInvite = false;
+      });
+    }
+  }
+
+  async getInviteDetails(token) {
+    if (this.loading.getInviteDetails) return;
+    this.loading.getInviteDetails = true;
+    this.error = null;
+
+    try {
+      return await apirequest(`/api/invite/${token}`, {
+        method: "GET",
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.getInviteDetails = false;
+      });
+    }
+  }
+
+  async acceptInvite(token, payload) {
+    if (this.loading.acceptInvite) return;
+    this.loading.acceptInvite = true;
+    this.error = null;
+
+    try {
+      return await apirequest(`/api/invite/${token}/accept`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.error = error;
+      });
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.loading.acceptInvite = false;
+      });
+    }
+  }
+
   async updateUser(id, formData) {
     if (this.loading.updateUser) return;
 
@@ -731,6 +870,17 @@ class UserStore {
 
       runInAction(() => {
         this.error = null;
+        if (response.user) {
+          this.editUser = response.user;
+          const idx = this.users.findIndex((u) => u._id === id);
+          if (idx !== -1) {
+            this.users[idx] = response.user;
+          }
+          if (this.currentUser && this.currentUser._id === id) {
+            this.currentUser = response.user;
+            localStorage.setItem("user", JSON.stringify(response.user));
+          }
+        }
       });
 
       return response;
@@ -867,18 +1017,18 @@ class UserStore {
     }
   }
 
-  // ── Public Resend Account Verification (For Unverified / Revoked Users) ──
-  async resendVerificationEmail(email) {
+  async resendVerificationEmail(payload) {
     if (this.loading.resendVerification) return;
     this.loading.resendVerification = true;
     this.error = null;
     try {
+      const body = typeof payload === "string" ? { email: payload } : payload;
       const response = await apirequest("/resend-verification", {
         method: "POST",
         headers: {
           "content-type": "application/json",
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify(body),
       });
       return response;
     } catch (error) {
@@ -894,7 +1044,6 @@ class UserStore {
   }
 
 
-  // ── Admin: Update User Account Status (active | suspended | banned) ──
   async adminUpdateUserStatus(userId, status, reason = "") {
     if (this.loading.updateUserStatus) return;
     this.loading.updateUserStatus = true;
@@ -914,7 +1063,6 @@ class UserStore {
           if (reason) user.statusReason = reason;
         }
       });
-      // Trigger background fetch to keep dashboard KPI metrics synchronized
       this.fetchStats().catch(() => {});
       return response;
     } finally {
@@ -1227,6 +1375,13 @@ class UserStore {
 
       runInAction(() => {
         this.error = null;
+        if (response.user) {
+          this.currentUser = response.user;
+          localStorage.setItem("user", JSON.stringify(response.user));
+        }
+        if (response.token) {
+          localStorage.setItem("token", response.token);
+        }
       });
 
       return response;
@@ -1383,57 +1538,6 @@ class UserStore {
       runInAction(() => {
         this.loading.notificationPreferences = false;
       });
-    }
-  }
-
-  async cancelEmailChange() {
-    try {
-      const response = await apirequest("/profile/cancel-email-change", {
-        method: "DELETE",
-        headers: getAuthHeaders(),
-      });
-
-      runInAction(() => {
-        if (response.user) {
-          this.currentUser = response.user;
-          localStorage.setItem("user", JSON.stringify(response.user));
-        } else if (this.currentUser) {
-          this.currentUser.pendingEmail = null;
-          localStorage.setItem("user", JSON.stringify(this.currentUser));
-        }
-      });
-
-      return response;
-    } catch (error) {
-      runInAction(() => {
-        this.error = error;
-      });
-      throw error;
-    }
-  }
-
-  async verifyEmail(token) {
-    try {
-      return await apirequest(`/verify-email/${token}`, {
-        method: "GET",
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async resendVerificationEmail(payload) {
-    try {
-      const body = typeof payload === "string" ? { email: payload } : payload;
-      return await apirequest("/resend-verification", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-    } catch (error) {
-      throw error;
     }
   }
 }

@@ -1,6 +1,4 @@
-/* ==========================================================================
-   Demographics & Ratio Breakdown Widget — Executive Enterprise SaaS Style
-   ========================================================================== */
+
 
 .demographics-widget-container {
   width: 100%;
@@ -10,7 +8,6 @@
   box-sizing: border-box;
 }
 
-/* ── Unified Modern SaaS Section Header Pattern (System Composition) ── */
 .dashboard-section-header {
   display: flex;
   align-items: center;
@@ -110,7 +107,6 @@
   box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
 }
 
-/* ── 3-Column Grid ── */
 .demographics-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -119,7 +115,6 @@
   box-sizing: border-box;
 }
 
-/* ── Card Base ── */
 .demographics-card {
   position: relative;
   display: flex;
@@ -141,6 +136,23 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
 
+[data-theme="dark"] .demographics-card,
+:root:not([data-theme="light"]) .demographics-card {
+  background: linear-gradient(180deg, #0d1525 0%, #090e1a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .donut-cutout {
+  background: #0d1525;
+}
+
+[data-theme="dark"] .donut-stat-box,
+[data-theme="dark"] .gender-stat-pill {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
 [data-theme="light"] .demographics-card {
   background: #ffffff;
   border-color: #e2e8f0;
@@ -152,7 +164,6 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
-/* ── Card Header ── */
 .demo-card-head {
   display: flex;
   align-items: flex-start;
@@ -182,7 +193,6 @@
   text-overflow: ellipsis;
 }
 
-/* ── Chips ── */
 .demo-chip {
   font-size: 0.65rem;
   font-weight: 700;
@@ -222,9 +232,6 @@
   border: 1px solid rgba(99, 102, 241, 0.3);
 }
 
-/* ══════════════════════════════════════════════════════════
-   1. ROLE RATIO CARD
-   ══════════════════════════════════════════════════════════ */
 .demo-metric-row {
   display: flex;
   align-items: baseline;
@@ -279,7 +286,6 @@
   margin: 0 2px;
 }
 
-/* Dual Segment Progress Bar */
 .demo-progress-wrap {
   display: flex;
   width: 100%;
@@ -335,7 +341,6 @@
   box-shadow: 0 0 8px rgba(20, 184, 166, 0.35);
 }
 
-/* Legend Row */
 .demo-legend-row {
   display: flex;
   align-items: center;
@@ -390,9 +395,6 @@
   color: var(--text-primary, #f8fafc);
 }
 
-/* ══════════════════════════════════════════════════════════
-   2. VERIFICATION HEALTH (DONUT CHART)
-   ══════════════════════════════════════════════════════════ */
 .demo-donut-layout {
   display: flex;
   align-items: center;
@@ -496,9 +498,6 @@
   color: var(--text-muted, #64748b);
 }
 
-/* ══════════════════════════════════════════════════════════
-   3. GENDER DIVERSITY
-   ══════════════════════════════════════════════════════════ */
 .gender-progress-wrap {
   margin-top: 4px;
 }
@@ -572,36 +571,18 @@
   white-space: nowrap;
 }
 
-/* ══════════════════════════════════════════════════════════
-   Skeletons
-   ══════════════════════════════════════════════════════════ */
 .skeleton-demo-card {
   height: 140px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 14px;
 }
 
-/* ══════════════════════════════════════════════════════════
-   📱 Responsive Breakpoints — Tablet & Mobile Optimization
-   ══════════════════════════════════════════════════════════ */
-/* Tablet & Medium Screens (641px to 1024px):
-   Do NOT make cards full width! Keep all 3 state cards in a sleek single row.
-*/
-/* ══════════════════════════════════════════════════════════
-   📱 Responsive Breakpoints — Executive 2+1 Bento Layout
-   ══════════════════════════════════════════════════════════ */
-/* Tablet & Medium Screens (641px to 1150px):
-   Top Row: 2 equal cards (Role Composition & Verification Health).
-   Bottom Row: Gender Diversity spans full width (2 columns).
-   Zero cut-off, zero awkward text wrapping, generous breathing room!
-*/
 @media (max-width: 1150px) {
   .demographics-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
   }
 
-  /* Gender Card spans the full width of row 2 on tablets */
   .demographics-card.gender-card {
     grid-column: 1 / -1;
   }
@@ -637,7 +618,6 @@
     font-size: 0.72rem;
   }
 
-  /* Donut styling on tablet */
   .donut-wrapper {
     width: 72px;
     height: 72px;
@@ -677,7 +657,6 @@
     font-size: 0.65rem;
   }
 
-  /* Generous Gender Pills on Tablet */
   .gender-pill-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
@@ -696,7 +675,6 @@
   }
 }
 
-/* Mobile Devices (<= 640px) */
 @media (max-width: 640px) {
   .dashboard-section-header,
   .demographics-top-bar {
@@ -747,7 +725,6 @@
   }
 }
 
-/* Small Mobile Phones (<= 480px) */
 @media (max-width: 480px) {
   .gender-pill-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -769,9 +746,19 @@
   .gender-pill-label {
     font-size: 0.55rem;
   }
+}
 
-  .gender-pill-val {
-    font-size: 0.62rem;
-  }
+.skeleton-demo-card {
+  min-height: 180px;
+  box-shadow: none !important;
+  background: var(--bg-card, #0e1626) !important;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08)) !important;
+  box-sizing: border-box;
+}
+
+[data-theme="light"] .skeleton-demo-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
 }
 

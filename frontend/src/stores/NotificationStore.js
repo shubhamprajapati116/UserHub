@@ -43,14 +43,13 @@ class NotificationStore {
         this.isLoading = false;
       });
     } catch {
-      runInAction(() => { 
+      runInAction(() => {
         this.isLoading = false;
       });
     }
   }
 
   async markAsRead(id) {
-    // Optimistic update
     const notif = this.notifications.find((n) => n._id === id);
     if (notif && !notif.isRead) {
       notif.isRead = true;
@@ -74,7 +73,6 @@ class NotificationStore {
   }
 
   async markAllAsRead() {
-    // Optimistic update
     this.notifications.forEach((n) => {
       n.isRead = true;
     });
@@ -95,7 +93,6 @@ class NotificationStore {
     const prevNotif = this.notifications.find((n) => n._id === id);
     const wasUnread = prevNotif && !prevNotif.isRead;
 
-    // Optimistic removal
     this.notifications = this.notifications.filter((n) => n._id !== id);
     if (wasUnread && this.unreadCount > 0) {
       this.unreadCount -= 1;

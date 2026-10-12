@@ -1,4 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
+
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -69,7 +69,6 @@ function EditUser() {
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    // eslint-disable-next-line no-useless-assignment
     let relativeStr = "";
     if (diffMins < 2) relativeStr = "Just now";
     else if (diffMins < 60) relativeStr = `${diffMins} minutes ago`;
@@ -100,18 +99,20 @@ function EditUser() {
       const formDataObj = new FormData();
 
       Object.entries(formData).forEach(([key, value]) => {
-        if (key === "profilephoto") return;
+        if (key === "profilephoto" || key === "removePhoto") return;
         formDataObj.append(key, value);
       });
 
       if (formData.profilephoto instanceof File) {
         formDataObj.append("profilephoto", formData.profilephoto);
+      } else if (formData.removePhoto === true || formData.removePhoto === "true" || formData.profilephoto === "") {
+        formDataObj.append("removePhoto", "true");
+        formDataObj.append("profilephoto", "");
       }
       const data = await userStore.updateUser(id, formDataObj);
       setShowEmailConfirmModal(false);
 
       if (data.isEmailChanging) {
-        // Email change is pending verification — show info toast
         toast.info(data.message, { autoClose: 8000 });
       } else {
         toast.success(data.message);

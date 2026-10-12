@@ -19,6 +19,7 @@ function UserFormFields({
   handleSubmit,
   showLoginLink = false,
   showCancelButton = false,
+  showProfilePhoto = false,
   onCancel,
   buttontext,
   loadingtext,
@@ -128,48 +129,50 @@ function UserFormFields({
           </div>
         </div>
 
-        <div className="form-field">
-          <label className="form-label" htmlFor="profilephoto">
-            Profile Photo
-          </label>
+        {showProfilePhoto && (
+          <div className="form-field">
+            <label className="form-label" htmlFor="profilephoto">
+              Profile Photo
+            </label>
 
-          <div className="custom-file-upload">
-            <input
-              type="file"
-              id="profilephoto"
-              name="profilephoto"
-              accept="image/*"
-              onChange={handleChange}
-              disabled={loading}
-              className="file-input-hidden"
-            />
-            <div className="file-upload-label">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="17 8 12 3 7 8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
-              </svg>
-              <span className="file-upload-text">
-                {formData.profilephoto
-                  ? typeof formData.profilephoto === "object"
-                    ? formData.profilephoto.name
-                    : "Photo selected"
-                  : "Choose profile picture..."}
-              </span>
+            <div className="custom-file-upload">
+              <input
+                type="file"
+                id="profilephoto"
+                name="profilephoto"
+                accept="image/*"
+                onChange={handleChange}
+                disabled={loading}
+                className="file-input-hidden"
+              />
+              <div className="file-upload-label">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <span className="file-upload-text">
+                  {formData.profilephoto
+                    ? typeof formData.profilephoto === "object"
+                      ? formData.profilephoto.name
+                      : "Photo selected"
+                    : "Choose profile picture..."}
+                </span>
+              </div>
             </div>
-          </div>
 
-          {errors.profilephoto && (
-            <span className="form-error">{errors.profilephoto}</span>
-          )}
-        </div>
+            {errors.profilephoto && (
+              <span className="form-error">{errors.profilephoto}</span>
+            )}
+          </div>
+        )}
 
         <div className="form-actions">
           {showCancelButton && (

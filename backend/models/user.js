@@ -5,7 +5,7 @@ const UserSchema = new mongoose.Schema(
     name: {
       type: String,
       trim: true,
-    },  
+    },
 
     email: {
       type: String,
@@ -20,7 +20,6 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "banner_5",
     },
-    // New Fields
     phone: {
       type: String,
       default: "",
@@ -64,7 +63,7 @@ const UserSchema = new mongoose.Schema(
       default: null,
     },
 
-      lastLogin: {
+    lastLogin: {
       type: Date,
       default: null,
     },
@@ -104,18 +103,18 @@ const UserSchema = new mongoose.Schema(
       },
     ],
     loginOtp: {
-      type: String, 
+      type: String,
       default: null,
     },
     loginOtpExpire: {
-      type: Date, 
+      type: Date,
       default: null,
     },
     lastOtpSentAt: {
       type: Date,
       default: null,
     },
-    
+
     pendingEmail: {
       type: String,
       lowercase: true,
@@ -130,14 +129,49 @@ const UserSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
-    
+    emergencyLockToken: {
+      type: String,
+      default: null,
+    },
+    emergencyLockExpire: {
+      type: Date,
+      default: null,
+    },
+
     isVerified: {
       type: Boolean,
       default: false,
     },
     verificationToken: String,
-    verificationTokenExpire: Date, 
-    lastVerificationSentAt: Date, 
+    verificationTokenExpire: Date,
+    lastVerificationSentAt: Date,
+
+    accountSource: {
+      type: String,
+      enum: ["self_registered", "admin_invited"],
+      default: "self_registered",
+    },
+    inviteStatus: {
+      type: String,
+      enum: ["pending", "accepted", null],
+      default: null,
+    },
+    invitedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    invitedAt: { type: Date, default: null },
+    inviteAcceptedAt: { type: Date, default: null },
+    inviteTokenHash: { type: String, default: null, index: true, select: false },
+    inviteTokenExpire: { type: Date, default: null },
+    lastInviteSentAt: { type: Date, default: null },
+    inviteDeliveryStatus: {
+      type: String,
+      enum: ["sent", "failed", null],
+      default: null,
+    },
+    inviteDeliveryError: { type: String, default: "" },
 
     loginAttempts: {
       type: Number,

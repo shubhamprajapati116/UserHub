@@ -1,7 +1,4 @@
-/* ══════════════════════════════════════════════════════════
-   Today's Registered Users Card
-   Matches Concept 5: Dark Minimalist List Adjacent to Chart
-   ══════════════════════════════════════════════════════════ */
+
 
 .today-users-card {
   position: relative;
@@ -31,7 +28,6 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
-/* ── Card Header ── */
 .today-users-header {
   display: flex;
   align-items: center;
@@ -89,7 +85,6 @@
   }
 }
 
-/* ── Body / List Container ── */
 .today-users-body {
   position: relative;
   width: 100%;
@@ -105,7 +100,6 @@
   padding-right: 4px;
 }
 
-/* Sleek custom scrollbar */
 .today-users-list::-webkit-scrollbar {
   width: 5px;
 }
@@ -123,7 +117,6 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* ── User Row ── */
 .today-user-row {
   display: flex;
   align-items: center;
@@ -151,7 +144,6 @@
   border-color: #e2e8f0;
 }
 
-/* ── User Avatar ── */
 .today-user-avatar-wrap {
   width: 36px;
   height: 36px;
@@ -183,11 +175,11 @@
   user-select: none;
 }
 
-/* ── User Meta (Name + Role) ── */
 .today-user-meta {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
   flex: 1;
   min-width: 0;
 }
@@ -199,45 +191,27 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.25;
 }
 
-.today-role-badge {
-  display: inline-flex;
-  align-items: center;
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 1.5px 7px;
-  border-radius: 9999px;
-  line-height: 1.2;
+[data-theme="light"] .today-user-name {
+  color: #0f172a;
+}
+
+.today-user-email {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--text-muted, #94a3b8);
   white-space: nowrap;
-  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
-.today-role-badge.role-user {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
+[data-theme="light"] .today-user-email {
+  color: #64748b;
 }
 
-[data-theme="light"] .today-role-badge.role-user {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
-  color: #475569;
-}
-
-.today-role-badge.role-admin {
-  background: rgba(168, 85, 247, 0.15);
-  border: 1px solid rgba(168, 85, 247, 0.3);
-  color: #c084fc;
-}
-
-[data-theme="light"] .today-role-badge.role-admin {
-  background: #f3e8ff;
-  border-color: #d8b4fe;
-  color: #7e22ce;
-}
-
-/* ── Timestamp ── */
 .today-user-timestamp {
   font-size: 0.74rem;
   font-style: italic;
@@ -246,7 +220,6 @@
   flex-shrink: 0;
 }
 
-/* ── Empty State ── */
 .today-users-empty {
   display: flex;
   flex-direction: column;
@@ -286,7 +259,6 @@
   line-height: 1.4;
 }
 
-/* ── Skeletons ── */
 .today-users-skeleton-list {
   display: flex;
   flex-direction: column;
@@ -304,20 +276,19 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
 }
 
 .skeleton-info {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
   flex: 1;
 }
 
 .skeleton-line {
   height: 10px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
 }
 
 .name-line {
@@ -332,5 +303,5 @@
   width: 45px;
   height: 10px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
 }

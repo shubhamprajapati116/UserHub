@@ -9,10 +9,9 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const app = express();
 const { globalLimiter } = require("./middleware/rateLimiter");
 
-// ── Security Headers via Helmet ──
 app.use(
   helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }, // Allows static images in /uploads to load on frontend
+    crossOriginResourcePolicy: { policy: "cross-origin" },
   }),
 );
 app.use(express.json());
@@ -22,7 +21,7 @@ app.use(
     credentials: true,
   }),
 );
-app.use(globalLimiter); // Global Rate Limiter for all routes
+app.use(globalLimiter);
 app.use("/uploads", express.static("uploads"));
 app.get("/", (req, res) => {
   res.send("Backend Running");
@@ -51,3 +50,4 @@ const startServer = async () => {
 };
 
 startServer();
+module.exports = app;

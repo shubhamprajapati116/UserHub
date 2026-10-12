@@ -1,7 +1,10 @@
 import { makeAutoObservable } from "mobx";
 
 class ThemeStore {
-  darkMode = localStorage.getItem("theme") === "dark";
+  darkMode =
+    typeof window !== "undefined" &&
+    (new URLSearchParams(window.location.search).get("theme") === "dark" ||
+      localStorage.getItem("theme") === "dark");
 
   constructor(rootStore) {
     this.rootStore = rootStore;

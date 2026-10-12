@@ -10,7 +10,6 @@ import { observer } from "mobx-react-lite";
 import { validateUserForm } from "../../utils/validateUserForm";
 import useUserForm from "../../hooks/userUserform";
 
-// eslint-disable-next-line react-refresh/only-export-components
 function EditProfile() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -45,14 +44,11 @@ function EditProfile() {
         profilephoto: currentuser.profilephoto || "",
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentuser]);
 
-  // Deep-linking Auto-Focus Handler
   useEffect(() => {
     const focusField = location.state?.focusField;
     if (focusField) {
-      // Clear navigation state so refresh/back button doesn't force focus again
       window.history.replaceState({}, document.title);
 
       const timer = setTimeout(() => {
@@ -92,12 +88,15 @@ function EditProfile() {
       const formDataObj = new FormData();
 
       Object.entries(formData).forEach(([key, value]) => {
-        if (key === "profilephoto") return;
+        if (key === "profilephoto" || key === "removePhoto") return;
         formDataObj.append(key, value);
       });
 
       if (formData.profilephoto instanceof File) {
         formDataObj.append("profilephoto", formData.profilephoto);
+      } else if (formData.removePhoto === true || formData.removePhoto === "true" || formData.profilephoto === "") {
+        formDataObj.append("removePhoto", "true");
+        formDataObj.append("profilephoto", "");
       }
       const data = await userStore.updateProfile(formDataObj);
 
@@ -155,7 +154,6 @@ function EditProfile() {
       await userStore.cancelEmailChange();
       toast.info("Email change cancelled. Your email remains unchanged.");
     } catch {
-      // Non-blocking catch
     }
   };
 

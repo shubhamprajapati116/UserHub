@@ -1,4 +1,4 @@
-/* App-level overrides for react-toastify */
+
 .Toastify__toast {
   font-family: var(--font);
   border-radius: var(--radius-lg);
@@ -20,6 +20,18 @@
   background: var(--bg-elevated) !important;
   color: var(--text-primary) !important;
   border-left: 4px solid var(--danger) !important;
+}
+
+.Toastify__toast--info {
+  background: var(--bg-elevated) !important;
+  color: var(--text-primary) !important;
+  border-left: 4px solid var(--accent) !important;
+}
+
+.Toastify__toast--warning {
+  background: var(--bg-elevated) !important;
+  color: var(--text-primary) !important;
+  border-left: 4px solid var(--warning) !important;
 }
 
 .Toastify__toast-icon svg {

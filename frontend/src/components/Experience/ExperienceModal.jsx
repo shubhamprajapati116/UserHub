@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/set-state-in-effect */
+ 
 import { useState, useEffect } from "react";
 import "./experience.css";
 import AppDatePicker from "../AppDatePicker/AppDatePicker";

@@ -1,19 +1,9 @@
-/* ─── AuthBrandPanel Clean Modern SaaS Hero Banner (Bright & Natural Real-World Photography) ─── */
-
 .auth-split-brand {
   position: relative;
-  /* Balanced Soft Gradient: Balanced at 40% vertical anchor so heads have headroom and laptop/table is fully visible */
   background:
-    linear-gradient(
-      135deg,
-      rgba(10, 15, 26, 0.75) 0%,
-      rgba(10, 15, 26, 0.45) 50%,
-      rgba(10, 15, 26, 0.18) 100%
-    ),
-    url("/auth-brand-bg.jpg") center 40% / cover no-repeat;
-  background-position: center 40%;
-  background-size: cover;
-  background-repeat: no-repeat;
+    radial-gradient(ellipse at 85% 15%, rgba(99, 102, 241, 0.32) 0%, transparent 60%),
+    radial-gradient(ellipse at 15% 85%, rgba(67, 56, 202, 0.28) 0%, transparent 60%),
+    #0b1120;
   color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -23,20 +13,48 @@
   box-sizing: border-box;
 }
 
-/* Subtle Vignette Accent */
-.auth-brand-ambient-glow {
-  display: none;
+.auth-brand-picture {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
 }
 
-/* Subtle Tech Grid Pattern Overlay (Disabled for clean natural photography) */
-.auth-brand-grid-pattern {
-  display: none;
+.auth-brand-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;
+  opacity: 0;
+  image-rendering: -webkit-optimize-contrast;
+  transition: opacity 0.35s ease-out;
+  pointer-events: none;
 }
 
-/* Top Section */
+.auth-brand-img.is-loaded {
+  opacity: 1;
+}
+
+.auth-brand-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 15, 26, 0.76) 0%,
+    rgba(10, 15, 26, 0.46) 50%,
+    rgba(10, 15, 26, 0.18) 100%
+  );
+  pointer-events: none;
+}
+
 .auth-brand-top {
   position: relative;
-  z-index: 2;
+  z-index: 3;
 }
 
 .auth-brand-logo {
@@ -111,10 +129,9 @@
   max-width: 380px;
 }
 
-/* Feature List Rows with Sleek Glassmorphic Floating Pills */
 .auth-brand-features {
   position: relative;
-  z-index: 2;
+  z-index: 4;
   display: flex;
   flex-direction: column;
   gap: 10px;

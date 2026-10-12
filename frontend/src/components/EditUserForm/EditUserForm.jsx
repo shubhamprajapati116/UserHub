@@ -81,18 +81,55 @@ function EditUserForm({
         value: croppedFile,
       },
     });
+    handleChange({
+      target: {
+        name: "removePhoto",
+        value: false,
+      },
+    });
     setShowCropper(false);
   };
 
-  // Determine avatar image source
-  const avatarImageSrc =
-    formData.profilephoto instanceof File
-      ? URL.createObjectURL(formData.profilephoto)
-      : currentImage
-      ? currentImage.startsWith("http")
+  const handleRemovePhoto = () => {
+    setAvatarLoadFailed(false);
+    handleChange({
+      target: {
+        name: "profilephoto",
+        value: "",
+      },
+    });
+    handleChange({
+      target: {
+        name: "removePhoto",
+        value: true,
+      },
+    });
+  };
+
+  const isRemoved =
+    formData.removePhoto === true ||
+    formData.removePhoto === "true" ||
+    formData.profilephoto === "";
+
+  let avatarImageSrc = null;
+  if (!isRemoved) {
+    if (formData.profilephoto instanceof File) {
+      avatarImageSrc = URL.createObjectURL(formData.profilephoto);
+    } else if (
+      formData.profilephoto &&
+      typeof formData.profilephoto === "string"
+    ) {
+      avatarImageSrc = formData.profilephoto.startsWith("http")
+        ? formData.profilephoto
+        : `${import.meta.env.VITE_API_URL}/uploads/${formData.profilephoto}`;
+    } else if (currentImage) {
+      avatarImageSrc = currentImage.startsWith("http")
         ? currentImage
-        : `${import.meta.env.VITE_API_URL}/uploads/${currentImage}`
-      : null;
+        : `${import.meta.env.VITE_API_URL}/uploads/${currentImage}`;
+    }
+  }
+
+  const hasPhoto = Boolean(avatarImageSrc);
 
   const initials = (formData.name || "User")
     .split(" ")
@@ -111,13 +148,9 @@ function EditUserForm({
       className={`edit-user-form ${variant}`}
     >
       <div className="euf-container">
-        {/* ══════════════════════════════════════════════════════════════
-           LEFT COLUMN: Compact Profile Avatar & Identity Card
-           ══════════════════════════════════════════════════════════════ */}
         <div className="euf-identity-card">
           <div className="euf-ambient-glow" />
 
-          {/* Avatar Ring */}
           <div className="euf-avatar-wrapper">
             <div className="euf-avatar-ring">
               {avatarImageSrc && !avatarLoadFailed ? (
@@ -136,7 +169,6 @@ function EditUserForm({
             </div>
           </div>
 
-          {/* User Name & Email */}
           <div className="euf-identity-info">
             <h3 className="euf-user-name" title={formData.name || "User Name"}>
               {formData.name || "User Name"}
@@ -152,22 +184,18 @@ function EditUserForm({
             </div>
           </div>
 
-          {/* Photo Actions & Format Hint Wrapper */}
           <div className="euf-actions-wrapper">
             <div className="euf-photo-actions">
               <label htmlFor="profilephoto" className="euf-btn-upload">
                 <FiCamera size={13} />
-                <span>Update Photo</span>
+                <span>{hasPhoto ? "Change Photo" : "Upload Photo"}</span>
               </label>
 
-              {Boolean(formData.profilephoto || currentImage) && (
+              {hasPhoto && (
                 <button
                   type="button"
                   className="euf-btn-remove"
-                  onClick={() => {
-                    setAvatarLoadFailed(false);
-                    handleChange({ target: { name: "profilephoto", value: "" } });
-                  }}
+                  onClick={handleRemovePhoto}
                   title="Remove profile picture"
                   disabled={loading}
                 >
@@ -199,11 +227,7 @@ function EditUserForm({
           </div>
         </div>
 
-        {/* ══════════════════════════════════════════════════════════════
-           RIGHT COLUMN: Unified Compact Form Card
-           ══════════════════════════════════════════════════════════════ */}
         <div className="euf-form-card">
-          {/* Card Header */}
           <div className="euf-card-header">
             <div className="euf-header-left">
               <div className="euf-header-icon personal">
@@ -214,9 +238,7 @@ function EditUserForm({
             <span className="euf-section-badge">General Details</span>
           </div>
 
-          {/* Fields Body */}
           <div className="euf-form-body">
-            {/* Row 1: Full Name & Email Address (2 Columns) */}
             <div className="euf-fields-grid">
               <div className="euf-field-group">
                 <div className="euf-field-label-row">
@@ -277,7 +299,11 @@ function EditUserForm({
                     <button
                       type="button"
                       className="euf-inline-change-btn"
-                      onClick={() => navigate("/settings?tab=security")}
+                      onClick={() =>
+                        navigate("/settings?tab=security", {
+                          state: { openEmailModal: true },
+                        })
+                      }
                       title="Change email in Security Settings"
                     >
                       Change &rarr;
@@ -290,7 +316,6 @@ function EditUserForm({
               </div>
             </div>
 
-            {/* Row 2: Phone, DOB, Gender (3 Columns) */}
             <div className="euf-fields-grid trio">
               <div className="euf-field-group">
                 <label className="euf-field-label" htmlFor="phone">
@@ -363,7 +388,6 @@ function EditUserForm({
               </div>
             </div>
 
-            {/* Row 3: Country, State, City (3 Columns) */}
             <div className="euf-fields-grid trio">
               <div className="euf-field-group">
                 <label className="euf-field-label" htmlFor="country">
@@ -441,7 +465,6 @@ function EditUserForm({
               </div>
             </div>
 
-            {/* Row 4: Bio Full Width */}
             <div className="euf-field-group">
               <div className="euf-label-with-badge">
                 <label className="euf-field-label" htmlFor="bio">
@@ -470,7 +493,6 @@ function EditUserForm({
             </div>
           </div>
 
-          {/* Integrated Action Bar at Bottom of Card */}
           <div className="euf-card-footer">
             <div className="euf-action-notice">
               <FiCheckCircle size={13} />

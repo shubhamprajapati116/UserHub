@@ -16,101 +16,17 @@
   box-sizing: border-box;
 }
 
-/* ── Pending Email Change Banner ── */
-.pending-email-banner {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 14px 20px;
-  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-  border-bottom: 1px solid #fcd34d;
-  border-top: none;
-}
-
-.pending-email-banner-icon {
-  flex-shrink: 0;
-  color: #d97706;
-  margin-top: 2px;
-}
-
-.pending-email-banner-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.pending-email-banner-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: #92400e;
-  margin: 0 0 3px;
-}
-
-.pending-email-banner-desc {
-  font-size: 12.5px;
-  color: #78350f;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.pending-email-banner-desc strong {
-  color: #92400e;
-}
-
-.pending-email-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.pending-email-resend-btn {
-  padding: 6px 14px;
-  background: #d97706;
-  color: #ffffff;
-  border: none;
-  border-radius: 6px;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.18s;
-  white-space: nowrap;
-}
-
-.pending-email-resend-btn:hover:not(:disabled) {
-  background: #b45309;
-}
-
-.pending-email-resend-btn:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
-.pending-email-cancel-btn {
-  padding: 6px 12px;
-  background: transparent;
-  color: #92400e;
-  border: 1px solid #d97706;
-  border-radius: 6px;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.18s;
-  white-space: nowrap;
-}
-
-.pending-email-cancel-btn:hover {
-  background: rgba(217, 119, 6, 0.1);
-  color: #78350f;
-}
-
-/* ── 🌌 Modern Profile Cover Banner ── */
 .profile-banner {
   position: relative;
   height: 150px;
   overflow: hidden;
   border-radius: 10px 10px 0 0;
-  background-color: #0b0f19;
+  background: linear-gradient(135deg, #1e1b4b 0%, #1e293b 50%, #0f172a 100%);
   user-select: none;
+}
+
+[data-theme="light"] .profile-banner {
+  background: linear-gradient(135deg, #e0e7ff 0%, #ede9fe 50%, #f1f5f9 100%);
 }
 
 .profile-banner-img {
@@ -119,7 +35,7 @@
   object-fit: cover;
   object-position: center;
   display: block;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.35s ease;
 }
 
 .profile-banner-img.loaded {
@@ -130,30 +46,16 @@
   opacity: 0;
 }
 
-.banner-overlay-fade {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 50px;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(11, 15, 25, 0.65) 100%
-  );
-  pointer-events: none;
-}
-
-/* ── ⚡ Banner Shimmer & Loading Skeleton ── */
 .profile-banner-skeleton {
   position: absolute;
   inset: 0;
   z-index: 2;
-  background: #0f172a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
   overflow: hidden;
+}
+
+[data-theme="light"] .profile-banner-skeleton {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #f8fafc 100%);
 }
 
 .banner-skeleton-shimmer {
@@ -169,9 +71,20 @@
   animation: bannerShimmer 1.5s infinite linear;
 }
 
-.banner-skeleton-badge {
-  position: relative;
-  z-index: 3;
+[data-theme="light"] .banner-skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.profile-banner-updating-badge {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  z-index: 4;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -184,7 +97,14 @@
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.2px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="light"] .profile-banner-updating-badge {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #1e293b;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .banner-skeleton-spinner {
@@ -192,7 +112,10 @@
   color: #818cf8;
 }
 
-/* ── 📷 Small Edit Banner Button on Cover ── */
+[data-theme="light"] .banner-skeleton-spinner {
+  color: #4f46e5;
+}
+
 .profile-banner-edit-btn {
   position: absolute;
   top: 12px;
@@ -230,33 +153,45 @@
   flex-shrink: 0;
 }
 
-/* ── 🎨 Banner Selector Modal ── */
 .banner-modal-backdrop {
   position: fixed;
   inset: 0;
   background: rgba(10, 15, 29, 0.72);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
-  animation: bannerModalFadeIn 0.2s ease-out;
+  animation: bannerModalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity;
+}
+
+.banner-modal-backdrop.closing {
+  animation: bannerModalFadeOut 0.16s ease-in forwards;
+  pointer-events: none;
 }
 
 .banner-modal-dialog {
   background: var(--bg-card, #ffffff);
   border: 1px solid var(--border, #e2e8f0);
-  border-radius: 14px;
+  border-radius: 16px;
   width: 100%;
-  max-width: 760px;
+  max-width: 780px;
   max-height: 88vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
-  animation: bannerModalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  animation: bannerModalGlideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+  transform-origin: center center;
+}
+
+.banner-modal-dialog.closing {
+  animation: bannerModalGlideOut 0.16s cubic-bezier(0.4, 0, 1, 1) forwards;
+  pointer-events: none;
 }
 
 .banner-modal-header {
@@ -320,11 +255,10 @@
   padding: 16px 20px;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   flex: 1;
   scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+  scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
 }
 
 .banner-modal-body::-webkit-scrollbar {
@@ -336,39 +270,41 @@
 }
 
 .banner-modal-body::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.35);
+  background: rgba(148, 163, 184, 0.3);
   border-radius: 9999px;
+  transition: background 0.15s ease;
 }
 
 .banner-modal-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.55);
+  background: rgba(148, 163, 184, 0.5);
 }
 
 .banner-gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
   gap: 12px;
 }
 
 .banner-gallery-card {
   position: relative;
-  border-radius: 8px;
+  border-radius: 9px;
   overflow: hidden;
   border: 1.5px solid var(--border, #e2e8f0);
   background: var(--bg-elevated, #ffffff);
   cursor: pointer;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease;
   outline: none;
   display: flex;
   flex-direction: column;
   user-select: none;
-  transform: translateZ(0);
-  backface-visibility: hidden;
 }
 
 .banner-gallery-card:hover {
-  border-color: rgba(99, 102, 241, 0.5);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-color: rgba(99, 102, 241, 0.45);
+}
+
+.banner-gallery-card:active {
+  background: var(--bg-hover, rgba(99, 102, 241, 0.04));
 }
 
 .banner-gallery-card.selected {
@@ -379,7 +315,7 @@
 .banner-card-img-wrap {
   position: relative;
   width: 100%;
-  height: 82px;
+  height: 86px;
   overflow: hidden;
   background: #0b0f19;
 }
@@ -389,11 +325,6 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: filter 0.2s ease;
-}
-
-.banner-gallery-card:hover .banner-card-img {
-  filter: brightness(1.06);
 }
 
 .banner-card-overlay {
@@ -405,8 +336,8 @@
 
 .banner-card-selected-badge {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 7px;
+  right: 7px;
   width: 22px;
   height: 22px;
   border-radius: 50%;
@@ -415,8 +346,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  animation: bannerBadgePop 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.5);
+  animation: bannerBadgePop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .banner-card-info {
@@ -523,7 +454,6 @@
   display: inline-block;
 }
 
-/* ── Keyframes ── */
 @keyframes bannerShimmer {
   0% {
     background-position: -200% 0;
@@ -548,21 +478,45 @@
   }
 }
 
-@keyframes bannerModalScaleIn {
+@keyframes bannerModalFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes bannerModalGlideIn {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(10px);
+    transform: translateY(12px) scale(0.985);
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bannerModalGlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
   }
 }
 
 @keyframes bannerBadgePop {
   0% {
-    transform: scale(0.5);
+    transform: scale(0.2);
     opacity: 0;
+  }
+  60% {
+    transform: scale(1.12);
+    opacity: 1;
   }
   100% {
     transform: scale(1);
@@ -570,7 +524,6 @@
   }
 }
 
-/* ── Responsive adjustments ── */
 @media (max-width: 640px) {
   .profile-banner {
     height: 120px;
@@ -608,8 +561,9 @@
 
 .profile-header {
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
   padding-top: 8px;
   margin-bottom: 14px;
   position: relative;
@@ -640,6 +594,17 @@
 
 .profile-avatar:hover {
   box-shadow: 0 0 22px rgba(129, 140, 248, 0.5);
+}
+
+.profile-avatar-initials-view {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  user-select: none;
 }
 
 .avatar-edit-btn {
@@ -700,6 +665,7 @@
 .profile-identity {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   flex: 1;
   min-width: 0;
@@ -772,7 +738,6 @@
   white-space: nowrap;
 }
 
-/* ── 2-Column Dashboard Grid Layout (Desktop: Equal 50/50 Split) ── */
 .profile-main-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -820,7 +785,6 @@
   margin-bottom: 10px;
 }
 
-/* ── 2-Column Compact Meta Grid ── */
 .profile-meta {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -861,7 +825,6 @@
   margin-bottom: 3px;
 }
 
-/* ── Distinct Vibrant Multi-Color System for Profile Meta Icons ── */
 .meta-icon {
   width: 24px;
   height: 24px;
@@ -880,7 +843,6 @@
   flex-shrink: 0;
 }
 
-/* 1. Name: Indigo */
 .meta-icon.icon-indigo {
   background: rgba(99, 102, 241, 0.16);
   color: #818cf8;
@@ -890,7 +852,6 @@
   color: #4f46e5;
 }
 
-/* 2. Email: Sky / Cyan */
 .meta-icon.icon-cyan {
   background: rgba(14, 165, 233, 0.16);
   color: #38bdf8;
@@ -900,7 +861,6 @@
   color: #0284c7;
 }
 
-/* 3. Gender: Pink / Rose */
 .meta-icon.icon-pink {
   background: rgba(236, 72, 153, 0.16);
   color: #f472b6;
@@ -910,7 +870,6 @@
   color: #db2777;
 }
 
-/* 4. Date of Birth: Amber / Orange */
 .meta-icon.icon-amber {
   background: rgba(245, 158, 11, 0.16);
   color: #fbbf24;
@@ -920,7 +879,6 @@
   color: #d97706;
 }
 
-/* 5. Account Type: Purple / Violet */
 .meta-icon.icon-purple {
   background: rgba(168, 85, 247, 0.16);
   color: #c084fc;
@@ -930,7 +888,6 @@
   color: #7c3aed;
 }
 
-/* 6. Phone: Emerald / Green */
 .meta-icon.icon-emerald {
   background: rgba(16, 185, 129, 0.16);
   color: #34d399;
@@ -940,7 +897,6 @@
   color: #059669;
 }
 
-/* 7. Country: Blue / Azure */
 .meta-icon.icon-blue {
   background: rgba(59, 130, 246, 0.16);
   color: #60a5fa;
@@ -950,7 +906,6 @@
   color: #2563eb;
 }
 
-/* 8. State: Teal / Mint */
 .meta-icon.icon-teal {
   background: rgba(20, 184, 166, 0.16);
   color: #2dd4bf;
@@ -960,7 +915,6 @@
   color: #0d9488;
 }
 
-/* 9. City: Fuchsia / Violet */
 .meta-icon.icon-violet {
   background: rgba(217, 70, 239, 0.16);
   color: #e879f9;
@@ -970,7 +924,6 @@
   color: #c026d3;
 }
 
-/* 10. Last Login: Lime / Chartreuse */
 .meta-icon.icon-lime {
   background: rgba(132, 204, 22, 0.16);
   color: #a3e635;
@@ -1040,7 +993,6 @@
   transform: translateY(-1px);
 }
 
-/* ── Email Verification Status Badge ── */
 .meta-email-row {
   display: flex;
   align-items: center;
@@ -1081,7 +1033,6 @@
   color: #f59e0b;
 }
 
-/* ── Profile Completion Card ── */
 .profile-completion-card {
   margin-bottom: 0;
   padding: 12px 14px;
@@ -1180,7 +1131,6 @@
   color: var(--text-primary);
 }
 
-/* ── Bio Card ── */
 .bio-card {
   background: var(--bg-input);
   border: 1px solid var(--border);
@@ -1300,7 +1250,6 @@
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
 }
 
-/* Skeletons */
 .skeleton-profile-avatar {
   width: 68px;
   height: 68px;
@@ -1323,6 +1272,7 @@
 }
 
 .completion-bar.skeleton {
+  width: 100%;
   height: 5px;
   border-radius: 999px;
 }
@@ -1355,28 +1305,30 @@
 }
 
 .skeleton-completion-text {
-  width: 100%;
+  width: 75%;
   height: 12px;
-  margin-bottom: 6px;
-}
-
-.skeleton-completion-text-short {
-  width: 60%;
+  border-radius: 4px;
   margin-bottom: 0;
 }
 
+.skeleton-meta-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
 .skeleton-meta-label {
-  height: 8px;
+  height: 9px;
   width: 55px;
-  margin-bottom: 8px;
   border-radius: 3px;
 }
 
 .skeleton-meta-value {
-  height: 12px;
+  height: 13px;
   width: 65%;
   border-radius: 4px;
-  margin-bottom: 2px;
+  margin-top: 4px;
 }
 
 .skeleton-bio-line {
@@ -1386,24 +1338,52 @@
   border-radius: 4px;
 }
 
-.skeleton-bio-line:nth-child(1) {
-  width: 100%;
-}
-
-.skeleton-bio-line:nth-child(2) {
-  width: 92%;
-}
-
 .skeleton-bio-short {
-  width: 68%;
+  width: 60%;
   margin-bottom: 0;
 }
-/* ════════════════════════════════════════════════════════════════
-   📱 TABLET & MOBILE RESPONSIVE LAYOUT (<= 1023px)
-   - Stretches 100% Full Width (Zero empty right-side space!)
-   - Reorders: Completion -> Personal Info -> About Me -> Work Exp
-   - Keeps Personal Info strictly in a 2-Column Grid on Mobile
-════════════════════════════════════════════════════════════════ */
+
+.skeleton-exp-logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  flex: 0 0 34px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.skeleton-exp-title {
+  width: 140px;
+  height: 15px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.skeleton-exp-pill {
+  width: 110px;
+  height: 16px;
+  border-radius: 999px;
+}
+
+.skeleton-exp-actions {
+  width: 56px;
+  height: 26px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.skeleton-exp-desc-line {
+  width: 90%;
+  height: 11px;
+  border-radius: 3px;
+  margin-bottom: 6px;
+}
+
+.skeleton-exp-desc-short {
+  width: 65%;
+  margin-bottom: 0;
+}
+
 @media (max-width: 1023px) {
   .profile-main-grid {
     display: flex;
@@ -1417,7 +1397,7 @@
     display: contents;
     width: 100%;
   }
-  /* 📱 Tablet & Mobile Ordering */
+
   .profile-completion-card {
     order: 1;
     width: 100% !important;
@@ -1530,6 +1510,18 @@
     font-size: 0.82rem;
   }
 
+  .skeleton-profile-btn {
+    width: 100% !important;
+    height: 36px !important;
+    border-radius: var(--radius-sm);
+  }
+
+  .skeleton-meta-icon {
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 6px;
+  }
+
   .profile-avatar {
     width: 56px;
     height: 56px;
@@ -1558,4 +1550,233 @@
   .meta-value {
     font-size: 0.76rem;
   }
+
+  .skeleton-meta-value {
+    height: 11px;
+    margin-top: 3px;
+  }
+
+  .skeleton-exp-logo {
+    width: 30px !important;
+    height: 30px !important;
+    flex: 0 0 30px !important;
+    border-radius: 7px;
+  }
+
+  .skeleton-exp-title {
+    width: 120px;
+    height: 14px;
+  }
+
+  .skeleton-exp-pill {
+    width: 95px;
+    height: 15px;
+  }
+
+  .skeleton-exp-actions {
+    width: 52px;
+    height: 24px;
+  }
 }
+
+[data-theme="dark"] .profile-layout {
+  background: #0b1120;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .profile-avatar,
+[data-theme="dark"] .skeleton-profile-avatar {
+  border-color: #0b1120;
+}
+
+[data-theme="dark"] .profile-avatar {
+  box-shadow: 0 0 16px rgba(129, 140, 248, 0.4);
+}
+
+[data-theme="dark"] .profile-avatar:hover {
+  box-shadow: 0 0 24px rgba(129, 140, 248, 0.6);
+}
+
+[data-theme="dark"] .avatar-edit-btn {
+  border-color: #0b1120;
+}
+
+[data-theme="dark"] .profile-joined {
+  background: #152238;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .profile-completion-mini-badge {
+  background: #152238;
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  color: #a5b4fc;
+}
+
+[data-theme="dark"] .profile-completion-mini-badge:hover {
+  background: #192a45;
+  border-color: #818cf8;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .profile-section-title {
+  color: #8192a8;
+}
+
+[data-theme="dark"] .meta-item {
+  background: #152238;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .meta-item:hover {
+  background: #192a45;
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45), 0 0 12px rgba(99, 102, 241, 0.15);
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .meta-label {
+  color: #8192a8;
+}
+
+[data-theme="dark"] .meta-value {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .meta-value.not-added {
+  color: #64748b;
+}
+
+[data-theme="dark"] .profile-completion-card {
+  background: #152238;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .completion-title {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .completion-subtitle {
+  color: #8192a8;
+}
+
+[data-theme="dark"] .completion-bar {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .completion-text {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .completion-close-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .bio-card {
+  background: #152238;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .bio-card:hover {
+  background: #192a45;
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+[data-theme="dark"] .bio-content {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .bio-empty {
+  color: #8192a8;
+}
+
+[data-theme="dark"] .experience-empty {
+  background: #152238;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .experience-empty p {
+  color: #8192a8;
+}
+
+[data-theme="dark"] .experience-card {
+  background: #152238;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .experience-card:hover {
+  background: #192a45;
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+[data-theme="dark"] .banner-modal-backdrop {
+  background: rgba(6, 9, 16, 0.82);
+}
+
+[data-theme="dark"] .banner-modal-dialog {
+  background: #0f172a;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75);
+}
+
+[data-theme="dark"] .banner-modal-header {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .banner-modal-header h3 {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .banner-modal-header p {
+  color: #8192a8;
+}
+
+[data-theme="dark"] .banner-gallery-card {
+  background: #131c2e;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .banner-gallery-card:hover {
+  border-color: rgba(129, 140, 248, 0.5);
+}
+
+[data-theme="dark"] .banner-gallery-card.selected {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.45);
+}
+
+[data-theme="dark"] .banner-card-name {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .banner-card-category {
+  color: #8192a8;
+}
+
+[data-theme="dark"] .banner-modal-footer {
+  background: #090e1a;
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .banner-footer-preview {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .banner-footer-cancel-btn {
+  background: #162033;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .banner-footer-cancel-btn:hover {
+  background: #1e293b;
+  color: #f8fafc;
+}
+

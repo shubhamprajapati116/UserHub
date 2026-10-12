@@ -2,21 +2,10 @@ require("dotenv").config();
 const nodemailer = require("nodemailer");
 const dns = require("dns");
 
-// 1. Force Node.js DNS to prioritize IPv4 to prevent 60-second IPv6 timeout hangs
 if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder("ipv4first");
 }
 
-// 2. Set reliable public fallback DNS servers so Node c-ares doesn't query 127.0.0.1
-try {
-  dns.setServers(["8.8.8.8", "1.1.1.1"]);
-} catch {
-  // If not permitted, continue gracefully
-}
-
-// 3. Patch Nodemailer's internal resolveHostname to use OS native IPv4 resolution (dns.lookup getaddrinfo)
-// Nodemailer 9.x calls c-ares resolve6 & resolve4 which causes a 60-120 second hang on Windows machines.
-// Using dns.lookup with family: 4 resolves in < 30ms and caches the result.
 const hostDnsCache = new Map();
 try {
   const shared = require("nodemailer/lib/shared");
@@ -42,21 +31,17 @@ try {
       });
     }
 
-    dns.lookup(hostname, { all: true, family: 4 }, (err, addresses) => {
-      if (err) {
-        return callback(err);
-      }
-      const addrs = addresses.map((a) => a.address);
-      const selectedHost = addrs[0] || hostname;
+    dns.lookup(hostname, { family: 4 }, (err, address) => {
+      if (err) return callback(err);
       hostDnsCache.set(hostname, {
-        host: selectedHost,
-        addresses: addrs,
-        expires: Date.now() + 30 * 60 * 1000, // 30 mins
+        host: address,
+        addresses: [address],
+        expires: Date.now() + 30 * 60 * 1000,
       });
       return callback(null, {
         servername: options.servername || hostname,
-        host: selectedHost,
-        _addresses: addrs,
+        host: address,
+        _addresses: [address],
         cached: false,
       });
     });
@@ -65,44 +50,23 @@ try {
   console.warn("⚠️ [sendEmail warning]: Unable to patch resolveHostname:", e.message);
 }
 
-// 4. Create pooled Nodemailer transporter with connection pooling, keepalive and timeouts
 const transporter = nodemailer.createTransport({
-  pool: true,              // Keep connections alive to reuse for subsequent emails
-  maxConnections: 3,       // Up to 3 parallel connections
-  maxMessages: 100,        // Max messages per connection before recycling
-  rateDelta: 1000,         // Rate limiting window (1 second)
-  rateLimit: 5,            // Max 5 messages per second to prevent Gmail throttling
+  pool: true,
+  maxConnections: 3,
+  maxMessages: 100,
   host: "smtp.gmail.com",
   port: 465,
   secure: true,
-  family: 4,               // Explicitly force IPv4 socket
-  connectionTimeout: 8000, // 8s connection timeout (fail fast rather than hanging)
-  greetingTimeout: 5000,   // 5s greeting timeout
-  socketTimeout: 12000,    // 12s socket timeout
+  family: 4,
+  connectionTimeout: 10000,
+  greetingTimeout: 5000,
+  socketTimeout: 15000,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  tls: {
-    rejectUnauthorized: false,
-  },
 });
 
-// Non-blocking connection verification on startup
-transporter.verify((err) => {
-  if (err) {
-    console.warn("⚠️ [SMTP Warning]: SMTP initial check failed:", err.message);
-  } else {
-    console.log("⚡ [SMTP Ready]: Connected and pooled successfully!");
-  }
-});
-
-/**
- * Send email helper
- * @param {string} to - Recipient email
- * @param {string} subject - Email subject
- * @param {string} html - HTML email body
- */
 const sendEmail = async (to, subject, html) => {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.error("❌ [sendEmail Error]: EMAIL_USER or EMAIL_PASS not configured in .env");
@@ -116,7 +80,7 @@ const sendEmail = async (to, subject, html) => {
       subject,
       html,
     });
-    console.log(`📧 [Fast Email Dispatched]: Sent to ${to} (${info.messageId})`);
+    console.log(`📧 [Email Sent]: To ${to} (${info.messageId})`);
     return info;
   } catch (error) {
     console.error(`❌ [sendEmail Failed for ${to}]:`, error.message);

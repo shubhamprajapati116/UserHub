@@ -10,14 +10,14 @@ function Spinner() {
   );
 }
 
-const CROP_DIAMETER = 240; // 240px circular mask diameter on screen
-const OUTPUT_SIZE = 512;   // 512x512 high-res HD output avatar
-const PREVIEW_SIZE = 52;   // 52px live avatar thumbnail
+const CROP_DIAMETER = 180;
+const OUTPUT_SIZE = 512;
+const PREVIEW_SIZE = 38;
 
 function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
   const [zoom, setZoom] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [rotation, setRotation] = useState(0); // 0, 90, 180, 270 deg
+  const [rotation, setRotation] = useState(0);
   const [flipH, setFlipH] = useState(false);
   const [baseSize, setBaseSize] = useState({ width: CROP_DIAMETER, height: CROP_DIAMETER });
   const [isDragging, setIsDragging] = useState(false);
@@ -29,7 +29,6 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
   const touchDistanceRef = useRef(null);
   const initialZoomRef = useRef(1);
 
-  // Lock body scroll while modal is active & listen to Escape key
   useEffect(() => {
     document.body.style.overflow = "hidden";
     const handleKeyDown = (e) => {
@@ -44,7 +43,6 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
     };
   }, [loading, onClose]);
 
-  // Clamp pan offset so the circular crop area is NEVER empty in any rotation
   const clampOffset = useCallback((x, y, currentZoom, currentBaseSize, currentRotation = rotation) => {
     if (!currentBaseSize.width || !currentBaseSize.height) return { x: 0, y: 0 };
     const isRotated90or270 = currentRotation === 90 || currentRotation === 270;
@@ -130,7 +128,6 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
     handleZoomChange(nextZoom);
   };
 
-  // Mouse drag handlers
   const handleMouseDown = (e) => {
     if (e.button !== 0) return;
     e.preventDefault();
@@ -163,7 +160,6 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
     };
   }, [isDragging, dragStart, zoom, baseSize, rotation, clampOffset]);
 
-  // Touch handlers with Pinch-to-Zoom support
   const handleTouchStart = (e) => {
     if (e.touches.length === 1) {
       setIsDragging(true);
@@ -220,7 +216,6 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
     handleZoomChange(zoom + delta);
   };
 
-  // High-Res Canvas Crop Export
   const handleSaveCrop = () => {
     if (!imgRef.current || !imgRef.current.naturalWidth) return;
     const img = imgRef.current;
@@ -275,7 +270,6 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
         aria-modal="true"
         aria-labelledby="cropper-modal-title"
       >
-        {/* Header */}
         <div className="cropper-header">
           <div className="cropper-header-title-group">
             <h3 id="cropper-modal-title">Crop & Adjust Photo</h3>
@@ -295,13 +289,11 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
           </button>
         </div>
 
-        {/* Body */}
         <div className="cropper-body">
           <p className="cropper-instruction">
             Drag to position photo • Pinch or use slider to zoom • Double-click to toggle zoom
           </p>
 
-          {/* Stage Container */}
           <div
             className={`cropper-stage ${isDragging ? "is-dragging" : ""}`}
             onMouseDown={handleMouseDown}
@@ -312,7 +304,6 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
             onDoubleClick={handleDoubleClick}
             title="Drag to reposition, double-click to toggle zoom"
           >
-            {/* Screen-Anchored Translation Wrapper */}
             <div
               className="cropper-transform-wrapper"
               style={{
@@ -346,8 +337,10 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
               />
             </div>
 
-            {/* Circular Crop Mask Ring with Rule-of-Thirds Grid */}
-            <div className="cropper-circle-ring">
+            <div
+              className="cropper-circle-ring"
+              style={{ width: `${CROP_DIAMETER}px`, height: `${CROP_DIAMETER}px` }}
+            >
               <div className={`cropper-grid-overlay ${isDragging ? "active" : ""}`}>
                 <div className="cropper-grid-line cropper-grid-h1" />
                 <div className="cropper-grid-line cropper-grid-h2" />
@@ -356,7 +349,6 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
               </div>
             </div>
 
-            {/* Loading state indicator */}
             {!imgLoaded && !loadError && (
               <div className="cropper-loading-state">
                 <Spinner />
@@ -364,7 +356,6 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
               </div>
             )}
 
-            {/* Error state indicator */}
             {loadError && (
               <div className="cropper-error-state">
                 <span>Failed to load selected photo</span>
@@ -372,7 +363,6 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
             )}
           </div>
 
-          {/* Quick Adjustment Toolbar: Rotate, Flip, Reset */}
           <div className="cropper-toolbar">
             <button
               type="button"
@@ -415,7 +405,6 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
             </button>
           </div>
 
-          {/* Zoom Slider Bar & Live Avatar Preview */}
           <div className="cropper-adjustment-row">
             <div className="cropper-zoom-section">
               <div className="cropper-zoom-header">
@@ -462,7 +451,6 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
               </div>
             </div>
 
-            {/* Live Avatar Preview Pill */}
             <div className="cropper-preview-section">
               <div className="cropper-preview-circle">
                 <div
@@ -501,7 +489,6 @@ function ImageCropperModal({ imageSrc, onCropComplete, onClose, loading }) {
           </div>
         </div>
 
-        {/* Footer Actions */}
         <div className="cropper-actions">
           <button
             type="button"

@@ -1,27 +1,20 @@
-/* ==========================================================================
-   Settings Page — Unified Executive 2-Column Responsive Layout
-   ========================================================================== */
+
 
 .settings-page-wrapper {
   width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.settings-option1-container {
-  max-width: 1040px;
-  width: 100%;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
-  gap: 20px;
-  align-items: start;
   box-sizing: border-box;
 }
 
-/* ──────────────────────────────────────────────────────────────────────────
-   1. Left Sub-Sidebar Navigation
-   ────────────────────────────────────────────────────────────────────────── */
+.settings-option1-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  box-sizing: border-box;
+}
 
 .settings-sidebar-nav {
   display: flex;
@@ -36,8 +29,8 @@
   box-sizing: border-box;
 }
 
-/* Sidebar User Mini Card */
 .settings-sidebar-user {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -56,8 +49,9 @@
 }
 
 .settings-sidebar-user.active {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.12);
 }
 
 .sidebar-user-avatar {
@@ -150,8 +144,8 @@
   margin: 4px 6px;
 }
 
-/* Nav Item Buttons */
 .settings-nav-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -176,6 +170,7 @@
   width: 15px;
   height: 15px;
   opacity: 0.8;
+  transition: all 0.18s ease;
 }
 
 .settings-nav-item span {
@@ -186,34 +181,78 @@
 .settings-nav-item:hover {
   background: rgba(255, 255, 255, 0.04);
   color: var(--text-primary, #f8fafc);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .settings-nav-item.active {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-primary, #f8fafc);
-  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(99, 102, 241, 0.15);
+  color: #ffffff;
+  border-color: rgba(99, 102, 241, 0.4);
   font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.settings-nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18%;
+  height: 64%;
+  width: 3.5px;
+  border-radius: 0 4px 4px 0;
+  background: var(--accent, #6366f1);
+  box-shadow: 0 0 10px var(--accent, #6366f1);
 }
 
 .settings-nav-item.active svg {
   opacity: 1;
-  color: var(--accent, #6366f1);
+  color: #818cf8;
+  filter: drop-shadow(0 0 6px rgba(129, 140, 248, 0.45));
+}
+
+.settings-nav-item.active:hover {
+  background: rgba(99, 102, 241, 0.22);
+  border-color: rgba(99, 102, 241, 0.52);
+  color: #ffffff;
 }
 
 .settings-nav-item.danger:hover {
-  background: rgba(244, 63, 94, 0.06);
+  background: rgba(244, 63, 94, 0.08);
   color: #f43f5e;
+  border-color: rgba(244, 63, 94, 0.2);
 }
 
 .settings-nav-item.danger.active {
-  background: rgba(244, 63, 94, 0.1);
-  color: #f43f5e;
-  border-color: rgba(244, 63, 94, 0.28);
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+  border-color: rgba(244, 63, 94, 0.4);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
 }
 
-/* ──────────────────────────────────────────────────────────────────────────
-   2. Main Content Panel
-   ────────────────────────────────────────────────────────────────────────── */
+.settings-nav-item.danger.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18%;
+  height: 64%;
+  width: 3.5px;
+  border-radius: 0 4px 4px 0;
+  background: #f43f5e;
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.6);
+}
+
+.settings-nav-item.danger.active svg {
+  opacity: 1;
+  color: #f43f5e;
+  filter: drop-shadow(0 0 6px rgba(244, 63, 94, 0.5));
+}
+
+.settings-nav-item.danger.active:hover {
+  background: rgba(244, 63, 94, 0.22);
+  border-color: rgba(244, 63, 94, 0.55);
+  color: #fda4af;
+}
 
 .settings-main-panel {
   background: var(--bg-card, #0f172a);
@@ -232,7 +271,6 @@
   width: 100%;
 }
 
-/* Section Header (Icon + Title + Subtitle) */
 .setting-info {
   display: flex;
   align-items: center;
@@ -286,11 +324,6 @@
   margin: 0;
 }
 
-/* ──────────────────────────────────────────────────────────────────────────
-   3. Tab 1: Profile Overview Section
-   ────────────────────────────────────────────────────────────────────────── */
-
-/* Profile Hero Card */
 .profile-overview-hero {
   display: flex;
   align-items: center;
@@ -427,7 +460,6 @@
   opacity: 0.75;
 }
 
-/* Edit Full Profile Button */
 .btn-profile-edit {
   display: inline-flex;
   align-items: center;
@@ -451,7 +483,6 @@
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
 }
 
-/* Profile Details Grid (2x2) */
 .profile-details-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -584,10 +615,6 @@
   color: #94a3b8;
   border: 1px solid rgba(148, 163, 184, 0.2);
 }
-
-/* ──────────────────────────────────────────────────────────────────────────
-   4. Setting Cards (Common Row Pattern)
-   ────────────────────────────────────────────────────────────────────────── */
 
 .setting-card {
   display: flex;
@@ -729,7 +756,6 @@
   border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
-/* Action Buttons */
 .btn-outline {
   height: 32px;
   padding: 0 13px;
@@ -770,10 +796,6 @@
   border-color: rgba(225, 29, 72, 0.6);
   color: #be123c;
 }
-
-/* ──────────────────────────────────────────────────────────────────────────
-   4. Unified Security Credentials Group (Enterprise Pattern)
-   ────────────────────────────────────────────────────────────────────────── */
 
 .setting-credentials-group {
   border: 1px solid var(--border, rgba(148, 163, 184, 0.12));
@@ -863,12 +885,6 @@
 .setting-row-btn {
   flex-shrink: 0;
 }
-
-
-
-/* ──────────────────────────────────────────────────────────────────────────
-   6. Appearance Theme Cards Grid (Linear / GitHub Style)
-   ────────────────────────────────────────────────────────────────────────── */
 
 .theme-selector-grid {
   display: grid;
@@ -999,10 +1015,6 @@
   line-height: 1.35;
 }
 
-/* ──────────────────────────────────────────────────────────────────────────
-   7. Toggle Switch & Advisory Notes
-   ────────────────────────────────────────────────────────────────────────── */
-
 .switch {
   position: relative;
   display: inline-block;
@@ -1048,14 +1060,6 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(16px);
 }
-
-/* ──────────────────────────────────────────────────────────────────────────
-   Instruction & Guidance Callout Cards
-   ────────────────────────────────────────────────────────────────────────── */
-
-/* ──────────────────────────────────────────────────────────────────────────
-   Single-Line Compact Instruction Callout Strips
-   ────────────────────────────────────────────────────────────────────────── */
 
 .settings-instruction-strip {
   display: flex;
@@ -1235,7 +1239,6 @@ input:checked + .slider:before {
   margin: 0;
 }
 
-/* Numbered Step-by-Step Instruction Checklist */
 .instruction-list {
   list-style: none;
   margin: 0;
@@ -1286,7 +1289,6 @@ input:checked + .slider:before {
   margin-right: 4px;
 }
 
-/* Advisory Notes (Legacy / Compact) */
 .settings-advisory-note {
   display: flex;
   align-items: flex-start;
@@ -1348,10 +1350,6 @@ input:checked + .slider:before {
 .text-inline-link:hover {
   color: #818cf8;
 }
-
-/* ──────────────────────────────────────────────────────────────────────────
-   8. Modal Styles
-   ────────────────────────────────────────────────────────────────────────── */
 
 .modal-overlay {
   position: fixed;
@@ -1452,10 +1450,6 @@ input:checked + .slider:before {
   }
 }
 
-/* ──────────────────────────────────────────────────────────────────────────
-   9. Light Mode Overrides
-   ────────────────────────────────────────────────────────────────────────── */
-
 [data-theme="light"] .settings-sidebar-nav,
 [data-theme="light"] .settings-main-panel {
   background: #ffffff;
@@ -1464,7 +1458,97 @@ input:checked + .slider:before {
 }
 
 [data-theme="light"] .settings-sidebar-user {
-  background: rgba(0, 0, 0, 0.02);
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .settings-sidebar-user:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .settings-sidebar-user.active {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.08);
+}
+
+[data-theme="light"] .settings-nav-item {
+  color: #475569;
+}
+
+[data-theme="light"] .settings-nav-item:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .settings-nav-item.active {
+  background: #eef2ff;
+  color: #4338ca;
+  border-color: #c7d2fe;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.08);
+}
+
+[data-theme="light"] .settings-nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18%;
+  height: 64%;
+  width: 3.5px;
+  border-radius: 0 4px 4px 0;
+  background: #4f46e5;
+  box-shadow: 0 0 6px rgba(79, 70, 229, 0.4);
+}
+
+[data-theme="light"] .settings-nav-item.active svg {
+  color: #4f46e5;
+  opacity: 1;
+}
+
+[data-theme="light"] .settings-nav-item.active:hover {
+  background: #e0e7ff;
+  color: #3730a3;
+  border-color: #a5b4fc;
+}
+
+[data-theme="light"] .settings-nav-item.danger:hover {
+  background: #fff1f2;
+  color: #e11d48;
+  border-color: #fecdd3;
+}
+
+[data-theme="light"] .settings-nav-item.danger.active {
+  background: #fff1f2;
+  color: #e11d48;
+  border-color: #fecdd3;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(225, 29, 72, 0.08);
+}
+
+[data-theme="light"] .settings-nav-item.danger.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18%;
+  height: 64%;
+  width: 3.5px;
+  border-radius: 0 4px 4px 0;
+  background: #e11d48;
+  box-shadow: 0 0 6px rgba(225, 29, 72, 0.4);
+}
+
+[data-theme="light"] .settings-nav-item.danger.active svg {
+  color: #e11d48;
+  opacity: 1;
+}
+
+[data-theme="light"] .settings-nav-item.danger.active:hover {
+  background: #ffe4e6;
+  color: #be123c;
+  border-color: #fda4af;
 }
 
 [data-theme="light"] .profile-overview-hero {
@@ -1480,9 +1564,110 @@ input:checked + .slider:before {
   border-color: #e2e8f0;
 }
 
-/* ──────────────────────────────────────────────────────────────────────────
-   10. Responsive Media Queries
-   ────────────────────────────────────────────────────────────────────────── */
+[data-theme="light"] .profile-detail-card:hover,
+[data-theme="light"] .setting-card:hover,
+[data-theme="light"] .security-checklist-card:hover,
+[data-theme="light"] .theme-preview-card:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme="light"] .setting-status-tag.active {
+  background: #d1fae5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+[data-theme="light"] .theme-active-tag {
+  background: #d1fae5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+[data-theme="light"] .theme-preview-card.selected {
+  border-color: #6366f1;
+  background: #eef2ff;
+  box-shadow: 0 0 0 1.5px #6366f1;
+}
+
+[data-theme="light"] .detail-status-pill.green {
+  background: #d1fae5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+[data-theme="light"] .detail-status-pill.blue {
+  background: #e0e7ff;
+  color: #4338ca;
+  border-color: #c7d2fe;
+}
+
+[data-theme="light"] .detail-status-pill.gray {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .profile-hero-presence-dot,
+[data-theme="light"] .sidebar-user-status-dot {
+  border-color: #ffffff;
+}
+
+[data-theme="light"] .sidebar-user-role-badge.admin,
+[data-theme="light"] .profile-badge-role.admin {
+  background: #f3e8ff;
+  color: #7e22ce;
+  border-color: #d8b4fe;
+}
+
+[data-theme="light"] .sidebar-user-role-badge.user,
+[data-theme="light"] .profile-badge-role.user {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .profile-badge-verified {
+  background: #d1fae5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+[data-theme="light"] .setting-info-icon {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .setting-info-icon.profile {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+  color: #4f46e5;
+}
+
+[data-theme="light"] .setting-info-icon.security {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #059669;
+}
+
+[data-theme="light"] .setting-info-icon.appearance {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0284c7;
+}
+
+[data-theme="light"] .setting-info-icon.notifications {
+  background: #f5f3ff;
+  border-color: #ddd6fe;
+  color: #7c3aed;
+}
+
+[data-theme="light"] .setting-info-icon.danger {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #e11d48;
+}
 
 @media (max-width: 860px) {
   .settings-option1-container {
@@ -1512,6 +1697,19 @@ input:checked + .slider:before {
     flex-shrink: 0;
     width: auto;
   }
+
+  .settings-nav-item.active::before,
+  .settings-nav-item.danger.active::before,
+  [data-theme="light"] .settings-nav-item.active::before,
+  [data-theme="light"] .settings-nav-item.danger.active::before {
+    left: 50%;
+    top: auto;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+  }
 }
 
 @media (max-width: 680px) {
@@ -1520,7 +1718,6 @@ input:checked + .slider:before {
     border-radius: 10px;
   }
 
-  /* Profile overview hero button full width */
   .profile-overview-hero {
     flex-direction: column;
     align-items: stretch;
@@ -1552,8 +1749,6 @@ input:checked + .slider:before {
     gap: 10px;
   }
 
-  /* Setting Card with Button (e.g. Change Password, Delete Account):
-     Moves button below text with 100% full width, giving text maximum space */
   .setting-card {
     display: grid;
     grid-template-columns: 34px 1fr auto;
@@ -1573,7 +1768,6 @@ input:checked + .slider:before {
     min-width: 0;
   }
 
-  /* Switches stay on the top-right aligned vertically */
   .setting-card > .switch {
     grid-column: 3;
     grid-row: 1;
@@ -1581,7 +1775,6 @@ input:checked + .slider:before {
     margin-left: 6px;
   }
 
-  /* Action buttons move below and span 100% full width */
   .setting-card > button,
   .setting-card > .btn,
   .setting-card > .btn-outline,
@@ -1600,7 +1793,6 @@ input:checked + .slider:before {
     margin-top: 4px;
   }
 
-  /* Status tags (e.g. ACTIVE, VERIFIED) move below on mobile */
   .setting-card > .setting-status-tag {
     grid-column: 1 / -1;
     grid-row: 2;
@@ -1613,5 +1805,180 @@ input:checked + .slider:before {
     border-radius: 6px;
     margin-top: 2px;
   }
+}
+
+[data-theme="dark"] .settings-sidebar-nav {
+  background: #0f172a;
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .settings-sidebar-user {
+  background: #131c2e;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .settings-sidebar-user:hover {
+  background: #162238;
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+[data-theme="dark"] .settings-sidebar-user.active {
+  background: rgba(99, 102, 241, 0.16);
+  border-color: rgba(99, 102, 241, 0.45);
+}
+
+[data-theme="dark"] .settings-main-panel {
+  background: #0f172a;
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="dark"] .setting-info {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .setting-info-icon {
+  background: #131c2e;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .profile-overview-hero {
+  background: #131c2e;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .profile-detail-card {
+  background: #131c2e;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .profile-detail-card:hover {
+  background: #162238;
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+[data-theme="dark"] .detail-card-val {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .detail-card-sub,
+[data-theme="dark"] .detail-card-label {
+  color: #8192a8;
+}
+
+[data-theme="dark"] .setting-card {
+  background: #131c2e;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .setting-card:hover {
+  background: #162238;
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+[data-theme="dark"] .setting-card.danger-card {
+  background: rgba(244, 63, 94, 0.05);
+  border-color: rgba(244, 63, 94, 0.2);
+}
+
+[data-theme="dark"] .setting-card.danger-card:hover {
+  background: rgba(244, 63, 94, 0.09);
+  border-color: rgba(244, 63, 94, 0.35);
+}
+
+[data-theme="dark"] .setting-card-icon {
+  background: #162238;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .settings-sidebar-nav {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .settings-sidebar-user {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .settings-sidebar-user:hover {
+  background: #f1f5f9;
+}
+
+[data-theme="light"] .sidebar-user-name {
+  color: #0f172a;
+}
+
+[data-theme="light"] .settings-nav-item {
+  color: #475569;
+}
+
+[data-theme="light"] .settings-nav-item:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+[data-theme="light"] .settings-nav-item.active {
+  background: rgba(99, 102, 241, 0.1);
+  color: #4f46e5;
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+[data-theme="light"] .settings-main-panel {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .setting-info {
+  border-bottom-color: #e2e8f0;
+}
+
+[data-theme="light"] .setting-info h3 {
+  color: #0f172a;
+}
+
+[data-theme="light"] .setting-info-icon {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .profile-overview-hero {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .profile-hero-name {
+  color: #0f172a;
+}
+
+[data-theme="light"] .profile-detail-card {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .detail-card-val {
+  color: #0f172a;
+}
+
+[data-theme="light"] .setting-card {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .setting-card:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .setting-card-title {
+  color: #0f172a;
+}
+
+[data-theme="light"] .setting-card-icon {
+  background: #ffffff;
+  border-color: #e2e8f0;
 }
 

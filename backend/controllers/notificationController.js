@@ -1,12 +1,10 @@
 const Notification = require("../models/notification");
 
-/**
- * Builds a query filter for notifications.
- * Excludes security_login alerts that originated from the CURRENT active session or device,
- * ensuring the hacker/unknown device cannot see alerts about their own login,
- * while all legitimate devices of the real user receive the security alert.
- */
-const getSessionNotificationFilter = (userId, currentSessionId, currentDeviceId) => {
+const getSessionNotificationFilter = (
+  userId,
+  currentSessionId,
+  currentDeviceId,
+) => {
   const excludeClauses = [];
   if (currentSessionId) {
     excludeClauses.push({ "metadata.sourceSessionId": currentSessionId });
@@ -18,10 +16,7 @@ const getSessionNotificationFilter = (userId, currentSessionId, currentDeviceId)
   if (excludeClauses.length > 0) {
     return {
       userId,
-      $or: [
-        { type: { $ne: "security_login" } },
-        { $nor: excludeClauses },
-      ],
+      $or: [{ type: { $ne: "security_login" } }, { $nor: excludeClauses }],
     };
   }
 
@@ -33,7 +28,11 @@ const getNotifications = async (req, res) => {
     const userId = req.user.id;
     const currentSessionId = req.user.sessionId;
     const currentDeviceId = req.headers["x-device-id"];
-    const filter = getSessionNotificationFilter(userId, currentSessionId, currentDeviceId);
+    const filter = getSessionNotificationFilter(
+      userId,
+      currentSessionId,
+      currentDeviceId,
+    );
 
     const notifications = await Notification.find(filter)
       .sort({ createdAt: -1 })
@@ -63,7 +62,7 @@ const markAsRead = async (req, res) => {
     const notification = await Notification.findOneAndUpdate(
       { _id: id, userId: req.user.id },
       { isRead: true },
-      { new: true }
+      { new: true },
     );
 
     if (!notification) {
@@ -93,10 +92,14 @@ const markAsRead = async (req, res) => {
 
 const markAllAsRead = async (req, res) => {
   try {
-    const filter = getSessionNotificationFilter(req.user.id, req.user.sessionId, req.headers["x-device-id"]);
+    const filter = getSessionNotificationFilter(
+      req.user.id,
+      req.user.sessionId,
+      req.headers["x-device-id"],
+    );
     await Notification.updateMany(
       { ...filter, isRead: false },
-      { $set: { isRead: true } }
+      { $set: { isRead: true } },
     );
 
     return res.status(200).json({
@@ -115,7 +118,11 @@ const markAllAsRead = async (req, res) => {
 const deleteNotification = async (req, res) => {
   try {
     const { id } = req.params;
-    const filter = getSessionNotificationFilter(req.user.id, req.user.sessionId, req.headers["x-device-id"]);
+    const filter = getSessionNotificationFilter(
+      req.user.id,
+      req.user.sessionId,
+      req.headers["x-device-id"],
+    );
     const deleted = await Notification.findOneAndDelete({
       _id: id,
       ...filter,
@@ -148,7 +155,11 @@ const deleteNotification = async (req, res) => {
 
 const clearAllNotifications = async (req, res) => {
   try {
-    const filter = getSessionNotificationFilter(req.user.id, req.user.sessionId, req.headers["x-device-id"]);
+    const filter = getSessionNotificationFilter(
+      req.user.id,
+      req.user.sessionId,
+      req.headers["x-device-id"],
+    );
     await Notification.deleteMany(filter);
 
     return res.status(200).json({

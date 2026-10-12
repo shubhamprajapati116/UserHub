@@ -111,7 +111,6 @@ function TodayUsersCard() {
     userStore.fetchTodayUsers();
   }, [userStore]);
 
-  // Ensure ONLY users registered today are displayed
   const todayStr = new Date().toDateString();
 
   const filteredUsers = rawTodayUsers.filter((u) => {
@@ -119,7 +118,6 @@ function TodayUsersCard() {
     return new Date(u.createdAt).toDateString() === todayStr;
   });
 
-  // Include currentUser if registered today and not yet in list
   if (
     currentUser?.createdAt &&
     new Date(currentUser.createdAt).toDateString() === todayStr
@@ -134,12 +132,10 @@ function TodayUsersCard() {
     }
   }
 
-  // Sort descending by registration time (newest on top)
   filteredUsers.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   return (
     <div className="today-users-card">
-      {/* ── Card Header ── */}
       <div className="today-users-header">
         <div className="today-header-left">
           <h3 className="today-users-title">Today's Registered Users</h3>
@@ -150,18 +146,17 @@ function TodayUsersCard() {
         </span>
       </div>
 
-      {/* ── Card Body / Users List ── */}
       <div className="today-users-body">
         {loading ? (
           <div className="today-users-skeleton-list">
             {Array.from({ length: 4 }).map((_, i) => (
               <div className="today-user-skeleton-row" key={i}>
-                <div className="skeleton-circle"></div>
+                <div className="skeleton skeleton-circle"></div>
                 <div className="skeleton-info">
-                  <div className="skeleton-line name-line"></div>
-                  <div className="skeleton-line tag-line"></div>
+                  <div className="skeleton skeleton-line name-line"></div>
+                  <div className="skeleton skeleton-line tag-line"></div>
                 </div>
-                <div className="skeleton-time"></div>
+                <div className="skeleton skeleton-time"></div>
               </div>
             ))}
           </div>
@@ -193,7 +188,6 @@ function TodayUsersCard() {
           <div className="today-users-list">
             {filteredUsers.map((user, idx) => {
               const displayName = user.name || user.email?.split("@")[0] || "User";
-              const roleName = user.role === "admin" ? "Admin" : "User";
               const timeStr = formatRelativeTime(user.createdAt);
 
               return (
@@ -201,24 +195,19 @@ function TodayUsersCard() {
                   className="today-user-row"
                   key={user._id || `${user.email}-${idx}`}
                 >
-                  {/* User Avatar */}
                   <div className="today-user-avatar-wrap">
                     <TodayUserAvatar user={user} displayName={displayName} />
                   </div>
 
-                  {/* User Name & Role Pill */}
                   <div className="today-user-meta">
                     <span className="today-user-name" title={displayName}>
                       {displayName}
                     </span>
-                    <span
-                      className={`today-role-badge role-${user.role || "user"}`}
-                    >
-                      {roleName}
+                    <span className="today-user-email" title={user.email}>
+                      {user.email || "No email"}
                     </span>
                   </div>
 
-                  {/* Relative Timestamp */}
                   <span className="today-user-timestamp">{timeStr}</span>
                 </div>
               );

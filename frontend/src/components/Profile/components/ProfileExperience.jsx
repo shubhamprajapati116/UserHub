@@ -36,52 +36,25 @@ function ProfileExperience({
 
       <div className="timeline-container">
         {loading ? (
-          Array.from({ length: 1 }).map((_, idx) => (
-            <div
-              className="experience-card apple-card-style skeleton-exp-card"
-              key={idx}
-              style={{ opacity: 0.7 }}
-            >
-              <div className="apple-card-header">
-                <div
-                  className="skeleton skeleton-avatar"
-                  style={{
-                    width: "32px",
-                    height: "32px",
-                    borderRadius: "7px",
-                    flexShrink: 0,
-                  }}
-                ></div>
-
-                <div
-                  className="apple-title-group"
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "6px",
-                  }}
-                >
-                  <div
-                    className="skeleton skeleton-line"
-                    style={{ width: "50%", height: "14px" }}
-                  ></div>
-                  <div
-                    className="skeleton skeleton-line"
-                    style={{ width: "30%", height: "11px" }}
-                  ></div>
-                  <div
-                    className="skeleton skeleton-badge"
-                    style={{
-                      width: "140px",
-                      height: "18px",
-                      borderRadius: "999px",
-                      marginTop: "2px",
-                    }}
-                  ></div>
+          <div className="experience-card apple-card-style skeleton-exp-card">
+            <div className="apple-card-header">
+              <div className="apple-card-header-top">
+                <div className="apple-header-left">
+                  <div className="skeleton skeleton-exp-logo"></div>
+                  <div className="apple-title-group">
+                    <div className="skeleton skeleton-exp-title"></div>
+                    <div className="skeleton skeleton-exp-pill"></div>
+                  </div>
                 </div>
+                <div className="skeleton skeleton-exp-actions"></div>
               </div>
             </div>
-          ))
+            <div className="apple-card-body">
+              <div className="exp-desc-divider"></div>
+              <div className="skeleton skeleton-exp-desc-line"></div>
+              <div className="skeleton skeleton-exp-desc-line skeleton-exp-desc-short"></div>
+            </div>
+          </div>
         ) : user?.experience && user.experience.length > 0 ? (
           <>
             {(showAllExp
@@ -99,7 +72,6 @@ function ProfileExperience({
                   className="experience-card apple-card-style"
                   key={exp._id}
                 >
-                  {/* Top Header Row - Clean Balanced Layout */}
                   <div className="apple-card-header">
                     <div className="apple-card-header-top">
                       <div className="apple-header-left">
@@ -188,14 +160,12 @@ function ProfileExperience({
                     </div>
                   </div>
 
-                  {/* Bullet Description Section */}
                   {cleanDesc && cleanDesc !== "//" && (
                     <div className="apple-card-body">
                       <div className="exp-desc-divider"></div>
                       <div className="apple-bullet-list">
                         {cleanDesc.split("\n").map((line, lIdx) => {
                           const bulletLine = line
-                            // eslint-disable-next-line no-useless-escape
                             .replace(/^[•\-\*]\s*/, "")
                             .trim();
                           if (!bulletLine) return null;

@@ -42,10 +42,7 @@ export default function AdminEmailConfirmModal({
   if (!isOpen) return null;
 
   return (
-    <div
-      className="admin-email-modal-overlay"
-      onClick={(e) => e.target === e.currentTarget && onCancel()}
-    >
+    <div className="admin-email-modal-overlay">
       <div
         className="admin-email-modal-card"
         role="dialog"

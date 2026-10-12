@@ -1,4 +1,6 @@
 const User = require("../models/user");
+const Session = require("../models/session");
+const Notification = require("../models/notification");
 const { updateUserSchema } = require("../validations/validate");
 const { changePasswordValidation } = require("../validations/validate");
 const bcrypt = require("bcrypt");
@@ -6,7 +8,8 @@ const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
 const createNotification = require("../utils/createNotification");
 const emailTemplates = require("../utils/emailTemplates");
-
+const jwt = require("jsonwebtoken");
+const { deleteFile } = require("../utils/fileHelper");
 const getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select(
@@ -35,14 +38,22 @@ const updateProfilePhoto = async (req, res) => {
       });
     }
 
+    const currentUser = await User.findById(req.user.id).select("profilephoto");
+    if (!currentUser) {
+      deleteFile(req.file.filename);
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const oldPhoto = currentUser.profilephoto;
+
     const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
       { profilephoto: req.file.filename },
-      { new: true }
+      { new: true },
     ).select("-password -resetPasswordToken -resetPasswordExpire");
 
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
+    if (oldPhoto && oldPhoto !== req.file.filename) {
+      deleteFile(oldPhoto);
     }
 
     return res.status(200).json({
@@ -52,12 +63,12 @@ const updateProfilePhoto = async (req, res) => {
       user: updatedUser,
     });
   } catch (error) {
+    if (req.file) deleteFile(req.file.filename);
     return res.status(500).json({ message: error.message });
   }
 };
 
 const updateProfile = async (req, res) => {
-  // If request contains only a photo upload (no name or email submitted)
   if (req.file && !req.body.name && !req.body.email) {
     return updateProfilePhoto(req, res);
   }
@@ -80,20 +91,16 @@ const updateProfile = async (req, res) => {
     }
 
     const requestedEmail = req.body.email?.toLowerCase().trim();
-    const isEmailChanging = requestedEmail && requestedEmail !== currentUser.email.toLowerCase().trim();
+    const isEmailChanging =
+      requestedEmail &&
+      requestedEmail !== currentUser.email.toLowerCase().trim();
 
     if (isEmailChanging) {
-      const existingUser = await User.findOne({
-        email: requestedEmail,
-        _id: { $ne: req.user.id },
+      return res.status(400).json({
+        field: "email",
+        message:
+          "Email address changes must be performed through Security Settings with password re-authentication.",
       });
-
-      if (existingUser) {
-        return res.status(409).json({
-          field: "email",
-          message: "Email already exists",
-        });
-      }
     }
 
     if (req.body.phone) {
@@ -112,6 +119,7 @@ const updateProfile = async (req, res) => {
 
     const updateData = {
       name: req.body.name,
+      email: currentUser.email,
       gender: req.body.gender,
       dob: req.body.dob,
       phone: req.body.phone,
@@ -125,62 +133,28 @@ const updateProfile = async (req, res) => {
       updateData.profileBanner = req.body.profileBanner;
     }
 
+    const oldPhoto = currentUser.profilephoto;
+
     if (req.file) {
       updateData.profilephoto = req.file.filename;
-    }
-
-    // If email is NOT changing, update with current email
-    if (!isEmailChanging) {
-      updateData.email = currentUser.email;
+      if (oldPhoto && oldPhoto !== req.file.filename) {
+        deleteFile(oldPhoto);
+      }
+    } else if (
+      req.body.removePhoto === "true" ||
+      req.body.removePhoto === true ||
+      req.body.profilephoto === ""
+    ) {
+      updateData.profilephoto = "";
+      if (oldPhoto) {
+        deleteFile(oldPhoto);
+      }
     }
 
     const updatedUser = await User.findByIdAndUpdate(req.user.id, updateData, {
       new: true,
       runValidators: true,
     }).select("-password -resetPasswordToken -resetPasswordExpire");
-
-    // ── IF EMAIL IS CHANGING: Generate 6-digit OTP & Send to New Email ──
-    if (isEmailChanging) {
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      const hashotp = crypto.createHash("sha256").update(otp).digest("hex");
-      console.log(`🔐 [EMAIL CHANGE OTP for ${requestedEmail}]: ${otp}`);
-
-      currentUser.pendingEmail = requestedEmail;
-      currentUser.emailChangeOtp = hashotp;
-      currentUser.emailChangeOtpExpire = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
-      await currentUser.save();
-
-      // Send OTP to NEW email address
-      sendEmail(
-        requestedEmail,
-        "Verify Your New Email Address - UserHub",
-        emailTemplates.selfEmailChangeOtpEmail({
-          name: currentUser.name,
-          newEmail: requestedEmail,
-          otp,
-        })
-      ).catch((err) => console.error("Error sending email change OTP:", err.message));
-
-      // Send Security Notice to the OLD email address (ZERO OTP in this message)
-      sendEmail(
-        currentUser.email,
-        "[Security Notice] Email change requested for your UserHub account",
-        emailTemplates.oldEmailChangeNoticeTemplate({
-          name: currentUser.name,
-          oldEmail: currentUser.email,
-          newEmail: requestedEmail,
-          changedBy: "you in Edit Profile",
-        })
-      ).catch((err) => console.error("Error sending old email security notice:", err.message));
-
-      return res.status(200).json({
-        success: true,
-        requireEmailOtp: true,
-        newEmail: requestedEmail,
-        message: `Profile details saved! A 6-digit verification code has been sent to ${requestedEmail}. Please verify to confirm your new email.`,
-        user: updatedUser,
-      });
-    }
 
     return res.status(200).json({
       success: true,
@@ -189,6 +163,7 @@ const updateProfile = async (req, res) => {
       user: updatedUser,
     });
   } catch (error) {
+    if (req.file) deleteFile(req.file.filename);
     return res.status(500).json({
       message: error.message,
     });
@@ -211,9 +186,14 @@ const verifyEmailChangeOtp = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    if (!user.pendingEmail || !user.emailChangeOtp || !user.emailChangeOtpExpire) {
+    if (
+      !user.pendingEmail ||
+      !user.emailChangeOtp ||
+      !user.emailChangeOtpExpire
+    ) {
       return res.status(400).json({
-        message: "No pending email change request found. Please submit the form again.",
+        message:
+          "No pending email change request found. Please submit the form again.",
       });
     }
 
@@ -225,7 +205,10 @@ const verifyEmailChangeOtp = async (req, res) => {
       });
     }
 
-    const hashotp = crypto.createHash("sha256").update(otp.trim()).digest("hex");
+    const hashotp = crypto
+      .createHash("sha256")
+      .update(otp.trim())
+      .digest("hex");
     if (hashotp !== user.emailChangeOtp) {
       return res.status(400).json({
         field: "otp",
@@ -233,7 +216,6 @@ const verifyEmailChangeOtp = async (req, res) => {
       });
     }
 
-    // Check if pendingEmail was registered by someone else in the meantime
     const existing = await User.findOne({
       email: user.pendingEmail,
       _id: { $ne: user._id },
@@ -252,20 +234,22 @@ const verifyEmailChangeOtp = async (req, res) => {
     user.pendingEmail = null;
     user.emailChangeOtp = null;
     user.emailChangeOtpExpire = null;
+    user.emergencyLockToken = null;
+    user.emergencyLockExpire = null;
     user.isVerified = true;
     await user.save();
 
-    // 📧 Confirmation to NEW email address
     sendEmail(
       newEmail,
       "Email Address Successfully Updated - UserHub",
       emailTemplates.emailChangeSuccessTemplate({
         name: user.name,
         newEmail,
-      })
-    ).catch((err) => console.error("Error sending new email success notice:", err.message));
+      }),
+    ).catch((err) =>
+      console.error("Error sending new email success notice:", err.message),
+    );
 
-    // 📧 Security Notice to the OLD email address
     sendEmail(
       oldEmail,
       "[Security Notice] Your UserHub account email was updated",
@@ -274,10 +258,11 @@ const verifyEmailChangeOtp = async (req, res) => {
         oldEmail,
         newEmail,
         changedBy: "you",
-      })
-    ).catch((err) => console.error("Error sending old email alert:", err.message));
+      }),
+    ).catch((err) =>
+      console.error("Error sending old email alert:", err.message),
+    );
 
-    // 🔔 In-App Security Notification
     await createNotification({
       userId: user._id,
       type: "security_login",
@@ -286,12 +271,24 @@ const verifyEmailChangeOtp = async (req, res) => {
     });
 
     const sanitizedUser = await User.findById(user._id).select(
-      "-password -resetPasswordToken -resetPasswordExpire"
+      "-password -resetPasswordToken -resetPasswordExpire",
+    );
+
+    const token = jwt.sign(
+      {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        sessionId: req.user?.sessionId,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" },
     );
 
     return res.status(200).json({
       success: true,
       message: "Email updated and verified successfully!",
+      token,
       user: sanitizedUser,
     });
   } catch (error) {
@@ -310,27 +307,38 @@ const resendEmailChangeOtp = async (req, res) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const hashotp = crypto.createHash("sha256").update(otp).digest("hex");
-    console.log(`🔐 [RESEND EMAIL CHANGE OTP for ${user.pendingEmail}]: ${otp}`);
+    console.log(`🔐 [RESEND EMAIL CHANGE OTP for ${user.email}]: ${otp}`);
+
+    const rawEmergencyToken = crypto.randomBytes(32).toString("hex");
+    const hashedEmergencyToken = crypto
+      .createHash("sha256")
+      .update(rawEmergencyToken)
+      .digest("hex");
 
     user.emailChangeOtp = hashotp;
     user.emailChangeOtpExpire = new Date(Date.now() + 10 * 60 * 1000);
+    user.emergencyLockToken = hashedEmergencyToken;
+    user.emergencyLockExpire = new Date(Date.now() + 24 * 60 * 60 * 1000);
     await user.save();
+
+    const emergencyRevokeUrl = `${process.env.BACKEND_URL || "http://localhost:5000"}/api/security/emergency-lock/${rawEmergencyToken}`;
 
     sendEmail(
       user.pendingEmail,
-      "Your New Email Verification Code - UserHub",
+      "Verify Your New Email Address - UserHub",
       emailTemplates.selfEmailChangeOtpEmail({
         name: user.name,
         newEmail: user.pendingEmail,
         otp,
-      })
+      }),
     ).catch((err) => {
       console.error("Error resending email change OTP:", err.message);
     });
 
     return res.status(200).json({
       success: true,
-      message: `A new verification code has been sent to ${user.pendingEmail}.`,
+      pendingEmail: user.pendingEmail,
+      message: `A new verification code has been sent to your new email (${user.pendingEmail}).`,
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -344,16 +352,17 @@ const cancelEmailChange = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Clear all pending email fields
     user.pendingEmail = null;
     user.emailChangeOtp = null;
     user.emailChangeOtpExpire = null;
+    user.emergencyLockToken = null;
+    user.emergencyLockExpire = null;
     user.verificationToken = undefined;
     user.verificationTokenExpire = undefined;
     await user.save();
 
     const sanitizedUser = await User.findById(user._id).select(
-      "-password -resetPasswordToken -resetPasswordExpire"
+      "-password -resetPasswordToken -resetPasswordExpire",
     );
 
     return res.status(200).json({
@@ -367,11 +376,23 @@ const cancelEmailChange = async (req, res) => {
 };
 
 const deleteProfile = async (req, res) => {
-  await User.findByIdAndDelete(req.user.id);
+  try {
+    const userId = req.user.id || req.user._id;
+    const user = await User.findById(userId).select("profilephoto");
+    if (user?.profilephoto) {
+      deleteFile(user.profilephoto);
+    }
 
-  res.json({
-    message: "Account Deleted",
-  });
+    await User.findByIdAndDelete(userId);
+    await Session.deleteMany({ userId }).catch(() => {});
+    await Notification.deleteMany({ userId }).catch(() => {});
+
+    return res.json({
+      message: "Account Deleted",
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
 };
 const changepassword = async (req, res) => {
   try {
@@ -408,7 +429,15 @@ const changepassword = async (req, res) => {
     user.password = hashpassword;
     await user.save();
 
-    // 🔔 In-App Notification: Password Change
+    if (req.user?.sessionId) {
+      await Session.deleteMany({
+        userId: user._id,
+        sessionId: { $ne: req.user.sessionId },
+      }).catch(() => {});
+    } else {
+      await Session.deleteMany({ userId: user._id }).catch(() => {});
+    }
+
     await createNotification({
       userId: user._id,
       type: "password_change",
@@ -569,7 +598,7 @@ const updateBanner = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
       { profileBanner },
-      { new: true }
+      { new: true },
     ).select("-password -resetPasswordToken -resetPasswordExpire");
 
     if (!updatedUser) {
@@ -620,7 +649,6 @@ const requestEmailChange = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Check if new email is identical to current email
     if (normalizedNewEmail === user.email.toLowerCase()) {
       return res.status(400).json({
         field: "newEmail",
@@ -628,16 +656,14 @@ const requestEmailChange = async (req, res) => {
       });
     }
 
-    // Verify current password for re-authentication
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({
+      return res.status(400).json({
         field: "password",
         message: "Incorrect current password. Please try again.",
       });
     }
 
-    // Check if new email is already registered to another user
     const existingUser = await User.findOne({
       email: normalizedNewEmail,
       _id: { $ne: user._id },
@@ -650,17 +676,27 @@ const requestEmailChange = async (req, res) => {
       });
     }
 
-    // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const hashotp = crypto.createHash("sha256").update(otp).digest("hex");
-    console.log(`🔐 [EMAIL CHANGE OTP for ${normalizedNewEmail}]: ${otp}`);
+    console.log(
+      `🔐 [EMAIL CHANGE OTP for ${user.email} -> ${normalizedNewEmail}]: ${otp}`,
+    );
+
+    const rawEmergencyToken = crypto.randomBytes(32).toString("hex");
+    const hashedEmergencyToken = crypto
+      .createHash("sha256")
+      .update(rawEmergencyToken)
+      .digest("hex");
 
     user.pendingEmail = normalizedNewEmail;
     user.emailChangeOtp = hashotp;
-    user.emailChangeOtpExpire = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    user.emailChangeOtpExpire = new Date(Date.now() + 10 * 60 * 1000);
+    user.emergencyLockToken = hashedEmergencyToken;
+    user.emergencyLockExpire = new Date(Date.now() + 24 * 60 * 60 * 1000);
     await user.save();
 
-    // Send OTP to NEW email address
+    const emergencyRevokeUrl = `${process.env.BACKEND_URL || "http://localhost:5000"}/api/security/emergency-lock/${rawEmergencyToken}`;
+
     sendEmail(
       normalizedNewEmail,
       "Verify Your New Email Address - UserHub",
@@ -668,10 +704,11 @@ const requestEmailChange = async (req, res) => {
         name: user.name,
         newEmail: normalizedNewEmail,
         otp,
-      })
-    ).catch((err) => console.error("Error sending email change OTP:", err.message));
+      }),
+    ).catch((err) =>
+      console.error("Error sending new email verification OTP:", err.message),
+    );
 
-    // Send Security Notice to OLD email address
     sendEmail(
       user.email,
       "[Security Notice] Email change requested for your UserHub account",
@@ -679,17 +716,78 @@ const requestEmailChange = async (req, res) => {
         name: user.name,
         oldEmail: user.email,
         newEmail: normalizedNewEmail,
-        changedBy: "you via Security Settings",
-      })
-    ).catch((err) => console.error("Error sending old email security notice:", err.message));
+        changedBy: "you",
+      }),
+    ).catch((err) =>
+      console.error("Error sending old email security notice:", err.message),
+    );
 
     return res.status(200).json({
       success: true,
       pendingEmail: normalizedNewEmail,
-      message: `A 6-digit verification code has been sent to ${normalizedNewEmail}.`,
+      currentEmail: user.email,
+      message: `A 6-digit verification code has been sent to your new email (${normalizedNewEmail}).`,
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
+  }
+};
+
+const emergencyRevokeAccount = async (req, res) => {
+  try {
+    const { token } = req.params;
+    if (!token) {
+      return res.status(400).send("Invalid emergency lock request.");
+    }
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const user = await User.findOne({
+      emergencyLockToken: hashedToken,
+      emergencyLockExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.redirect(
+        `${process.env.FRONTEND_URL || "http://localhost:5173"}/login?emergencyError=expired`,
+      );
+    }
+
+    await Session.deleteMany({ userId: user._id }).catch(() => {});
+
+    user.pendingEmail = null;
+    user.emailChangeOtp = null;
+    user.emailChangeOtpExpire = null;
+    user.emergencyLockToken = null;
+    user.emergencyLockExpire = null;
+
+    const scrambledSecret = crypto.randomBytes(32).toString("hex");
+    user.password = await bcrypt.hash(scrambledSecret, 10);
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpire = new Date(Date.now() + 30 * 60 * 1000);
+    await user.save();
+
+    const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password/${resetToken}?emergency=true`;
+
+    sendEmail(
+      user.email,
+      "🚨 Account Lockdown Activated - UserHub Security",
+      emailTemplates.emergencyLockNoticeEmail({
+        name: user.name,
+        resetUrl,
+      }),
+    ).catch((err) =>
+      console.error(
+        "Error sending emergency lock confirmation email:",
+        err.message,
+      ),
+    );
+
+    return res.redirect(resetUrl);
+  } catch (error) {
+    console.error("Emergency revoke error:", error);
+    return res.status(500).send("An error occurred during account lockdown.");
   }
 };
 
@@ -708,4 +806,5 @@ module.exports = {
   updateExperienceItem,
   deleteExperienceItem,
   updateNotificationPreferences,
+  emergencyRevokeAccount,
 };

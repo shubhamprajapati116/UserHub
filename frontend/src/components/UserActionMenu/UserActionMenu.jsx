@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/set-state-in-effect */
+
 import "./UserActionMenu.css";
 import { useState, useLayoutEffect, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
@@ -26,6 +26,7 @@ function UserActionMenu({
   setShowModal,
   userStore,
   onClose,
+  onOpenQuickView,
 }) {
   const menuRef = useRef(null);
   const [avatarError, setAvatarError] = useState(false);
@@ -94,10 +95,8 @@ function UserActionMenu({
     const rect = reference.getBoundingClientRect();
     const menuEl = menuRef.current;
     const menuWidth = menuEl?.offsetWidth || 188;
-    // Accurate or realistic initial menu height
     const menuHeight = menuEl?.scrollHeight || menuEl?.offsetHeight || 360;
 
-    // Safety margins: Header is 62px, so safe top boundary is 72px (never touch or overlap header!)
     const SAFE_TOP = 72;
     const SAFE_BOTTOM = 14;
     const SAFE_LEFT = 10;
@@ -106,8 +105,6 @@ function UserActionMenu({
     const spaceBelow = Math.max(0, window.innerHeight - rect.bottom - SAFE_BOTTOM - 6);
     const spaceAbove = Math.max(0, rect.top - SAFE_TOP - 6);
 
-    // Natural reading direction for table rows is downwards.
-    // Only flip upwards if space below is genuinely constrained (< 220px) AND space above has more room.
     const openUpwards = spaceBelow < 220 && spaceAbove > spaceBelow;
 
     let top;
@@ -125,13 +122,11 @@ function UserActionMenu({
       maxHeight = Math.max(160, Math.min(380, spaceBelow));
     }
 
-    // Safety boundary clamping: NEVER allow top < SAFE_TOP under any circumstance!
     top = Math.max(SAFE_TOP, top);
     if (top + maxHeight > window.innerHeight - SAFE_BOTTOM) {
       maxHeight = Math.max(120, window.innerHeight - SAFE_BOTTOM - top);
     }
 
-    // Horizontal alignment: right-align to trigger button
     let left = rect.right - menuWidth;
     if (left < SAFE_LEFT) left = SAFE_LEFT;
     if (left + menuWidth > window.innerWidth - SAFE_RIGHT) {
@@ -146,11 +141,15 @@ function UserActionMenu({
     };
   };
 
-  const [position, setPosition] = useState(calculatePosition);
+  const [position, setPosition] = useState({
+    top: 72,
+    left: 0,
+    maxHeight: 380,
+    placement: "bottom",
+  });
 
   useLayoutEffect(() => {
     setPosition(calculatePosition());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reference, user]);
 
   useEffect(() => {
@@ -166,7 +165,6 @@ function UserActionMenu({
     }
 
     function handleScroll(e) {
-      // 🛡️ Do NOT close if scrolling inside the dropdown menu itself
       if (
         menuRef.current &&
         (menuRef.current === e.target || menuRef.current.contains(e.target))
@@ -203,7 +201,6 @@ function UserActionMenu({
     return null;
   }
 
-  // Avatar URL & Fallback
   const userPhoto = user?.profilephoto;
   const avatarUrl = userPhoto
     ? userPhoto.startsWith("http")
@@ -232,7 +229,6 @@ function UserActionMenu({
       onClick={(e) => e.stopPropagation()}
       onWheel={(e) => e.stopPropagation()}
     >
-      {/* ── User Header Context ── */}
       <div className="uam-user-header">
         <div className="uam-avatar-wrap">
           {avatarUrl && !avatarError ? (
@@ -276,7 +272,6 @@ function UserActionMenu({
 
       <div className="uam-divider"></div>
 
-      {/* ── Navigation Actions Section ── */}
       <div className="uam-section">
         <button
           type="button"
@@ -284,7 +279,9 @@ function UserActionMenu({
           onClick={(e) => {
             e.stopPropagation();
             onClose();
-            navigate(`/admin/users/${user._id}/view`);
+            if (onOpenQuickView) {
+              onOpenQuickView(user);
+            }
           }}
         >
           <div className="uam-icon-box view">
@@ -309,7 +306,6 @@ function UserActionMenu({
         </button>
       </div>
 
-      {/* ── Pending Email Actions ── */}
       {user.pendingEmail && (
         <>
           <div className="uam-divider"></div>
@@ -372,8 +368,66 @@ function UserActionMenu({
         </>
       )}
 
-      {/* ── Role Management Section ── */}
-      {user.role !== "admin" && (
+      {user.inviteStatus === "pending" && (
+        <>
+          <div className="uam-divider"></div>
+          <div className="uam-section">
+            <button
+              type="button"
+              className="uam-item"
+              onClick={async (e) => {
+                e.stopPropagation();
+                onClose();
+                try {
+                  const res = await userStore.resendInvite(user._id);
+                  toast.success(
+                    res?.message || "Invitation resent successfully!",
+                  );
+                } catch (err) {
+                  toast.error(
+                    err?.message || "Failed to resend invitation",
+                  );
+                }
+              }}
+              disabled={userStore?.loading?.resendInvite}
+            >
+              <div className="uam-icon-box mail">
+                <FiMail size={12} />
+              </div>
+              <span className="uam-item-label">
+                {userStore?.loading?.resendInvite
+                  ? "Resending..."
+                  : "Resend Invitation"}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              className="uam-item"
+              onClick={async (e) => {
+                e.stopPropagation();
+                onClose();
+                try {
+                  const res = await userStore.cancelInvite(user._id);
+                  toast.info(res?.message || "Invitation cancelled.");
+                } catch (err) {
+                  toast.error(
+                    err?.message || "Failed to cancel invitation",
+                  );
+                }
+              }}
+              disabled={userStore?.loading?.cancelInvite}
+            >
+              <div className="uam-icon-box suspend">
+                <FiSlash size={12} />
+              </div>
+              <span className="uam-item-label">Cancel Invitation</span>
+            </button>
+          </div>
+        </>
+      )}
+
+      {user.role !== "admin" && user.inviteStatus !== "pending" && (
         <>
           <div className="uam-divider"></div>
           <div className="uam-section">
@@ -404,8 +458,7 @@ function UserActionMenu({
         </>
       )}
 
-      {/* ── Account Status Management (Suspend / Ban / Reactivate) ── */}
-      {!isSelf && user.role !== "admin" && (
+      {!isSelf && user.role !== "admin" && user.inviteStatus !== "pending" && (
         <>
           <div className="uam-divider"></div>
           <div className="uam-section">
@@ -463,9 +516,8 @@ function UserActionMenu({
 
       <div className="uam-divider"></div>
 
-      {/* ── Danger Zone / Access Control Section ── */}
       <div className="uam-section">
-        {!isSelf && (
+        {!isSelf && user.inviteStatus !== "pending" && (
           <button
             type="button"
             className="uam-item revoke"

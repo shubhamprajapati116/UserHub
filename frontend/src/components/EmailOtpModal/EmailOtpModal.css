@@ -1,4 +1,4 @@
-﻿/* ── Email OTP Verification Modal ── */
+
 .email-otp-overlay {
   position: fixed;
   inset: 0;
@@ -103,7 +103,6 @@
   word-break: break-all;
 }
 
-/* 6-Boxes Grid */
 .email-otp-boxes {
   display: flex;
   justify-content: center;
@@ -149,7 +148,6 @@
   gap: 6px;
 }
 
-/* Resend row */
 .email-otp-resend-wrap {
   text-align: center;
   margin-bottom: 24px;
@@ -180,7 +178,6 @@
   text-decoration: none;
 }
 
-/* Action buttons */
 .email-otp-actions {
   display: flex;
   gap: 12px;
@@ -234,7 +231,6 @@
   color: #f8fafc;
 }
 
-/* Light Theme Adaptations */
 :root[data-theme="light"] .email-otp-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -270,4 +266,9 @@
 :root[data-theme="light"] .email-otp-btn-cancel:hover:not(:disabled) {
   background: #e2e8f0;
   color: #0f172a;
+}
+
+:root[data-theme="light"] .email-otp-close-btn:hover {
+  color: #0f172a;
+  background: #f1f5f9;
 }

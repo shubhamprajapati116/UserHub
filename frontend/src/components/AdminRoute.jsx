@@ -1,4 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
+
 import { Navigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../stores/StoreContext";
@@ -16,7 +16,6 @@ function AdminRoute({ children }) {
     return <Navigate to="/login" replace />;
   }
 
-  // Get active user from store or local cache
   const effectiveUser =
     userStore.currentUser ||
     (() => {

@@ -1,55 +1,83 @@
 import { useState, useEffect } from "react";
-import { BANNERS } from "./bannerData";
+import { BANNERS, preloadAllBanners } from "./bannerData";
 import { FiX, FiCheck, FiImage } from "react-icons/fi";
 
-function ProfileBannerModal({ isOpen, onClose, currentBannerId, onSelectBanner, isSaving }) {
-  const [selectedId, setSelectedId] = useState(currentBannerId || "banner_5");
+function ProfileBannerModal({
+  isOpen,
+  onClose,
+  currentBannerId,
+  onSelectBanner,
+  isSaving,
+}) {
+  const [selectedId, setSelectedId] = useState(currentBannerId || "banner_11");
+  const [isRendered, setIsRendered] = useState(isOpen);
+  const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      setSelectedId(currentBannerId || "banner_5");
+      setSelectedId(currentBannerId || "banner_11");
+      setIsClosing(false);
+      setIsRendered(true);
+      preloadAllBanners();
+    } else if (isRendered) {
+      setIsClosing(true);
+      const timer = setTimeout(() => {
+        setIsRendered(false);
+        setIsClosing(false);
+      }, 160);
+      return () => clearTimeout(timer);
     }
-  }, [isOpen, currentBannerId]);
+  }, [isOpen, currentBannerId, isRendered]);
+
+  const handleSmoothClose = () => {
+    if (isSaving || isClosing) return;
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 150);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === "Escape" && isOpen) {
-        onClose();
+      if (e.key === "Escape" && isOpen && !isClosing) {
+        handleSmoothClose();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, isClosing, isSaving]);
 
-  // Lock background body scroll while modal is open
   useEffect(() => {
-    if (isOpen) {
+    if (isRendered) {
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = originalOverflow;
       };
     }
-  }, [isOpen]);
+  }, [isRendered]);
 
-  if (!isOpen) return null;
+  if (!isRendered) return null;
 
   const handleApply = () => {
+    if (isSaving || isClosing) return;
     onSelectBanner(selectedId);
   };
 
   const selectedBanner = BANNERS.find((b) => b.id === selectedId) || BANNERS[0];
 
   return (
-    <div className="banner-modal-backdrop" onClick={onClose}>
+    <div
+      className={`banner-modal-backdrop ${isClosing ? "closing" : ""}`}
+      onClick={handleSmoothClose}
+    >
       <div
-        className="banner-modal-dialog"
+        className={`banner-modal-dialog ${isClosing ? "closing" : ""}`}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="banner-modal-title"
       >
-        {/* Header */}
         <div className="banner-modal-header">
           <div className="banner-modal-header-text">
             <div className="banner-modal-badge">
@@ -57,19 +85,22 @@ function ProfileBannerModal({ isOpen, onClose, currentBannerId, onSelectBanner, 
               <span>Theme Gallery</span>
             </div>
             <h3 id="banner-modal-title">Customize Profile Cover</h3>
-            <p>Choose a cover image from our curated collection to personalize your profile header.</p>
+            <p>
+              Choose a cover image from our curated collection to personalize
+              your profile header.
+            </p>
           </div>
           <button
             type="button"
             className="banner-modal-close-btn"
-            onClick={onClose}
+            onClick={handleSmoothClose}
             aria-label="Close"
+            disabled={isSaving}
           >
             <FiX size={18} />
           </button>
         </div>
 
-        {/* Banner Grid */}
         <div className="banner-modal-body">
           <div className="banner-gallery-grid">
             {BANNERS.map((banner) => {
@@ -92,6 +123,7 @@ function ProfileBannerModal({ isOpen, onClose, currentBannerId, onSelectBanner, 
                     <img
                       src={banner.image}
                       alt={banner.name}
+                      loading="lazy"
                       decoding="async"
                       className="banner-card-img"
                     />
@@ -103,8 +135,10 @@ function ProfileBannerModal({ isOpen, onClose, currentBannerId, onSelectBanner, 
                     )}
                   </div>
                   <div className="banner-card-info">
-                    <span className="banner-card-name">{banner.name}</span>
-                    <span className="banner-card-category">{banner.category}</span>
+                    <span className="banner-card-name" title={banner.name}>{banner.name}</span>
+                    <span className="banner-card-category">
+                      {banner.category}
+                    </span>
                   </div>
                 </div>
               );
@@ -112,17 +146,18 @@ function ProfileBannerModal({ isOpen, onClose, currentBannerId, onSelectBanner, 
           </div>
         </div>
 
-        {/* Footer */}
         <div className="banner-modal-footer">
           <div className="banner-footer-preview">
             <span className="banner-footer-label">Selected:</span>
-            <strong className="banner-footer-selected-name">{selectedBanner.name}</strong>
+            <strong className="banner-footer-selected-name">
+              {selectedBanner.name}
+            </strong>
           </div>
           <div className="banner-modal-footer-actions">
             <button
               type="button"
               className="banner-footer-cancel-btn"
-              onClick={onClose}
+              onClick={handleSmoothClose}
               disabled={isSaving}
             >
               Cancel

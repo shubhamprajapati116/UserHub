@@ -1,9 +1,14 @@
 import React from "react";
+import "./ErrorBoundary.css";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = {
+      hasError: false,
+      error: null,
+      isRetrying: false,
+    };
   }
 
   static getDerivedStateFromError(error) {
@@ -15,8 +20,11 @@ class ErrorBoundary extends React.Component {
   }
 
   handleReload = () => {
-    this.setState({ hasError: false, error: null });
-    window.location.reload();
+    this.setState({ isRetrying: true });
+    setTimeout(() => {
+      this.setState({ hasError: false, error: null, isRetrying: false });
+      window.location.reload();
+    }, 400);
   };
 
   handleGoHome = () => {
@@ -27,117 +35,79 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div
-          style={{
-            minHeight: "100vh",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "var(--bg-main, #0f172a)",
-            color: "var(--text-primary, #f8fafc)",
-            padding: "20px",
-            textAlign: "center",
-            fontFamily: "system-ui, -apple-system, sans-serif",
-            boxSizing: "border-box",
-          }}
-        >
-          <div
-            style={{
-              background: "var(--bg-elevated, #1e293b)",
-              padding: "36px 28px",
-              borderRadius: "16px",
-              boxShadow: "0 20px 35px -5px rgba(0, 0, 0, 0.4)",
-              maxWidth: "460px",
-              width: "100%",
-              border: "1px solid var(--border, rgba(255, 255, 255, 0.1))",
-              boxSizing: "border-box",
-            }}
-          >
-            <div
-              style={{
-                width: "56px",
-                height: "56px",
-                borderRadius: "50%",
-                backgroundColor: "rgba(239, 68, 68, 0.15)",
-                color: "#ef4444",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "26px",
-                margin: "0 auto 16px auto",
-                boxShadow: "0 0 20px rgba(239, 68, 68, 0.2)",
-              }}
-            >
-              ⚠️
+        <div className="eb-backdrop" role="alert" aria-live="assertive">
+          <div className="eb-card">
+            <div className="eb-icon-wrapper" aria-hidden="true">
+              <svg
+                className="eb-icon-svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M22.61 16.95A5 5 0 0 0 18 10h-1.26a8 8 0 0 0-7.05-6M5 5a8 8 0 0 0-4 7h1a5 5 0 0 0 4.54 3" />
+                <line x1="2" y1="2" x2="22" y2="22" strokeWidth="2.1" />
+                <path d="M8.5 16.5a5 5 0 0 0 3.5 1.5h6a5 5 0 0 0 3.5-1.5" />
+              </svg>
             </div>
-            <h2
-              style={{
-                fontSize: "1.25rem",
-                marginBottom: "10px",
-                fontWeight: "700",
-                color: "var(--text-primary, #ffffff)",
-              }}
-            >
-              Service Temporarily Unavailable
-            </h2>
-            <p
-              style={{
-                color: "var(--text-secondary, #94a3b8)",
-                fontSize: "0.875rem",
-                lineHeight: "1.6",
-                marginBottom: "24px",
-              }}
-            >
-              We encountered a temporary connection issue. Please check your network connection or retry.
+
+            <h2 className="eb-title">Service Temporarily Unavailable</h2>
+            <p className="eb-description">
+              We encountered a temporary connection issue. Please check your network or retry in a few moments.
             </p>
 
-            <div
-              style={{
-                display: "flex",
-                gap: "10px",
-                justifyContent: "center",
-                flexWrap: "wrap",
-              }}
-            >
+            <div className="eb-actions">
               <button
                 type="button"
+                className="eb-btn-secondary"
                 onClick={this.handleGoHome}
-                style={{
-                  flex: "1",
-                  minWidth: "130px",
-                  backgroundColor: "transparent",
-                  color: "var(--text-primary, #ffffff)",
-                  border: "1px solid var(--border, rgba(255, 255, 255, 0.2))",
-                  padding: "10px 18px",
-                  borderRadius: "8px",
-                  fontSize: "0.85rem",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                }}
               >
-                Go to Dashboard
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+                <span>Go to Dashboard</span>
               </button>
+
               <button
                 type="button"
+                className="eb-btn-primary"
                 onClick={this.handleReload}
-                style={{
-                  flex: "1",
-                  minWidth: "130px",
-                  backgroundColor: "var(--accent, #6366f1)",
-                  color: "#ffffff",
-                  border: "none",
-                  padding: "10px 18px",
-                  borderRadius: "8px",
-                  fontSize: "0.85rem",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  boxShadow: "0 2px 10px rgba(99, 102, 241, 0.35)",
-                  transition: "all 0.2s ease",
-                }}
+                disabled={this.state.isRetrying}
               >
-                Retry Connection
+                {this.state.isRetrying ? (
+                  <>
+                    <span className="eb-btn-spinner" />
+                    <span>Connecting…</span>
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="1 4 1 10 7 10" />
+                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                    </svg>
+                    <span>Retry Connection</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

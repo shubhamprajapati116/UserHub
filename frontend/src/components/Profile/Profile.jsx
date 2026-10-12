@@ -1,4 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
+
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./profile.css";
@@ -12,7 +12,6 @@ import ImageCropperModal from "../ImageCropper/ImageCropperModal";
 import ExperienceModal from "../Experience/ExperienceModal";
 import DeleteConfirmModal from "../Experience/DeleteConfirmModal";
 
-// Modular Subcomponents
 import ProfileBanner from "./components/ProfileBanner";
 import ProfileBannerModal from "./components/ProfileBannerModal";
 import { DEFAULT_BANNER_ID } from "./components/bannerData";
@@ -21,6 +20,7 @@ import ProfileCompletion from "./components/ProfileCompletion";
 import ProfileBio from "./components/ProfileBio";
 import ProfileExperience from "./components/ProfileExperience";
 import ProfileInfoGrid from "./components/ProfileInfoGrid";
+import PendingEmailAlert from "./components/PendingEmailAlert";
 
 function getJoinedDate(user) {
   if (!user) return null;
@@ -52,8 +52,26 @@ function Profile() {
   const photoLoading = userStore.loading.photoUpdate;
   const expLoading = userStore.loading.experience;
 
-  // FIX: Only show skeletons on initial load if user data is not yet in store/cache
-  const loading = !user;
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadProfile = async () => {
+      try {
+        await userStore.fetchProfile();
+      } finally {
+        if (isMounted) {
+          setInitialLoading(false);
+        }
+      }
+    };
+    loadProfile();
+    return () => {
+      isMounted = false;
+    };
+  }, [userStore]);
+
+  const loading = initialLoading || userStore.loading.fetchProfile || !user;
   const joinedDate = getJoinedDate(user);
 
   const handleHideCompletion = () => {
@@ -80,7 +98,7 @@ function Profile() {
       "user_profile_banner_" + (user?._id || "default"),
     );
     if (saved) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+
       setBannerId(saved);
     } else if (user?.profileBanner) {
       setBannerId(user.profileBanner);
@@ -121,11 +139,6 @@ function Profile() {
       document.body.style.overflow = "";
     };
   }, [showImageModal]);
-
-  useEffect(() => {
-    userStore.fetchProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleAddExpClick = () => {
     setEditingExp(null);
@@ -187,7 +200,7 @@ function Profile() {
     : [
         {
           label: "Full Name",
-          value: user?.name,
+          value: user?.name || "Not Added",
           fieldKey: "name",
           colorClass: "icon-indigo",
           icon: (
@@ -206,7 +219,7 @@ function Profile() {
         },
         {
           label: "Email",
-          value: user?.email,
+          value: user?.email || "Not Added",
           fieldKey: "email",
           isVerified: user?.isVerified,
           colorClass: "icon-cyan",
@@ -226,7 +239,9 @@ function Profile() {
         },
         {
           label: "Gender",
-          value: user?.gender,
+          value: user?.gender
+            ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1)
+            : "Not Added",
           fieldKey: "gender",
           colorClass: "icon-pink",
           icon: (
@@ -457,10 +472,14 @@ function Profile() {
     }
   };
 
-  const avatarSrc =
-    preview || `${import.meta.env.VITE_API_URL}/uploads/${user?.profilephoto}`;
+  const hasCustomPhoto = Boolean(
+    user?.profilephoto &&
+    !["null", "undefined", "default.png", ""].includes(String(user.profilephoto).trim().toLowerCase())
+  );
 
-  // Compute expiry display for pending email
+  const avatarSrc =
+    preview || (hasCustomPhoto ? `${import.meta.env.VITE_API_URL}/uploads/${user.profilephoto}` : "");
+
   const pendingEmailExpiry = user?.verificationTokenExpire
     ? new Date(user.verificationTokenExpire)
     : null;
@@ -482,74 +501,25 @@ function Profile() {
       subtitle="Personal information, work experience, and account details"
     >
       <div className="page-container-centered">
+        <PendingEmailAlert
+          user={user}
+          pendingEmailExpired={pendingEmailExpired}
+          pendingEmailExpiryStr={pendingEmailExpiryStr}
+          onResend={handleResendPendingVerification}
+          onCancel={handleCancelPendingEmail}
+          isResending={userStore.loading.resendPendingVerification}
+          isCancelling={userStore.loading.cancelEmailChange}
+        />
+
         <div className="profile-layout card">
-          {/* ── Pending Email Change Banner ── */}
-          {user?.pendingEmail && (
-            <div className="pending-email-banner">
-              <div className="pending-email-banner-icon">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="8" x2="12" y2="12" />
-                  <line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
-              </div>
-              <div className="pending-email-banner-body">
-                <p className="pending-email-banner-title">
-                  Email Change Pending Verification
-                </p>
-                <p className="pending-email-banner-desc">
-                  A request was made to change your email to{" "}
-                  <strong>{user.pendingEmail}</strong>.{" "}
-                  {pendingEmailExpired
-                    ? "The verification link has expired."
-                    : pendingEmailExpiryStr
-                      ? `Link expires on ${pendingEmailExpiryStr}.`
-                      : "Please verify it using the link sent to that email."}{" "}
-                  Your current email <strong>{user.email}</strong> remains
-                  active until verified.
-                </p>
-              </div>
-              <div className="pending-email-actions">
-                <button
-                  type="button"
-                  className="pending-email-resend-btn"
-                  onClick={handleResendPendingVerification}
-                  disabled={userStore.loading.resendPendingVerification}
-                >
-                  {userStore.loading.resendPendingVerification
-                    ? "Sending…"
-                    : pendingEmailExpired
-                      ? "Send New Link"
-                      : "Resend Link"}
-                </button>
-                <button
-                  type="button"
-                  className="pending-email-cancel-btn"
-                  onClick={handleCancelPendingEmail}
-                  title="Cancel this email change request"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
           <ProfileBanner
             bannerId={bannerId}
             onOpenEditModal={() => setShowBannerModal(true)}
             isUpdating={isUpdatingBanner}
+            isLoading={loading}
           />
 
           <div className="profile-body">
-            {/* Header / Avatar / Identity / Actions */}
             <ProfileHeader
               user={user}
               loading={loading}
@@ -565,9 +535,7 @@ function Profile() {
               fileInputRef={fileInputRef}
             />
 
-            {/* Dashboard Grid Layout */}
             <div className="profile-main-grid">
-              {/* Left Column: Profile Completion, About Me, Work Experience */}
               <div className="profile-left-col">
                 {showCompletion && (
                   <ProfileCompletion
@@ -595,7 +563,6 @@ function Profile() {
                 />
               </div>
 
-              {/* Right Column: Personal Information Grid */}
               <div className="profile-right-col">
                 <ProfileInfoGrid
                   loading={loading}
@@ -608,7 +575,6 @@ function Profile() {
         </div>
       </div>
 
-      {/* Lightbox / Modals */}
       {!loading && showImageModal && (
         <div className="image-modal" onClick={() => setShowImageModal(false)}>
           <img
@@ -648,15 +614,13 @@ function Profile() {
         />
       )}
 
-      {showBannerModal && (
-        <ProfileBannerModal
-          isOpen={showBannerModal}
-          onClose={() => setShowBannerModal(false)}
-          currentBannerId={bannerId}
-          onSelectBanner={handleBannerSelect}
-          isSaving={isUpdatingBanner || userStore.loading.updateBanner}
-        />
-      )}
+      <ProfileBannerModal
+        isOpen={showBannerModal}
+        onClose={() => setShowBannerModal(false)}
+        currentBannerId={bannerId}
+        onSelectBanner={handleBannerSelect}
+        isSaving={isUpdatingBanner || userStore.loading.updateBanner}
+      />
     </AppLayout>
   );
 }
