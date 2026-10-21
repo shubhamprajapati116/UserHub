@@ -29,7 +29,7 @@ const getProfile = async (req, res) => {
     });
   }
 };
-const updateProfilePhoto = async (req, res) => {
+const updateProfilePhoto = async (req, res) => { 
   try {
     if (!req.file) {
       return res.status(400).json({

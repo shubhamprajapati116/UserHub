@@ -95,7 +95,10 @@ const registeruser = async (req, res) => {
         message: "Email already exists",
       });
     }
+   
 
+
+  
     const hashedpassword = await bcrypt.hash(req.body.password, 10);
     const verificationToken = crypto.randomBytes(32).toString("hex");
     const verificationTokenExpire = new Date(Date.now() + 72 * 60 * 60 * 1000);
@@ -113,6 +116,8 @@ const registeruser = async (req, res) => {
       verificationTokenExpire: verificationTokenExpire,
     });
 
+
+    
     await user.save();
     const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
 

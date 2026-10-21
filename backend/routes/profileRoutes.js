@@ -86,6 +86,7 @@ router.post(
   authLimiter,
   verifyEmailChangeOtp,
 );
+
 router.post(
   "/profile/resend-email-otp",
   verifyToken,

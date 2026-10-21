@@ -24,6 +24,7 @@ const {
 const { verifyEmail } = require("../controllers/usercontroller");
 
 router.post("/check-email", checkEmailAvailability);
+
 router.post(
   "/register",
   registerLimiter,

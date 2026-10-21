@@ -2,9 +2,11 @@ const request = require("supertest");
 const mongoose = require("mongoose");
 const path = require("path");
 const fs = require("fs");
-const app = require("../server");
-const User = require("../models/user");
+const app = require("../../../server");
+const User = require("../../../models/user");
 const bcrypt = require("bcrypt");
+
+jest.mock("../../utils/sendEmail", () => jest.fn().mockResolvedValue(true));
 
 const baseEmail = "test_register_base@gmail.com";
 const existingEmail = "already_registered_user@gmail.com";
@@ -44,7 +46,7 @@ afterAll(async () => {
   const testUsers = await User.find({ email: { $in: allTestEmails } });
   for (const u of testUsers) {
     if (u.profilephoto) {
-      const filePath = path.join(__dirname, "../uploads", u.profilephoto);
+      const filePath = path.join(__dirname, "../../uploads", u.profilephoto);
       if (fs.existsSync(filePath)) {
         try {
           fs.unlinkSync(filePath);
@@ -189,11 +191,11 @@ describe("POST /register - Complete Register API Test Suite", () => {
       gender: "",
       dob: "1990-01-01",
     });
-    
+
     expect(res.statusCode).toBe(400);
     expect(res.body.field).toBe("gender");
   });
-
+  
   test("TC_11: Gender invalid value hone par 400 Bad Request milna chahiye (sirf male, female, other allowed)", async () => {
     const res = await request(app).post("/register").send({
       name: "Valid Name",
@@ -300,7 +302,6 @@ describe("POST /register - Complete Register API Test Suite", () => {
 
     expect(res.statusCode).toBe(201);
     expect(res.body.message).toContain("Registration successful");
-
     const created = await User.findOne({ email: successEmail1 });
     expect(created).toBeTruthy();
     expect(created.name).toBe("Fresh User Without Photo");

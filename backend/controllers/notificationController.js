@@ -54,7 +54,7 @@ const getNotifications = async (req, res) => {
       message: error.message,
     });
   }
-};
+};  
 
 const markAsRead = async (req, res) => {
   try {
@@ -101,7 +101,7 @@ const markAllAsRead = async (req, res) => {
       { ...filter, isRead: false },
       { $set: { isRead: true } },
     );
-
+    
     return res.status(200).json({
       success: true,
       message: "All notifications marked as read",

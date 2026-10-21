@@ -40,16 +40,6 @@ router.post(
   upload.single("profilephoto"),
   addUser,
 );
-router.get("/api/admin/users/:id", verifyToken, verifyAdmin, getUserById);
-router.put(
-  "/api/admin/users/:id",
-  verifyToken,
-  verifyAdmin,
-  upload.single("profilephoto"),
-  updateuser,
-);
-router.delete("/api/admin/users/:id", verifyToken, verifyAdmin, deleteuser);
-
 router.post(
   "/api/admin/users/bulk-delete",
   verifyToken,
@@ -62,6 +52,16 @@ router.put(
   verifyAdmin,
   bulkUpdateRole,
 );
+
+router.get("/api/admin/users/:id", verifyToken, verifyAdmin, getUserById);
+router.put(
+  "/api/admin/users/:id",
+  verifyToken,
+  verifyAdmin,
+  upload.single("profilephoto"),
+  updateuser,
+);
+router.delete("/api/admin/users/:id", verifyToken, verifyAdmin, deleteuser);
 
 router.get(
   "/api/admin/analytics/user-growth",

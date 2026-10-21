@@ -469,7 +469,14 @@ const deleteuser = async (req, res) => {
     const targetUser = await User.findById(req.params.id).select(
       "profilephoto",
     );
-    if (targetUser?.profilephoto) {
+
+    if (!targetUser) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    if (targetUser.profilephoto) {
       deleteFile(targetUser.profilephoto);
     }
 
@@ -683,7 +690,7 @@ const updateuser = async (req, res) => {
     const user = await User.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true,
-    });
+    }).select("-password");
 
     if (updateData.role && previousUser.role !== updateData.role) {
       await createNotification({
@@ -1046,7 +1053,7 @@ const getUserGrowthAnalytics = async (req, res) => {
     );
 
     const [timelineStats, previousPeriodUsers, totalUsers, previousUsersCount] =
-      await Promise.all([
+      await Promise.all([  
         User.aggregate([
           {
             $match: {

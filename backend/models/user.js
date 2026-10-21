@@ -163,7 +163,12 @@ const UserSchema = new mongoose.Schema(
     },
     invitedAt: { type: Date, default: null },
     inviteAcceptedAt: { type: Date, default: null },
-    inviteTokenHash: { type: String, default: null, index: true, select: false },
+    inviteTokenHash: {
+      type: String,
+      default: null,
+      index: true,
+      select: false,
+    },
     inviteTokenExpire: { type: Date, default: null },
     lastInviteSentAt: { type: Date, default: null },
     inviteDeliveryStatus: {

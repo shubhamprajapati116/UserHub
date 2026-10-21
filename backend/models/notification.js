@@ -16,6 +16,7 @@ const notificationSchema = new mongoose.Schema(
         "password_change",
         "welcome",
         "security_alert",
+        "account_verified",
       ],
       required: true,
     },

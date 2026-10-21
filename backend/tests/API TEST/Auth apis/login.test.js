@@ -1,18 +1,33 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
-const app = require("../server");
-const User = require("../models/user");
+const app = require("../../../server");
+const User = require("../../../models/user");
 const bcrypt = require("bcrypt");
+
+jest.mock("../../utils/sendEmail", () => jest.fn().mockResolvedValue(true));
 
 let testEmail = "test_login_user@gmail.com";
 let testPassword = "Password123";
+
+const allLoginEmails = [
+  testEmail,
+  "unverified_user_99@gmail.com",
+  "pending_invite_user_99@gmail.com",
+  "suspended_user_99@gmail.com",
+  "banned_user_99@gmail.com",
+  "wrong_pass_user_99@gmail.com",
+  "lockout_trigger_user_99@gmail.com",
+  "already_locked_user_99@gmail.com",
+  "trusted_device_user_99@gmail.com",
+  "new_device_user_99@gmail.com",
+];
 
 beforeAll(async () => {
   if (mongoose.connection.readyState === 0) {
     await mongoose.connect(process.env.MONGO_URI);
   }
 
-  await User.deleteOne({ email: testEmail });
+  await User.deleteMany({ email: { $in: allLoginEmails } });
 
   const hashedPassword = await bcrypt.hash(testPassword, 10);
   await User.create({
@@ -25,7 +40,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await User.deleteOne({ email: testEmail });
+  await User.deleteMany({ email: { $in: allLoginEmails } });
   await mongoose.connection.close();
 });
 
@@ -134,6 +149,7 @@ describe("POST /login - Login API Test Suite", () => {
     expect(res.body.message).toContain("invitation is pending");
 
     await User.deleteOne({ email: pendingInviteEmail });
+    
   });
 
   test("TC_09: Suspended user login try kare to 403 Forbidden milna chahiye", async () => {
