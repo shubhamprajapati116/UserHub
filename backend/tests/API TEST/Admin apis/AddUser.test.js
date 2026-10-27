@@ -1,5 +1,5 @@
-jest.mock("../../utils/sendEmail", () => jest.fn().mockResolvedValue(true));
-jest.mock("../../utils/emailValidator", () => ({
+jest.mock("../../../utils/sendEmail", () => jest.fn().mockResolvedValue(true));
+jest.mock("../../../utils/emailValidator", () => ({
   validateEmailDeliverability: jest.fn().mockImplementation(async (email) => {
     if (
       !email ||
@@ -30,8 +30,8 @@ jest.mock("../../utils/emailValidator", () => ({
 const request = require("supertest");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const app = require("../../server");
-const User = require("../../models/user");
+const app = require("../../../server");
+const User = require("../../../models/user");
 
 describe("Admin Add User API Tests", () => {
   let admin;

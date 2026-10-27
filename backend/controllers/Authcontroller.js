@@ -95,10 +95,7 @@ const registeruser = async (req, res) => {
         message: "Email already exists",
       });
     }
-   
 
-
-  
     const hashedpassword = await bcrypt.hash(req.body.password, 10);
     const verificationToken = crypto.randomBytes(32).toString("hex");
     const verificationTokenExpire = new Date(Date.now() + 72 * 60 * 60 * 1000);
@@ -116,8 +113,6 @@ const registeruser = async (req, res) => {
       verificationTokenExpire: verificationTokenExpire,
     });
 
-
-    
     await user.save();
     const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
 
@@ -794,9 +789,7 @@ const getInviteDetails = async (req, res) => {
   try {
     const rawToken = (req.params.token || "").trim();
     if (!rawToken) {
-      return res
-        .status(400)
-        .json({ message: "No invitation token provided." });
+      return res.status(400).json({ message: "No invitation token provided." });
     }
 
     const tokenHash = crypto
@@ -849,9 +842,7 @@ const acceptInvite = async (req, res) => {
   try {
     const rawToken = (req.params.token || "").trim();
     if (!rawToken) {
-      return res
-        .status(400)
-        .json({ message: "No invitation token provided." });
+      return res.status(400).json({ message: "No invitation token provided." });
     }
 
     if (!req.body || typeof req.body !== "object") {
@@ -864,8 +855,14 @@ const acceptInvite = async (req, res) => {
     const { error } = acceptInviteSchema.validate(req.body);
     if (error) {
       return res.status(400).json({
-        field: error.details && error.details[0]?.path ? error.details[0].path[0] : "password",
-        message: error.details && error.details[0]?.message ? error.details[0].message : "Password is required",
+        field:
+          error.details && error.details[0]?.path
+            ? error.details[0].path[0]
+            : "password",
+        message:
+          error.details && error.details[0]?.message
+            ? error.details[0].message
+            : "Password is required",
       });
     }
 
@@ -966,4 +963,3 @@ module.exports = {
   getInviteDetails,
   acceptInvite,
 };
-

@@ -55,7 +55,11 @@ describe("verifyToken Middleware Unit Tests (middleware/verifytoken.js)", () => 
   });
 
   test("TC_03: Token 'null', 'undefined', ya empty ('Bearer ') hone par 401 'Invalid token format' aana chahiye", async () => {
-    for (const invalidHeader of ["Bearer ", "Bearer null", "Bearer undefined"]) {
+    for (const invalidHeader of [
+      "Bearer ",
+      "Bearer null",
+      "Bearer undefined",
+    ]) {
       res.status.mockClear();
       res.json.mockClear();
       req.headers.authorization = invalidHeader;
@@ -224,8 +228,62 @@ describe("verifyToken Middleware Unit Tests (middleware/verifytoken.js)", () => 
 
     await verifyToken(req, res, next);
 
+    expect(Session.findOne).toHaveBeenCalledTimes(1);
     expect(req.user).toEqual(decodedPayload);
     expect(next).toHaveBeenCalledTimes(1);
     expect(res.status).not.toHaveBeenCalled();
+  });
+
+  test("TC_12: Valid JWT lekin missing sessionId (legacy/stateless token with _id) hone par Session lookup skip karke next() call hona chahiye", async () => {
+    req.headers.authorization = "Bearer valid.stateless.token";
+    const decodedWithoutSession = {
+      _id: "stateless_user_456",
+      role: "user",
+    };
+    jwt.verify.mockReturnValue(decodedWithoutSession);
+    mockUserLookup({
+      _id: "stateless_user_456",
+      status: "active",
+      isVerified: true,
+    });
+
+    await verifyToken(req, res, next);
+
+    expect(Session.findOne).not.toHaveBeenCalled();
+    expect(User.findById).toHaveBeenCalledWith("stateless_user_456");
+    expect(req.user).toEqual(decodedWithoutSession);
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  test("TC_13: Invalid authentication context (decoded token me id/_id missing) hone par 401 aana chahiye", async () => {
+    req.headers.authorization = "Bearer token.without.userid";
+    jwt.verify.mockReturnValue({ role: "user" });
+    mockUserLookup(null);
+
+    await verifyToken(req, res, next);
+
+    expect(User.findById).toHaveBeenCalledWith(undefined);
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({
+      message:
+        "User account no longer exists. Please register or log in again.",
+    });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test("TC_14: Database query (User.findById ya Session.findOne) fail hone par 401 fallback response aana chahiye", async () => {
+    req.headers.authorization = "Bearer valid.jwt.token";
+    jwt.verify.mockReturnValue({ id: "user_123" });
+    User.findById.mockReturnValue({
+      select: jest.fn().mockRejectedValue(new Error("MongoDB network timeout")),
+    });
+
+    await verifyToken(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Invalid authentication token. Please login again.",
+    });
+    expect(next).not.toHaveBeenCalled();
   });
 });

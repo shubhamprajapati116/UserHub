@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const path = require("path");
 const fs = require("fs");
-const app = require("../../server");
-const User = require("../../models/user");
-const Session = require("../../models/session");
-const Notification = require("../../models/notification");
+const app = require("../../../server");
+const User = require("../../../models/user");
+const Session = require("../../../models/session");
+const Notification = require("../../../models/notification");
 const prefix = `profile_test_${process.pid}_${Date.now()}`;
 
 async function ensureDb() {
@@ -56,7 +56,7 @@ async function cleanupUser(user) {
   const photoName = dbUser?.profilephoto || user.profilephoto;
 
   if (photoName) {
-    const filePath = path.join(__dirname, "../../uploads", photoName);
+    const filePath = path.join(__dirname, "../../../uploads", photoName);
     if (fs.existsSync(filePath)) {
       try {
         fs.unlinkSync(filePath);

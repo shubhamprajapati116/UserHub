@@ -1,5 +1,5 @@
-jest.mock("../../utils/sendEmail", () => jest.fn().mockResolvedValue(true));
-jest.mock("../../middleware/rateLimiter", () => ({
+jest.mock("../../../utils/sendEmail", () => jest.fn().mockResolvedValue(true));
+jest.mock("../../../middleware/rateLimiter", () => ({
   authLimiter: (req, res, next) => next(),
   emailLimiter: (req, res, next) => next(),
   registerLimiter: (req, res, next) => next(),

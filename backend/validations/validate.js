@@ -13,28 +13,30 @@ const loginschema = joi.object({
   password: joi.string().required(),
   deviceId: joi.string().allow("").optional(),
 });
-const updateUserSchema = joi.object({
-  name: joi.string().trim().min(3).max(50).required(),
-  email: joi.string().trim().email().required(),
-  dob: joi.date().required(),
-  gender: joi.string().valid("male", "female", "other").required(),
-  phone: joi
-    .string()
-    .trim()
-    .pattern(/^[6-9][0-9]{9}$/)
-    .allow("")
-    .optional()
-    .messages({
-      "string.pattern.base": "Please enter a valid 10-digit mobile number",
-    }),
-  bio: joi.string().trim().max(500).allow("").optional(),
-  country: joi.string().trim().max(100).allow("").optional(),
-  state: joi.string().trim().max(100).allow("").optional(),
-  city: joi.string().trim().max(100).allow("").optional(),
-  profilephoto: joi.any().optional(),
-  removePhoto: joi.any().optional(),
-  profileBanner: joi.string().trim().allow("").optional(),
-}).unknown(true);
+const updateUserSchema = joi
+  .object({
+    name: joi.string().trim().min(3).max(50).required(),
+    email: joi.string().trim().email().required(),
+    dob: joi.date().required(),
+    gender: joi.string().valid("male", "female", "other").required(),
+    phone: joi
+      .string()
+      .trim()
+      .pattern(/^[6-9][0-9]{9}$/)
+      .allow("")
+      .optional()
+      .messages({
+        "string.pattern.base": "Please enter a valid 10-digit mobile number",
+      }),
+    bio: joi.string().trim().max(500).allow("").optional(),
+    country: joi.string().trim().max(100).allow("").optional(),
+    state: joi.string().trim().max(100).allow("").optional(),
+    city: joi.string().trim().max(100).allow("").optional(),
+    profilephoto: joi.any().optional(),
+    removePhoto: joi.any().optional(),
+    profileBanner: joi.string().trim().allow("").optional(),
+  })
+  .unknown(true);
 
 const changePasswordValidation = (data) => {
   const changepasswordschema = joi.object({
@@ -74,6 +76,7 @@ const inviteUserSchema = joi.object({
 
 const acceptInviteSchema = joi
   .object({
+    
     password: joi.string().min(8).required().messages({
       "string.empty": "Password is required",
       "string.min": "Password must be at least 8 characters",

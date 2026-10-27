@@ -62,11 +62,15 @@ function suggestDomain(domain) {
 }
 
 function withTimeout(promise, ms) {
+  let timer;
   return Promise.race([
-    promise,
-    new Promise((_, reject) =>
-      setTimeout(() => reject(Object.assign(new Error("DNS timeout"), { code: "ETIMEOUT" })), ms),
-    ),
+    promise.finally(() => clearTimeout(timer)),
+    new Promise((_, reject) => {
+      timer = setTimeout(
+        () => reject(Object.assign(new Error("DNS timeout"), { code: "ETIMEOUT" })),
+        ms,
+      );
+    }),
   ]);
 }
 

@@ -1,5 +1,5 @@
-jest.mock("../../utils/sendEmail", () => jest.fn().mockResolvedValue(true));
-jest.mock("../../middleware/rateLimiter", () => ({
+jest.mock("../../../utils/sendEmail", () => jest.fn().mockResolvedValue(true));
+jest.mock("../../../middleware/rateLimiter", () => ({
   authLimiter: (req, res, next) => next(),
   emailLimiter: (req, res, next) => next(),
   registerLimiter: (req, res, next) => next(),
@@ -154,7 +154,7 @@ describe("Profile Account Security APIs - Change Password & Account Delete", () 
   describe("DELETE /account-delete", () => {
     test("TC_08: Account delete request par user, photo, sessions aur notifications sab delete hone chahiye (200 OK)", async () => {
       const testPhotoName = `avatar-to-delete-${Date.now()}.png`;
-      const uploadDir = path.join(__dirname, "../../uploads");
+      const uploadDir = path.join(__dirname, "../../../uploads");
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }

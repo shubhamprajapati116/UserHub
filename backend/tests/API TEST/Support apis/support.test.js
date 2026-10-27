@@ -1,10 +1,10 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const app = require("../../server");
-const User = require("../../models/user");
-const Ticket = require("../../models/ticket");
-const Notification = require("../../models/notification");
+const app = require("../../../server");
+const User = require("../../../models/user");
+const Ticket = require("../../../models/ticket");
+const Notification = require("../../../models/notification");
 
 describe("Support APIs - System Status & Customer Support Tickets", () => {
   let user1;

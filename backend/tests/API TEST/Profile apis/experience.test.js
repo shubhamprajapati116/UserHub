@@ -1,4 +1,4 @@
-jest.mock("../../utils/sendEmail", () => jest.fn().mockResolvedValue(true));
+jest.mock("../../../utils/sendEmail", () => jest.fn().mockResolvedValue(true));
 
 const request = require("supertest");
 const mongoose = require("mongoose");

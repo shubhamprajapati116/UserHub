@@ -6,7 +6,7 @@ const app = require("../../../server");
 const User = require("../../../models/user");
 const bcrypt = require("bcrypt");
 
-jest.mock("../../utils/sendEmail", () => jest.fn().mockResolvedValue(true));
+jest.mock("../../../utils/sendEmail", () => jest.fn().mockResolvedValue(true));
 
 const baseEmail = "test_register_base@gmail.com";
 const existingEmail = "already_registered_user@gmail.com";
@@ -46,7 +46,7 @@ afterAll(async () => {
   const testUsers = await User.find({ email: { $in: allTestEmails } });
   for (const u of testUsers) {
     if (u.profilephoto) {
-      const filePath = path.join(__dirname, "../../uploads", u.profilephoto);
+      const filePath = path.join(__dirname, "../../../uploads", u.profilephoto);
       if (fs.existsSync(filePath)) {
         try {
           fs.unlinkSync(filePath);

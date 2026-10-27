@@ -1,8 +1,8 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const app = require("../../server");
-const User = require("../../models/user");
+const app = require("../../../server");
+const User = require("../../../models/user");
 
 describe("Update User Status API Tests", () => {
   let admin;

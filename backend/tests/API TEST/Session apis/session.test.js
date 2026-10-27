@@ -1,4 +1,4 @@
-jest.mock("../../middleware/rateLimiter", () => ({
+jest.mock("../../../middleware/rateLimiter", () => ({
   authLimiter: (req, res, next) => next(),
   emailLimiter: (req, res, next) => next(),
   registerLimiter: (req, res, next) => next(),
@@ -10,9 +10,9 @@ jest.mock("../../middleware/rateLimiter", () => ({
 const request = require("supertest");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const app = require("../../server");
-const User = require("../../models/user");
-const Session = require("../../models/session");
+const app = require("../../../server");
+const User = require("../../../models/user");
+const Session = require("../../../models/session");
 
 describe("Session APIs - Device Tracking, Session Revocation & Logout", () => {
   let user1;

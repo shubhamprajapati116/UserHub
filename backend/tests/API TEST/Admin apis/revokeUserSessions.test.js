@@ -1,4 +1,4 @@
-jest.mock("../../utils/sendEmail", () => jest.fn().mockResolvedValue({}));
+jest.mock("../../../utils/sendEmail", () => jest.fn().mockResolvedValue({}));
 const request = require("supertest");
 const {
   app,
@@ -12,7 +12,7 @@ const {
 
 describe("POST /api/admin/users/:id/revoke-session", () => {
   let admin, target, token;
-  beforeAll(async () => {
+  beforeAll(async () => { 
     await ensureDb();
     admin = await makeUser({
       email: `${prefix}_revoke_admin@example.com`,
@@ -63,7 +63,7 @@ describe("POST /api/admin/users/:id/revoke-session", () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.terminatedCount).toBe(1);
-    const updated = await require("../../models/user").findById(target._id);
+    const updated = await require("../../../models/user").findById(target._id);
     expect(await Session.countDocuments({ userId: target._id })).toBe(0);
     expect(updated.loginOtp).toBeNull();
     expect(updated.loginOtpExpire).toBeNull();

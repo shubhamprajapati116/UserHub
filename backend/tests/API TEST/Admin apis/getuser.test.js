@@ -1,9 +1,9 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const app = require("../../server");
+const app = require("../../../server");
 
-const User = require("../../models/user");
+const User = require("../../../models/user");
 
 const testPrefix = "getusers_jest";
 

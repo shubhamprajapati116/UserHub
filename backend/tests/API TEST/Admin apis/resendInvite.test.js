@@ -1,6 +1,6 @@
-jest.mock("../../utils/sendEmail", () => jest.fn().mockResolvedValue({}));
+jest.mock("../../../utils/sendEmail", () => jest.fn().mockResolvedValue({}));
 const request = require("supertest");
-const sendEmail = require("../../utils/sendEmail");
+const sendEmail = require("../../../utils/sendEmail");
 const {
   app,
   User,

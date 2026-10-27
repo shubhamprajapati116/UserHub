@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const app = require("../../server");
-const User = require("../../models/user");
-const Session = require("../../models/session");
-const Notification = require("../../models/notification");
+const app = require("../../../server");
+const User = require("../../../models/user");
+const Session = require("../../../models/session");
+const Notification = require("../../../models/notification");
 const prefix = `admin_api_test_${process.pid}_${Date.now()}`;
 
 async function ensureDb() {

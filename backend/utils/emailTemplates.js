@@ -1,4 +1,3 @@
-
 function baseLayout({ title, badge, badgeColor = "#2563eb", contentHtml }) {
   return `
 <!DOCTYPE html>
@@ -285,7 +284,6 @@ function authorizeEmailChangeEmail({
   });
 }
 
-
 function adminEmailChangePendingVerificationEmail({
   name,
   oldEmail,
@@ -566,7 +564,12 @@ function emergencyLockNoticeEmail({ name, resetUrl }) {
   });
 }
 
-function adminInvitationEmail({ name, invitedByName, acceptUrl, expiresAtStr }) {
+function adminInvitationEmail({
+  name,
+  invitedByName,
+  acceptUrl,
+  expiresAtStr,
+}) {
   const contentHtml = `
     <h1 style="margin:0 0 10px; font-size:22px; font-weight:700; color:#0f172a; letter-spacing:-0.02em;">
       You've Been Invited to UserHub! 🎉
@@ -666,4 +669,3 @@ module.exports = {
   adminInvitationEmail,
   inviteAcceptedWelcomeEmail,
 };
-

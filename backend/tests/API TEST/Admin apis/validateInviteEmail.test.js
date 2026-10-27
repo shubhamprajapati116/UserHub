@@ -1,8 +1,8 @@
-jest.mock("../../utils/emailValidator", () => ({
+jest.mock("../../../utils/emailValidator", () => ({
   validateEmailDeliverability: jest.fn(),
 }));
 const request = require("supertest");
-const { validateEmailDeliverability } = require("../../utils/emailValidator");
+const { validateEmailDeliverability } = require("../../../utils/emailValidator");
 const {
   app,
   prefix,

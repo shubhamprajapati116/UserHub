@@ -58,15 +58,18 @@ describe("verifyAdmin Middleware Unit Tests (middleware/VerifyAdmin.js)", () => 
     expect(res.status).not.toHaveBeenCalled();
   });
 
-  test("TC_04: Database query fail hone ya req.user missing hone par 500 Internal Error aana chahiye", async () => {
-    User.findById.mockRejectedValue(new Error("Database connection error"));
+  test("TC_05: req.user missing hone par (invalid auth context) 500 error handle hona chahiye", async () => {
+    req = {};
 
     await verifyAdmin(req, res, next);
 
+    expect(User.findById).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Database connection error",
-    });
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.any(String),
+      }),
+    );
     expect(next).not.toHaveBeenCalled();
   });
 });

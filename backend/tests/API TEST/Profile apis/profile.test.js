@@ -1,4 +1,4 @@
-jest.mock("../../utils/sendEmail", () => jest.fn().mockResolvedValue(true));
+jest.mock("../../../utils/sendEmail", () => jest.fn().mockResolvedValue(true));
 
 const request = require("supertest");
 const mongoose = require("mongoose");
@@ -249,7 +249,7 @@ describe("Profile APIs - Details, Updates, Photo, Banner & Preferences", () => {
 
       const uploadedFile = path.join(
         __dirname,
-        "../../uploads",
+        "../../../uploads",
         res.body.profilephoto,
       );
       expect(fs.existsSync(uploadedFile)).toBe(true);
@@ -277,7 +277,7 @@ describe("Profile APIs - Details, Updates, Photo, Banner & Preferences", () => {
       
       const uploadedFile = path.join(
         __dirname,
-        "../../uploads",
+        "../../../uploads",
         res.body.profilephoto,
       );
       if (fs.existsSync(uploadedFile)) {

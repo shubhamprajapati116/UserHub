@@ -4,7 +4,7 @@ const app = require("../../../server");
 const User = require("../../../models/user");
 const bcrypt = require("bcrypt");
 
-jest.mock("../../utils/sendEmail", () => jest.fn().mockResolvedValue(true));
+jest.mock("../../../utils/sendEmail", () => jest.fn().mockResolvedValue(true));
 
 let testEmail = "test_login_user@gmail.com";
 let testPassword = "Password123";
