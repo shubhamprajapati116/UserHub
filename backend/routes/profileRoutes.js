@@ -105,10 +105,8 @@ router.post(
   emailLimiter,
   resendPendingEmailVerification,
 );
-
 router.put("/change-password", verifyToken, authLimiter, changepassword);
 router.delete("/account-delete", verifyToken, userApiLimiter, deleteProfile);
-
 router.get(
   "/api/security/emergency-lock/:token",
   authLimiter,

@@ -76,7 +76,6 @@ const inviteUserSchema = joi.object({
 
 const acceptInviteSchema = joi
   .object({
-    
     password: joi.string().min(8).required().messages({
       "string.empty": "Password is required",
       "string.min": "Password must be at least 8 characters",

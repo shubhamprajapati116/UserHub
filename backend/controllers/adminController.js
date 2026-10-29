@@ -685,7 +685,7 @@ const updateuser = async (req, res) => {
       });
     } else {
       updateData.email = previousUser.email;
-    }
+    } 
 
     const user = await User.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
@@ -701,7 +701,7 @@ const updateuser = async (req, res) => {
         metadata: { oldRole: previousUser.role, newRole: updateData.role },
       });
     }
-
+    
     return res.status(200).json({
       message: isEmailChanging
         ? `User details updated! A verification link has been sent to ${requestedEmail}. The current email (${previousUser.email}) remains active until confirmed.`

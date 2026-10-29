@@ -61,7 +61,8 @@ const upload = (fieldName) => {
         if (err.code === "LIMIT_FILE_SIZE") {
           return res.status(400).json({
             field: fieldName,
-            message: "File size exceeds the 5MB limit. Please upload a smaller image.",
+            message:
+              "File size exceeds the 5MB limit. Please upload a smaller image.",
           });
         }
         return res.status(400).json({
