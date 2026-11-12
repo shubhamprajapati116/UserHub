@@ -27,13 +27,6 @@ const { deleteFile } = require("../utils/fileHelper");
 const checkEmailAvailability = async (req, res) => {
   try {
     const rawEmail = req.body?.email;
-    if (!rawEmail || typeof rawEmail !== "string" || !rawEmail.trim()) {
-      return res.status(400).json({
-        field: "email",
-        available: false,
-        message: "Email is required",
-      });
-    }
 
     const email = rawEmail.trim().toLowerCase();
     const existingUser = await User.findOne({ email });
@@ -629,6 +622,7 @@ const resetPassword = async (req, res) => {
     });
   }
 };
+
 const verifyResetToken = async (req, res) => {
   try {
     const { token } = req.params;
@@ -887,14 +881,6 @@ const acceptInvite = async (req, res) => {
       return res.status(404).json({
         message:
           "Invalid or already used invitation link. If you already activated your account, you can sign in directly.",
-      });
-    }
-
-    if (user.inviteTokenExpire && user.inviteTokenExpire < new Date()) {
-      return res.status(410).json({
-        isExpired: true,
-        message:
-          "This invitation link has expired. Please contact your administrator to receive a fresh invitation.",
       });
     }
 

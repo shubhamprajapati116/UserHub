@@ -40,7 +40,8 @@ const verifyToken = async (req, res, next) => {
     if (!userDoc) {
       await Session.deleteMany({ userId }).catch(() => {});
       return res.status(401).json({
-        message: "User account no longer exists. Please register or log in again.",
+        message:
+          "User account no longer exists. Please register or log in again.",
       });
     }
 
@@ -51,13 +52,14 @@ const verifyToken = async (req, res, next) => {
           "Your account has been suspended by administration. Contact support.",
       });
     }
+
     if (userDoc.status === "banned") {
       await Session.deleteMany({ userId: userDoc._id }).catch(() => {});
       return res.status(403).json({
-        message:
-          "Your account has been permanently banned by administration.",
+        message: "Your account has been permanently banned by administration.",
       });
     }
+
     if (userDoc.isVerified === false) {
       await Session.deleteMany({ userId: userDoc._id }).catch(() => {});
       return res.status(401).json({

@@ -8,7 +8,7 @@ const getClientIp = (req) => {
   );
 };
 
-const authLimiter = setRateLimit({
+const authLimiter = setRateLimit({ 
   windowMs: 15 * 60 * 1000,
   max: 5,
   skipSuccessfulRequests: true,

@@ -84,35 +84,11 @@ router.post("/support/ticket", verifyToken, async (req, res) => {
       category: finalCategory,
       priority: finalPriority,
       subject: subject.trim(),
-      message: message.trim(),
+      message: message.trim(), 
       status: "open",
       estimatedResponseTime,
     });
-
     await newTicket.save();
-
-    try {
-      const admins = await User.find({ role: "admin" }).select("_id");
-      for (const admin of admins) {
-        if (admin._id.toString() !== user._id.toString()) {
-          await createNotification({
-            userId: admin._id,
-            type: "security_alert",
-            title: `Support Ticket [${ticketId}]`,
-            message: `${user.name || user.email} submitted a ${finalPriority.toUpperCase()} priority ticket: "${subject.trim()}"`,
-            metadata: {
-              ticketId,
-              category: finalCategory,
-              priority: finalPriority,
-              fromUser: user.email,
-            },
-          });
-        }
-      }
-    } catch (notifyErr) {
-      console.error("Failed to notify admins of support ticket:", notifyErr.message);
-    }
-
     try {
       await createNotification({
         userId: user._id,
@@ -126,7 +102,10 @@ router.post("/support/ticket", verifyToken, async (req, res) => {
         },
       });
     } catch (userNotifyErr) {
-      console.error("Failed to notify user of ticket creation:", userNotifyErr.message);
+      console.error(
+        "Failed to notify user of ticket creation:",
+        userNotifyErr.message,
+      );
     }
 
     return res.status(201).json({

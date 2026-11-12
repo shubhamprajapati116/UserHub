@@ -71,7 +71,6 @@ router.get(
 );
 router.get("/api/admin/stats", verifyToken, verifyAdmin, getAdminStats);
 router.get("/admin/stats", verifyToken, verifyAdmin, getAdminStats);
-
 router.put("/api/admin/users/:id/role", verifyToken, verifyAdmin, makeAdmin);
 router.patch(
   "/api/admin/users/:id/status",
@@ -98,7 +97,6 @@ router.post(
   emailLimiter,
   resendPendingEmailVerification,
 );
-
 router.post(
   "/api/admin/users/:id/resend-invite",
   verifyToken,
@@ -112,5 +110,4 @@ router.delete(
   verifyAdmin,
   cancelInvite,
 );
-
 module.exports = router;

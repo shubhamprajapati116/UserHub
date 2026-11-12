@@ -217,7 +217,6 @@ const getUsers = async (req, res) => {
     if (gender) {
       query.gender = { $regex: gender, $options: "i" };
     }
-
     if (country) {
       query.country = { $regex: country, $options: "i" };
     }
@@ -685,7 +684,7 @@ const updateuser = async (req, res) => {
       });
     } else {
       updateData.email = previousUser.email;
-    } 
+    }
 
     const user = await User.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
@@ -701,7 +700,7 @@ const updateuser = async (req, res) => {
         metadata: { oldRole: previousUser.role, newRole: updateData.role },
       });
     }
-    
+
     return res.status(200).json({
       message: isEmailChanging
         ? `User details updated! A verification link has been sent to ${requestedEmail}. The current email (${previousUser.email}) remains active until confirmed.`
@@ -1051,9 +1050,8 @@ const getUserGrowthAnalytics = async (req, res) => {
     const previousStartDate = new Date(
       startDate.getTime() - (now.getTime() - startDate.getTime()),
     );
-
     const [timelineStats, previousPeriodUsers, totalUsers, previousUsersCount] =
-      await Promise.all([  
+      await Promise.all([
         User.aggregate([
           {
             $match: {
@@ -1187,15 +1185,12 @@ const revokeUserSessions = async (req, res) => {
           "This account has not accepted their invitation yet and has no active sessions.",
       });
     }
-
     const deleteResult = await Session.deleteMany({ userId: user._id });
-
     user.loginOtp = null;
     user.loginOtpExpire = null;
     user.trustedDevices = [];
 
     await user.save();
-
     const loginUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/login`;
     sendEmail(
       user.email,

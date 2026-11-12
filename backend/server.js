@@ -1,5 +1,4 @@
 require("dotenv").config();
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -21,7 +20,7 @@ app.use(
     credentials: true,
   }),
 );
-app.use(globalLimiter);
+app.use(globalLimiter); 
 app.use("/uploads", express.static("uploads"));
 app.get("/", (req, res) => {
   res.send("Backend Running");
