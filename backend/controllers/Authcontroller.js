@@ -65,7 +65,6 @@ const registeruser = async (req, res) => {
     }
 
     const normalizedEmail = (req.body.email || "").trim().toLowerCase();
-
     const deliverability = await validateEmailDeliverability(normalizedEmail);
     if (!deliverability.valid) {
       if (req.file) deleteFile(req.file.filename);

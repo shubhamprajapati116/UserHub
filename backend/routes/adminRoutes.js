@@ -31,7 +31,6 @@ router.post(
   verifyAdmin,
   validateInviteEmail,
 );
-
 router.get("/api/admin/users", verifyToken, verifyAdmin, getUsers);
 router.post(
   "/api/admin/users",
